@@ -166,7 +166,7 @@ export default function ValidatorSelectorOperatorsPage() {
 
       const fee = await getActionFee(ClusterNodeActionFee.GENERATE_DEPOSIT_DATA);
 
-      const approveResult = await approveAllowance(fee!);
+      const approveResult = await approveAllowance(fee! * BigInt(validatorCount));
 
       if (!approveResult.isTokenEnough) {
         enqueueSnackbar('Insufficient balance', { variant: 'error' });

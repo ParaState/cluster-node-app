@@ -230,6 +230,27 @@ export default function OverviewAppView() {
   }
 
   if (initiatorStatus?.status === 'Completed') {
+    if (initiatorStatus?.owner !== address) {
+      return (
+        <Container
+          maxWidth="xl"
+          sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        >
+          <Box
+            sx={{
+              height: {
+                xs: HEADER.H_MOBILE,
+                md: HEADER.H_DESKTOP,
+              },
+            }}
+          />
+          <Typography variant="h6" mb={2}>
+            You are not the owner of the initiator.
+          </Typography>
+        </Container>
+      );
+    }
+
     return (
       <Container
         maxWidth="xl"
