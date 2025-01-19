@@ -2,6 +2,10 @@
 
 - Node 18.x
 
+## ENV
+
+cp .env.example .env
+
 ## USING pnpm
 
 - pnpm i
