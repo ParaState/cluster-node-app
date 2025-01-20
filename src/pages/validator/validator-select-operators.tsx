@@ -46,9 +46,9 @@ import { useSelectedOperators } from '@/stores';
 
 import Iconify from '@/components/iconify';
 import Scrollbar from '@/components/scrollbar';
+import { CommonBack } from '@/components/common';
 import { StyledTableCell } from '@/components/table';
 import { OperatorTypeFilter } from '@/components/operator';
-import { CommonBack, CommonSortIcon } from '@/components/common';
 import { OperatorInfo } from '@/components/operator/operator-info';
 import { OperatorCommitteeSizeSelector } from '@/components/operator/operator-committee-size-selector';
 
@@ -286,7 +286,7 @@ export default function ValidatorSelectorOperatorsPage() {
                           Name
                         </Typography>
 
-                        <CommonSortIcon sort={sortType} isActive={sortId === 'name'} />
+                        {/* <CommonSortIcon sort={sortType} isActive={sortId === 'name'} /> */}
                       </Stack>
                     </StyledTableCell>
                     <StyledTableCell
@@ -299,7 +299,7 @@ export default function ValidatorSelectorOperatorsPage() {
                         <Typography variant="caption" py={0.8} pl={1}>
                           ID
                         </Typography>
-                        <CommonSortIcon sort={sortType} isActive={sortId === 'id'} />
+                        {/* <CommonSortIcon sort={sortType} isActive={sortId === 'id'} /> */}
                       </Stack>
                     </StyledTableCell>
 
@@ -320,7 +320,7 @@ export default function ValidatorSelectorOperatorsPage() {
                           <Typography variant="caption" py={0.8} pl={1}>
                             Validator
                           </Typography>
-                          <CommonSortIcon sort={sortType} isActive={sortId === 'validator_count'} />
+                          {/* <CommonSortIcon sort={sortType} isActive={sortId === 'validator_count'} /> */}
                         </Stack>
 
                         {false && (
