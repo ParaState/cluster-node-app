@@ -1,6 +1,6 @@
 ## NODE.JS
 
-- Node >= 18.x
+Go to https://nodejs.org/en/download and install Node.js >= 18.x
 
 ## ENV
 
