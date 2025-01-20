@@ -1,6 +1,5 @@
 import { useAccount } from 'wagmi';
 import { AxiosError } from 'axios';
-import { isAddressEqual } from 'viem';
 import { useSnackbar } from 'notistack';
 import { useState, useEffect } from 'react';
 
@@ -246,7 +245,12 @@ export default function OverviewAppView() {
   };
 
   const goToSelectOperators = () => {
-    if (!isAddressEqual(initiatorStatus?.owner!, address!)) {
+    if (!initiatorStatus?.owner) {
+      enqueueSnackbar('Please bind your initiator owner first', { variant: 'warning' });
+      return;
+    }
+
+    if (initiatorStatus?.owner !== address) {
       enqueueSnackbar(
         `You are not the owner of the initiator, owner address: ${initiatorStatus?.owner}`,
         {
