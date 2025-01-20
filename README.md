@@ -1,20 +1,12 @@
 ## NODE.JS
 
-- Node 18.x
+- Node >= 18.x
 
 ## ENV
 
-cp .env.example .env
+Run `cp .env.example .env` and change `VITE_TARGET_URL` to your target URL.
 
 ## USING pnpm
 
-- pnpm i
+- pnpm install
 - pnpm run dev
-
-# deployment
-
-main branch for mainnet
-
-testnet branch for testnet
-
-dev branch for internal developers
