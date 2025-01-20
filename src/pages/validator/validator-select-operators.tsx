@@ -253,7 +253,7 @@ export default function ValidatorSelectorOperatorsPage() {
               </Grid>
             )}
             <TableContainer
-              sx={{ position: 'relative', maxHeight: 600, overflow: 'auto' }}
+              sx={{ position: 'relative', maxHeight: 760, overflow: 'auto' }}
               onScroll={(e) => {
                 handleScroll(e);
               }}

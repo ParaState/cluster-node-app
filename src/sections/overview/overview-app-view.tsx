@@ -1,13 +1,13 @@
 import { useAccount } from 'wagmi';
 import { AxiosError } from 'axios';
+import { isAddressEqual } from 'viem';
 import { useSnackbar } from 'notistack';
 import { useState, useEffect } from 'react';
 
 import Stack from '@mui/material/Stack';
-import { useTheme } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Card, styled, Divider, Typography } from '@mui/material';
 
 import { useRouter } from '@/routes/hooks';
 
@@ -19,19 +19,75 @@ import { useBoolean } from '@/hooks';
 import { HEADER } from '@/layouts/config-layout';
 import { IResponseInitiatorStatus } from '@/types';
 
+import Iconify from '@/components/iconify';
 import LoadingScreen from '@/components/loading-screen/loading-screen';
 
-import AppWidget from './app-widget';
-import AppAreaInstalled from './app-area-installed';
-import AppWidgetSummary from './app-widget-summary';
-import AppCurrentDownload from './app-current-download';
+const CircleBox = styled(Box)(({ theme }) => ({
+  width: 24,
+  height: 24,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '50%',
+  backgroundColor: theme.palette.primary.main,
+  color: 'white',
+}));
 
-// ----------------------------------------------------------------------
+const yesIcon = <Iconify color="#21D7B5" textAlign="center" icon="healthicons:yes" />;
+
+const SetupItem = ({
+  title,
+  description,
+  checked,
+  onClick,
+  index,
+  divider = true,
+  buttonText = 'check',
+  loading = false,
+  disabled = false,
+}: {
+  loading?: boolean;
+  index: string;
+  title: string;
+  description?: React.ReactNode;
+  checked: boolean;
+  onClick: () => void;
+  divider?: boolean;
+  buttonText?: string;
+  disabled?: boolean;
+}) => {
+  return (
+    <>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+        <Stack direction="row" spacing={2}>
+          <CircleBox>{index}</CircleBox>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="body1">{title}</Typography>
+            {checked && yesIcon}
+          </Stack>
+        </Stack>
+        <LoadingButton
+          loading={loading}
+          variant="contained"
+          size="small"
+          onClick={onClick}
+          sx={{
+            textTransform: 'capitalize',
+            minWidth: 80,
+          }}
+          disabled={disabled}
+        >
+          {buttonText}
+        </LoadingButton>
+      </Stack>
+      {description}
+      {divider && <Divider />}
+    </>
+  );
+};
 
 export default function OverviewAppView() {
   const router = useRouter();
-
-  const theme = useTheme();
 
   const loading = useBoolean();
 
@@ -43,11 +99,15 @@ export default function OverviewAppView() {
 
   const [clusterNode, setClusterNode] = useState<Awaited<ReturnType<typeof getClusterNode>>>();
 
-  const [statusText, setStatusText] = useState<string>('');
+  // const [serviceErrorText, setServiceErrorText] = useState<string>('');
+
+  // const [initiatorErrorText, setInitiatorErrorText] = useState<string>('');
 
   const [initiatorStatus, setInitiatorStatus] = useState<IResponseInitiatorStatus>();
 
   const { enqueueSnackbar } = useSnackbar();
+
+  const serviceOk = useBoolean(false);
 
   // not registered
   // {
@@ -62,29 +122,69 @@ export default function OverviewAppView() {
   //   }
   // }
 
-  const fetchClusterNode = async () => {
+  const getInitiatorStatus = async () => {
     try {
-      loading.onTrue();
-      setStatusText('');
+      // setServiceErrorText('');
 
       const result = await services.clusterNode.getInitiatorStatus();
       setInitiatorStatus(result);
-
-      const node = await getClusterNode(result?.cluster_pubkey!);
-      setClusterNode(node);
+      serviceOk.onTrue();
+      return result;
     } catch (error) {
       if (error?.data?.code === 1001) {
-        setStatusText(
-          `Please set cluster node service first. Error Message: ${error.data.message}`
+        // setServiceErrorText(
+        //   `Please set cluster node service first. Error Message: ${error.data.message}`
+        // );
+        enqueueSnackbar(
+          `Please set cluster node service first. Error Message: ${error.data.message}`,
+          { variant: 'error' }
         );
-        return;
       }
 
       if (error instanceof AxiosError) {
         if (error?.status && error?.status >= 400 && error?.status < 599) {
-          setStatusText(`Server error: ${error.status}, please set cluster node service first.`);
+          enqueueSnackbar(`Server error: ${error.status}, please set cluster node service first.`, {
+            variant: 'error',
+          });
+          // setServiceErrorText(
+          //   `Server error: ${error.status}, please set cluster node service first.`
+          // );
         }
       }
+      serviceOk.onFalse();
+      console.error('Error fetching cluster node:', error);
+      throw error;
+    }
+  };
+
+  const fetchClusterNode = async () => {
+    try {
+      loading.onTrue();
+
+      const result = await getInitiatorStatus();
+
+      const node = await getClusterNode(result?.cluster_pubkey!);
+      setClusterNode(node);
+      // if (node.isRegistered && node.owner) {
+      //   setInitiatorErrorText('');
+      // } else {
+      //   setInitiatorErrorText('Please bind your initiator owner first');
+      // }
+    } catch (error) {
+      // if (error?.data?.code === 1001) {
+      //   setServiceErrorText(
+      //     `Please set cluster node service first. Error Message: ${error.data.message}`
+      //   );
+      //   return;
+      // }
+
+      // if (error instanceof AxiosError) {
+      //   if (error?.status && error?.status >= 400 && error?.status < 599) {
+      //     setServiceErrorText(
+      //       `Server error: ${error.status}, please set cluster node service first.`
+      //     );
+      //   }
+      // }
       console.error('Error fetching cluster node:', error);
     } finally {
       loading.onFalse();
@@ -118,8 +218,20 @@ export default function OverviewAppView() {
   };
 
   const bindInitiatorOwner = async () => {
+    if (initiatorStatus?.owner) {
+      enqueueSnackbar(`Initiator already have owner, address: ${initiatorStatus?.owner}`, {
+        variant: 'warning',
+      });
+      return;
+    }
+
     if (initiatorStatus?.status !== 'Ready') {
-      enqueueSnackbar('Please wait for initiator status to be ready', { variant: 'error' });
+      enqueueSnackbar(
+        `Please wait for initiator status to be ready, status: ${initiatorStatus?.status}`,
+        {
+          variant: 'warning',
+        }
+      );
       await fetchClusterNode();
       return;
     }
@@ -131,6 +243,30 @@ export default function OverviewAppView() {
     } catch (error) {
       console.error('Error binding initiator owner:', error);
     }
+  };
+
+  const goToSelectOperators = () => {
+    if (!isAddressEqual(initiatorStatus?.owner!, address!)) {
+      enqueueSnackbar(
+        `You are not the owner of the initiator, owner address: ${initiatorStatus?.owner}`,
+        {
+          variant: 'warning',
+        }
+      );
+      return;
+    }
+
+    if (initiatorStatus?.status !== 'Completed') {
+      enqueueSnackbar(
+        `Please wait for initiator status to be completed, status: ${initiatorStatus?.status}`,
+        {
+          variant: 'warning',
+        }
+      );
+      return;
+    }
+
+    router.push(config.routes.validator.selectOperators);
   };
 
   if (loading.value) {
@@ -148,138 +284,44 @@ export default function OverviewAppView() {
     );
   }
 
-  if (statusText) {
-    return (
-      <Container maxWidth="xl">
-        <Typography variant="h6">{statusText}</Typography>
-      </Container>
-    );
-  }
+  // if (statusText) {
+  //   return (
+  //     <Container maxWidth="xl">
+  //       <Typography variant="h6">{statusText}</Typography>
+  //     </Container>
+  //   );
+  // }
 
-  console.log('🚀 ~ OverviewAppView ~ clusterNode:', clusterNode);
+  // console.log('🚀 ~ OverviewAppView ~ clusterNode:', clusterNode);
 
-  if (!clusterNode?.isRegistered) {
-    return (
-      <Container
-        maxWidth="xl"
-        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-      >
-        <Box
-          sx={{
-            height: {
-              xs: HEADER.H_MOBILE,
-              md: HEADER.H_DESKTOP,
-            },
-          }}
-        />
-        <Typography variant="h6" mb={2}>
-          Please register cluster node first.
-        </Typography>
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          onClick={registerClusterNodeClick}
-          loading={registerClusterNodeLoading.value}
-        >
-          Register Cluster Node
-        </LoadingButton>
-      </Container>
-    );
-  }
-
-  if (clusterNode?.isRegistered && !initiatorStatus?.owner) {
-    // registered
-    // {
-    //   "code": 200,
-    //   "message": "ok",
-    //   "data": {
-    //     "cluster_pubkey": "0x02f2af66dcd421515279e16cb40714d241f14dfe12666b6e36901c71e9df2d9eab",
-    //     "created_at": 1736822759,
-    //     "owner": "0xE9ff6124688E153a57AB70c7869d8B235c1BE781",
-    //     "status": "Completed",
-    //     "updated_at": 1736825737
-    //   }
-    // }
-
-    return (
-      <Container
-        maxWidth="xl"
-        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-      >
-        <Box
-          sx={{
-            height: {
-              xs: HEADER.H_MOBILE,
-              md: HEADER.H_DESKTOP,
-            },
-          }}
-        />
-        <Typography variant="h6" mb={2}>
-          Please bind initiator owner first.
-        </Typography>
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          onClick={bindInitiatorOwner}
-          loading={registerClusterNodeLoading.value}
-        >
-          Bind Initiator Owner
-        </LoadingButton>
-      </Container>
-    );
-  }
-
-  if (initiatorStatus?.status === 'Completed') {
-    if (initiatorStatus?.owner !== address) {
-      return (
-        <Container
-          maxWidth="xl"
-          sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-        >
-          <Box
-            sx={{
-              height: {
-                xs: HEADER.H_MOBILE,
-                md: HEADER.H_DESKTOP,
-              },
-            }}
-          />
-          <Typography variant="h6" mb={2}>
-            You are not the owner of the initiator.
-          </Typography>
-        </Container>
-      );
-    }
-
-    return (
-      <Container
-        maxWidth="xl"
-        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-      >
-        <Box
-          sx={{
-            height: {
-              xs: HEADER.H_MOBILE,
-              md: HEADER.H_DESKTOP,
-            },
-          }}
-        />
-        <Typography variant="h6" mb={2}>
-          Go to select operators.
-        </Typography>
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            router.push(config.routes.validator.selectOperators);
-          }}
-          loading={registerClusterNodeLoading.value}
-        >
-          Go to select operators
-        </LoadingButton>
-      </Container>
-    );
-  }
+  // if (!clusterNode?.isRegistered) {
+  //   return (
+  //     <Container
+  //       maxWidth="xl"
+  //       sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+  //     >
+  //       <Box
+  //         sx={{
+  //           height: {
+  //             xs: HEADER.H_MOBILE,
+  //             md: HEADER.H_DESKTOP,
+  //           },
+  //         }}
+  //       />
+  //       <Typography variant="h6" mb={2}>
+  //         Please register cluster node first.
+  //       </Typography>
+  //       <LoadingButton
+  //         variant="contained"
+  //         color="primary"
+  //         onClick={registerClusterNodeClick}
+  //         loading={registerClusterNodeLoading.value}
+  //       >
+  //         Register Cluster Node
+  //       </LoadingButton>
+  //     </Container>
+  //   );
+  // }
 
   return (
     <Container
@@ -294,130 +336,106 @@ export default function OverviewAppView() {
           },
         }}
       />
-      <Grid container spacing={3}>
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total Active Users"
-            percent={2.6}
-            total={18765}
-            chart={{
-              series: [5, 18, 12, 51, 68, 11, 39, 37, 27, 20],
-            }}
-          />
-        </Grid>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total Installed"
-            percent={0.2}
-            total={4876}
-            chart={{
-              colors: [theme.palette.info.light, theme.palette.info.main],
-              series: [20, 41, 63, 33, 28, 35, 50, 46, 11, 26],
-            }}
-          />
-        </Grid>
+      <Typography variant="h2" py={10}>
+        <Typography display="inline" variant="inherit" color="primary.main" px={1}>
+          Cluster Node
+        </Typography>
+        Setup Instructions
+      </Typography>
 
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total Downloads"
-            percent={-0.1}
-            total={678}
-            chart={{
-              colors: [theme.palette.warning.light, theme.palette.warning.main],
-              series: [8, 9, 31, 8, 16, 37, 8, 33, 46, 31],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentDownload
-            title="Current Download"
-            chart={{
-              series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppAreaInstalled
-            title="Area Installed"
-            subheader="(+43%) than last year"
-            chart={{
-              categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec',
-              ],
-              series: [
-                {
-                  year: '2019',
-                  data: [
-                    {
-                      name: 'Asia',
-                      data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
-                    },
-                    {
-                      name: 'America',
-                      data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
-                    },
-                  ],
-                },
-                {
-                  year: '2020',
-                  data: [
-                    {
-                      name: 'Asia',
-                      data: [51, 35, 41, 10, 91, 69, 62, 148, 91, 69, 62, 49],
-                    },
-                    {
-                      name: 'America',
-                      data: [56, 13, 34, 10, 77, 99, 88, 45, 77, 99, 88, 77],
-                    },
-                  ],
-                },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <Stack spacing={3}>
-            <AppWidget
-              title="Conversion"
-              total={38566}
-              icon="solar:user-rounded-bold"
-              chart={{
-                series: 48,
-              }}
-            />
-
-            <AppWidget
-              title="Applications"
-              total={55566}
-              icon="fluent:mail-24-filled"
-              color="info"
-              chart={{
-                series: 75,
-              }}
-            />
+      <Card sx={{ p: 3, py: 4, minWidth: 600 }}>
+        <Stack direction="column" spacing={2}>
+          {/* <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+            <Stack direction="row" spacing={2}>
+              <CircleBox>1</CircleBox>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Typography variant="body1">Check your service is available</Typography>
+                {serviceOk.value && yesIcon}
+              </Stack>
+            </Stack>
+            <LoadingButton variant="contained" size="small" onClick={getInitiatorStatus}>
+              Check
+            </LoadingButton>
           </Stack>
-        </Grid>
-      </Grid>
+          {serviceErrorText && (
+            <Typography variant="body1" color="error">
+              {serviceErrorText}
+            </Typography>
+          )} */}
+          <SetupItem
+            index="1"
+            title="Check your service is available"
+            // description={
+            //   serviceErrorText && (
+            //     <Typography variant="body1" color="error">
+            //       {serviceErrorText}
+            //     </Typography>
+            //   )
+            // }
+            checked={serviceOk.value}
+            onClick={getInitiatorStatus}
+          />
+
+          <SetupItem
+            index="2"
+            title="Register cluster node into contract"
+            checked={!!clusterNode?.isRegistered}
+            onClick={registerClusterNodeClick}
+            buttonText="register"
+            disabled={clusterNode?.isRegistered}
+            loading={registerClusterNodeLoading.value}
+          />
+
+          <SetupItem
+            index="3"
+            title="Bind your initiator owner with address"
+            checked={!!initiatorStatus?.owner}
+            onClick={bindInitiatorOwner}
+            buttonText="bind"
+          />
+
+          <SetupItem
+            index="4"
+            title="Select operators to generate deposit data"
+            checked={initiatorStatus?.status === 'Completed' && initiatorStatus?.owner === address}
+            onClick={goToSelectOperators}
+            buttonText="run"
+            divider={false}
+          />
+
+          {/* <Stack direction="row" spacing={2}>
+            <CircleBox>2</CircleBox>
+            <Typography variant="body1" gutterBottom>
+              {`Bind your initiator owner address by clicking "Bind Initiator Owner"`}
+            </Typography>
+          </Stack>
+
+          <Divider />
+          <Stack direction="row" spacing={2}>
+            <CircleBox>3</CircleBox>
+            <Typography variant="body1" gutterBottom>
+              Navigate to the Validator section to create and manage your validators
+            </Typography>
+          </Stack>
+          <Divider />
+
+          <Stack direction="row" spacing={2}>
+            <CircleBox>4</CircleBox>
+            <Typography variant="body1" gutterBottom>
+              Select network operators to run your validator nodes
+            </Typography>
+          </Stack>
+          <Divider />
+
+          <Stack direction="row" spacing={2}>
+            <CircleBox>5</CircleBox>
+            <Typography variant="body1" gutterBottom>
+              Run your validator nodes
+            </Typography>
+          </Stack> */}
+        </Stack>
+      </Card>
     </Container>
   );
 }
