@@ -10,7 +10,6 @@ import { useClusterNode } from '@/hooks/contract';
 import { getClusterPubkey, setClusterPubkey } from '@/utils/storage-available';
 
 import services from '@/services';
-import { IResponseValidatorStatusEnum } from '@/types';
 
 export default function TestClusterPage() {
   const { address } = useAccount();
@@ -88,11 +87,10 @@ export default function TestClusterPage() {
   };
 
   const queryValidatorStatusClick = async () => {
-    const result = await services.clusterNode.queryValidatorStatus(
-      IResponseValidatorStatusEnum.registered
-    );
-
-    console.log('🚀 ~ queryValidatorStatusClick ~ result:', result);
+    // const result = await services.clusterNode.queryValidatorStatus(
+    //   IResponseValidatorStatusEnum.registered
+    // );
+    // console.log('🚀 ~ queryValidatorStatusClick ~ result:', result);
   };
 
   const updateValidatorStatusClick = async () => {

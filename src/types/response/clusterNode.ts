@@ -11,12 +11,16 @@ export enum IResponseValidatorStatusEnum {
   registered = 'registered',
   deposited = 'deposited',
   exited = 'exited',
+  all = 'all',
 }
 
 export interface IResponseClusterNodeValidatorItem {
   cluster_pubkey: string;
   created_at: number;
   deposit_data: string;
+  deposit_txid?: string;
+  exit_txid?: string;
+  generate_txid: string;
   id: number;
   operators: {
     encrypt_key: string;
@@ -26,6 +30,7 @@ export interface IResponseClusterNodeValidatorItem {
   }[];
   owner: string;
   pubkey: string;
+  register_txid?: string;
   status: string;
   updated_at: number;
 }

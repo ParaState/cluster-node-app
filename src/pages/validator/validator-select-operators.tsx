@@ -76,7 +76,6 @@ export default function ValidatorSelectorOperatorsPage() {
     isSelectedOperators,
     allSelectedOperatorsVerified,
     isSelectedEnoughOperators,
-    isExceedMaxOperators,
     currentCommitteeSize,
     must2verifiedOperators,
   } = useSelectedOperators();
@@ -150,14 +149,14 @@ export default function ValidatorSelectorOperatorsPage() {
   }, 600);
 
   const onSelectOperatorsClick = async () => {
-    if (isExceedMaxOperators) {
-      // enqueueSnackbar('Operator reached maximum amount of validators', { variant: 'error' });
-      enqueueSnackbar(
-        `One or more operators have reached the maximum allowed number of validators, which is currently set to ${config.maxValidatorCount}.`,
-        { variant: 'error' }
-      );
-      return;
-    }
+    // if (isExceedMaxOperators) {
+    //   // enqueueSnackbar('Operator reached maximum amount of validators', { variant: 'error' });
+    //   enqueueSnackbar(
+    //     `One or more operators have reached the maximum allowed number of validators, which is currently set to ${config.maxValidatorCount}.`,
+    //     { variant: 'error' }
+    //   );
+    //   return;
+    // }
 
     try {
       generateLoading.onTrue();
@@ -176,8 +175,8 @@ export default function ValidatorSelectorOperatorsPage() {
       await generateDepositData(
         result.cluster_pubkey,
         validatorCount,
-        // [12, 14, 15, 16],
-        selectedOperators.map((op) => op.id),
+        [12, 14, 15, 16],
+        // selectedOperators.map((op) => op.id),
         parseEther('32'),
         address!
       );
@@ -568,7 +567,7 @@ export default function ValidatorSelectorOperatorsPage() {
                   size="large"
                   type="submit"
                   variant="soft"
-                  loading={false}
+                  loading={generateLoading.value}
                   disabled={!isSelectedEnoughOperators || !must2verifiedOperators}
                   onClick={onSelectOperatorsClick}
                 >

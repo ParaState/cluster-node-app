@@ -23,8 +23,10 @@ const ValidatorSelectOperatorsPage = lazy(
   () => import('@/pages/validator/validator-select-operators')
 );
 const ValidatorSuccessPage = lazy(() => import('@/pages/validator/validator-success'));
-const ValidatorSlashWarningPage = lazy(() => import('@/pages/validator/validator-slash-warning'));
-const ValidatorConfirmPage = lazy(() => import('@/pages/validator/validator-confirm'));
+
+const ValidatorClusterConfirmPage = lazy(
+  () => import('@/pages/validator/validator-cluster-confirm')
+);
 
 export default function Router() {
   return useRoutes([
@@ -92,12 +94,8 @@ export default function Router() {
           element: <ValidatorSelectOperatorsPage />,
         },
         {
-          path: config.routes.validator.slashingWarning,
-          element: <ValidatorSlashWarningPage />,
-        },
-        {
           path: config.routes.validator.confirm,
-          element: <ValidatorConfirmPage />,
+          element: <ValidatorClusterConfirmPage />,
         },
         { path: config.routes.validator.success, element: <ValidatorSuccessPage /> },
       ],

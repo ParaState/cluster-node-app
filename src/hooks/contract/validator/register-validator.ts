@@ -1,13 +1,7 @@
 import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 
-import Encryption from '@/utils/crypto/Encryption/Encryption';
-import { Threshold, ISharesKeyPairs } from '@/utils/crypto/Threshold';
-
-import { CurrentFeeMode } from '@/types';
-import { useSelectedOperators } from '@/stores';
 import { networkContract } from '@/config/contract';
-
-import { useGlobalConfig } from '@/components/global-config-init';
+import { IResponseClusterNodeValidatorItem } from '@/types';
 
 const errorMap = {
   A1: 'Validator already exists',
@@ -21,40 +15,43 @@ const errorMap = {
 };
 
 export const useRegisterValidator = () => {
-  type RegisterValidatorParamsType = Awaited<ReturnType<typeof createRegisterValidatorParams>>;
-
   const { writeContractAsync } = useWriteContract();
   const client = usePublicClient();
-  const { selectedOperators, keyStorePrivateKeys, currentCommitteeSize } = useSelectedOperators();
-  const { getSubscriptionFeeFeeByFeeMode } = useGlobalConfig();
-
-  const isBatchRegister = keyStorePrivateKeys.length > 1;
+  // const { currentCommitteeSize } = useSelectedOperators();
+  // const { getSubscriptionFeeFeeByFeeMode } = useGlobalConfig();
 
   const { address } = useAccount();
 
-  const prepareContractConfig = (params: RegisterValidatorParamsType) => {
-    // console.group('estimateGasForRegisterValidator');
-    // console.log(JSON.stringify(params.validatorPublicKeys));
-    // console.log(JSON.stringify(params.operatorIds));
-    // console.log(JSON.stringify(params.sharePublicKeys));
-    // console.log(JSON.stringify(params.sharesEncrypted.map((item) => item)));
-    // console.log(params.paySubscriptionFee);
-    // console.log(networkContract.address);
-    // console.groupEnd();
+  const prepareClusterNodeContractConfig = (
+    validators: IResponseClusterNodeValidatorItem[],
+    paySubscriptionFee: bigint
+  ) => {
+    const isBatch = validators.length > 1;
 
-    if (isBatchRegister) {
-      const eachAmount = params.paySubscriptionFee / BigInt(keyStorePrivateKeys.length);
+    const validatorPublicKeys = validators.map((validator) => validator.pubkey);
+    const validatorOperatorIds = validators.map((validator) =>
+      validator.operators.map((operator) => BigInt(operator.operator_id))
+    );
+    const validatorSharedKeys = validators.map((validator) =>
+      validator.operators.map((operator) => operator.shared_key)
+    );
+    const validatorEncryptKeys = validators.map((validator) =>
+      validator.operators.map((operator) => operator.encrypt_key)
+    );
+
+    if (isBatch) {
+      const eachAmount = paySubscriptionFee / BigInt(validators.length);
 
       return {
         ...networkContract,
         functionName: 'batchRegisterValidator',
         account: address,
         args: [
-          params.validatorPublicKeys,
-          params.operatorIds,
-          params.sharePublicKeys,
-          params.sharesEncrypted,
-          keyStorePrivateKeys.length,
+          validatorPublicKeys,
+          validatorOperatorIds[0],
+          validatorSharedKeys,
+          validatorEncryptKeys,
+          validators.length,
           eachAmount,
         ],
       };
@@ -65,17 +62,20 @@ export const useRegisterValidator = () => {
       functionName: 'registerValidator',
       account: address,
       args: [
-        params.validatorPublicKeys[0],
-        params.operatorIds,
-        params.sharePublicKeys[0],
-        params.sharesEncrypted[0],
-        params.paySubscriptionFee,
+        validatorPublicKeys[0],
+        validatorOperatorIds[0],
+        validatorSharedKeys[0],
+        validatorEncryptKeys[0],
+        paySubscriptionFee,
       ],
     };
   };
 
-  const registerValidator = async (params: RegisterValidatorParamsType) => {
-    const contractConfig = prepareContractConfig(params);
+  const registerClusterNodeValidator = async (
+    validators: IResponseClusterNodeValidatorItem[],
+    paySubscriptionFee: bigint
+  ) => {
+    const contractConfig = prepareClusterNodeContractConfig(validators, paySubscriptionFee);
 
     const hash = await writeContractAsync(contractConfig as any);
 
@@ -84,21 +84,11 @@ export const useRegisterValidator = () => {
     });
   };
 
-  // const checkInvalidPublicKeyLength = (publicKeys: string[]): boolean => {
-  //   const result = publicKeys.every((publicKey) => {
-  //     const key = publicKey.startsWith('0x') ? publicKey.slice(2) : publicKey;
-  //     const publicKeyBuf = Buffer.from(key, 'hex');
-  //     return publicKeyBuf.length !== 48;
-  //   });
-  //   console.log(`checkInvalidPublicKeyLength: ${result}`);
-  //   return result;
-  // };
-
-  const registerValidatorEstimation = async (params: RegisterValidatorParamsType) => {
-    const contractConfig = prepareContractConfig(params);
-
-    // const publicKeys = params.validatorPublicKeys;
-    // const { operatorIds } = params;
+  const registerClusterNodeValidatorEstimation = async (
+    validators: IResponseClusterNodeValidatorItem[],
+    paySubscriptionFee: bigint
+  ) => {
+    const contractConfig = prepareClusterNodeContractConfig(validators, paySubscriptionFee);
 
     try {
       await client?.estimateContractGas(contractConfig as any);
@@ -130,75 +120,9 @@ export const useRegisterValidator = () => {
     }
   };
 
-  const createRegisterValidatorParams = async (currentFeeMode: CurrentFeeMode) => {
-    const operatorIds = selectedOperators.map((operator) => operator.id);
-
-    const thresholdResults: ISharesKeyPairs[] = await Promise.all(
-      keyStorePrivateKeys.map(async (key) => {
-        const threshold: Threshold = new Threshold(
-          currentCommitteeSize.sharesNumber,
-          currentCommitteeSize.threshold
-        );
-        const result: ISharesKeyPairs = await threshold.create(key, operatorIds);
-        return result;
-      })
-    );
-
-    try {
-      const operatorLength = selectedOperators.length;
-      const paySubscriptionFee = getSubscriptionFeeFeeByFeeMode(
-        currentFeeMode,
-        keyStorePrivateKeys.length
-      );
-
-      const operatorPublicKeyOrigin: string[] = selectedOperators.map((operator) => {
-        return operator.pk;
-      });
-
-      const sharePublicKeys = thresholdResults.map((item) => {
-        return item.shares.map((share) => {
-          return share.publicKey;
-        });
-      }) as `0x${string}`[][];
-
-      const encryptedShares = thresholdResults.map((item) => {
-        try {
-          const encryptedShare = new Encryption(operatorPublicKeyOrigin, item.shares).encrypt();
-          return encryptedShare;
-        } catch (error) {
-          console.error('🚀 ~ ValidatorStore ~ encryptedShares ~ error:', error);
-          throw error;
-        }
-      });
-
-      const encryptedKeysBuffer = encryptedShares.map((shares) => {
-        return shares.map((share) => {
-          return `0x${Buffer.from(share.privateKey, 'base64').toString('hex')}`;
-        });
-      }) as `0x${string}`[][];
-
-      const params = {
-        validatorPublicKeys: thresholdResults.map(
-          (result) => result.validatorPublicKey
-        ) as `0x${string}`[],
-        operatorIds,
-        sharePublicKeys,
-        sharesEncrypted: encryptedKeysBuffer,
-        validatorKeyStoreLegnth: keyStorePrivateKeys.length,
-        operatorLength,
-        paySubscriptionFee,
-      };
-
-      return params;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  };
-
   return {
-    registerValidator,
-    registerValidatorEstimation,
-    createRegisterValidatorParams,
+    registerClusterNodeValidator,
+    registerClusterNodeValidatorEstimation,
+    prepareClusterNodeContractConfig,
   };
 };

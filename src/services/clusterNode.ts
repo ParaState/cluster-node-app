@@ -33,9 +33,11 @@ export async function bindInitiatorOwner(owner: string) {
 }
 
 export async function queryValidatorStatus(
-  status: IResponseValidatorStatusEnum
+  status: IResponseValidatorStatusEnum,
+  action: string,
+  txid: string
 ): Promise<IResponseClusterNodeValidatorItem[]> {
-  const { data } = await axiosInstance.get(`/server/validator/${status}`);
+  const { data } = await axiosInstance.get(`/server/validator/${status}/${action}/${txid}`);
 
   return data.data;
 }
