@@ -29,6 +29,7 @@ export const useRegisterValidator = () => {
     const isBatch = validators.length > 1;
 
     const validatorPublicKeys = validators.map((validator) => validator.pubkey);
+
     const validatorOperatorIds = validators.map((validator) =>
       validator.operators.map((operator) => BigInt(operator.operator_id))
     );
@@ -37,6 +38,25 @@ export const useRegisterValidator = () => {
     );
     const validatorEncryptKeys = validators.map((validator) =>
       validator.operators.map((operator) => operator.encrypt_key)
+    );
+
+    console.log(
+      '🚀 ~ useRegisterValidator ~ validatorPublicKeys:',
+      JSON.stringify(validatorPublicKeys)
+    );
+    console.log(
+      '🚀 ~ useRegisterValidator ~ validatorOperatorIds:',
+      JSON.stringify(validatorOperatorIds, (key, value) =>
+        typeof value === 'bigint' ? value.toString() : value
+      )
+    );
+    console.log(
+      '🚀 ~ useRegisterValidator ~ validatorSharedKeys:',
+      JSON.stringify(validatorSharedKeys)
+    );
+    console.log(
+      '🚀 ~ useRegisterValidator ~ validatorEncryptKeys:',
+      JSON.stringify(validatorEncryptKeys)
     );
 
     if (isBatch) {

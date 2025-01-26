@@ -32,6 +32,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 
+import { useRouter } from '@/routes/hooks';
+
 import { useOperatorList } from '@/hooks/api';
 import { useClusterNode, ClusterNodeActionFee } from '@/hooks/contract/cluster-node';
 import { useTokenApprovalWithAddress } from '@/hooks/contract/token/use-token-approval';
@@ -53,6 +55,8 @@ import { OperatorInfo } from '@/components/operator/operator-info';
 import { OperatorCommitteeSizeSelector } from '@/components/operator/operator-committee-size-selector';
 
 export default function ValidatorSelectorOperatorsPage() {
+  const router = useRouter();
+
   const theme = useTheme();
   const { generateDepositData, getActionFee } = useClusterNode();
   const { address } = useAccount();
@@ -172,7 +176,7 @@ export default function ValidatorSelectorOperatorsPage() {
         return;
       }
 
-      await generateDepositData(
+      const receipt = await generateDepositData(
         result.cluster_pubkey,
         validatorCount,
         [12, 14, 15, 16],
@@ -181,9 +185,7 @@ export default function ValidatorSelectorOperatorsPage() {
         address!
       );
 
-      console.log(fee);
-
-      // router.push(config.routes.validator.slashingWarning);
+      router.push(config.routes.validator.getConfirm(receipt?.transactionHash));
     } finally {
       generateLoading.onFalse();
     }

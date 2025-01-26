@@ -57,6 +57,7 @@ export const config = {
       success: '/validator/success',
       slashingWarning: '/validator/slashing-warning',
       confirm: '/validator/confirm/:txid',
+      getConfirm: (txid) => `/validator/confirm/${txid}`,
       validatorExit: '/validator/exit',
       // goValidatorExit: (pk: string) => `/validator/${pk}/exit`,
     },
