@@ -90,6 +90,7 @@ export default function ValidatorSelectorOperatorsPage() {
       validatorCount: 1,
       feeRecipientAddress: address,
     },
+    mode: 'onChange',
   });
 
   const { handleSubmit } = form;
@@ -581,9 +582,20 @@ export default function ValidatorSelectorOperatorsPage() {
                   </Box>
 
                   <Box sx={{ width: 1, mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                      Fee recipient address
-                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <Typography variant="subtitle2">Fee recipient address</Typography>
+                      <Tooltip title="The fee recipient address is where you will receive your validator rewards. This can be any Ethereum address that you control.">
+                        <Link
+                          variant="body2"
+                          underline="always"
+                          target="_blank"
+                          href={config.links.lidoCsm}
+                          sx={{ p: 0.5 }}
+                        >
+                          (Lido CSM)
+                        </Link>
+                      </Tooltip>
+                    </Stack>
 
                     <RHFTextField
                       fullWidth

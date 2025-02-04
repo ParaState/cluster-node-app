@@ -65,6 +65,8 @@ export const config = {
 
   // for external links
   links: {
+    lidoCsm:
+      'https://operatorportal.lido.fi/modules/community-staking-module#block-d8e94f551b2e47029a54e6cedea914a7',
     docs: `https://github.com/ParaState/SafeStakeOperator`,
     documentation: `https://github.com/ParaState/SafeStakeOperator/blob/main/docs/safestake-running-an-operator-node.md`,
     explorer: explorerUrl,
