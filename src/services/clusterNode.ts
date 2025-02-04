@@ -39,7 +39,15 @@ export async function queryValidatorStatus(
 ): Promise<IResponseClusterNodeValidatorItem[]> {
   const { data } = await axiosInstance.get(`/server/validator/${status}/${action}/${txid}`);
 
-  return data.data;
+  const list = data.data as IResponseClusterNodeValidatorItem[];
+
+  if (list) {
+    list.forEach((item) => {
+      item.operators.sort((a, b) => a.operator_id - b.operator_id);
+    });
+  }
+
+  return list;
 }
 
 export async function updateValidatorStatus(

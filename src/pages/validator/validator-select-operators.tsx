@@ -179,6 +179,7 @@ export default function ValidatorSelectorOperatorsPage() {
       const receipt = await generateDepositData(
         result.cluster_pubkey,
         validatorCount,
+        // TODO: uncomment
         [12, 14, 15, 16],
         // selectedOperators.map((op) => op.id),
         parseEther('32'),
