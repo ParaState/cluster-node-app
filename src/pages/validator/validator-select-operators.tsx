@@ -1,7 +1,10 @@
-import { parseEther } from 'viem';
+import { z } from 'zod';
 import { useAccount } from 'wagmi';
+import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
+import { isAddress, parseEther } from 'viem';
 import { Fragment, useState, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
@@ -52,7 +55,15 @@ import { CommonBack } from '@/components/common';
 import { StyledTableCell } from '@/components/table';
 import { OperatorTypeFilter } from '@/components/operator';
 import { OperatorInfo } from '@/components/operator/operator-info';
+import FormProvider, { RHFTextField } from '@/components/hook-form';
 import { OperatorCommitteeSizeSelector } from '@/components/operator/operator-committee-size-selector';
+
+const formSchema = z.object({
+  validatorCount: z.number().min(1),
+  feeRecipientAddress: z.string().refine((value) => isAddress(value), {
+    message: 'Provided address is invalid. Please insure you have typed correctly.',
+  }),
+});
 
 export default function ValidatorSelectorOperatorsPage() {
   const router = useRouter();
@@ -69,10 +80,19 @@ export default function ValidatorSelectorOperatorsPage() {
   const { operatorQuery } = useOperatorList(filterBy, sort, searchInput);
   const [sortId, setSortId] = useState<string>('');
   const [sortType = SortTypeEnum.asc, setSortType] = useState<SortTypeEnum>();
-  const [validatorCount, setValidatorCount] = useState(1);
   const generateLoading = useBoolean();
 
   const { approveAllowance } = useTokenApprovalWithAddress(config.contractAddress.clusterNode);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      validatorCount: 1,
+      feeRecipientAddress: address,
+    },
+  });
+
+  const { handleSubmit } = form;
 
   const {
     selectedOperators,
@@ -152,7 +172,7 @@ export default function ValidatorSelectorOperatorsPage() {
     }
   }, 600);
 
-  const onSelectOperatorsClick = async () => {
+  const onSubmit = handleSubmit(async (data) => {
     // if (isExceedMaxOperators) {
     //   // enqueueSnackbar('Operator reached maximum amount of validators', { variant: 'error' });
     //   enqueueSnackbar(
@@ -161,6 +181,8 @@ export default function ValidatorSelectorOperatorsPage() {
     //   );
     //   return;
     // }
+
+    const { validatorCount, feeRecipientAddress } = data;
 
     try {
       generateLoading.onTrue();
@@ -176,25 +198,24 @@ export default function ValidatorSelectorOperatorsPage() {
         return;
       }
 
+      const operatorIds = selectedOperators.map((op) => op.id).sort((a, b) => a - b);
+      console.log('🚀 ~ onSubmit ~ operatorIds:', operatorIds);
+
       const receipt = await generateDepositData(
         result.cluster_pubkey,
         validatorCount,
         // TODO: uncomment
         [12, 14, 15, 16],
-        // selectedOperators.map((op) => op.id),
+        // operatorIds
         parseEther('32'),
-        address!
+        feeRecipientAddress as `0x${string}`
       );
 
       router.push(config.routes.validator.getConfirm(receipt?.transactionHash));
     } finally {
       generateLoading.onFalse();
     }
-  };
-
-  const updateValidatorCount = (e: any) => {
-    setValidatorCount(+e.target.value);
-  };
+  });
 
   return (
     <Container maxWidth="xl">
@@ -356,6 +377,13 @@ export default function ValidatorSelectorOperatorsPage() {
                               return;
                             }
 
+                            if (parseVersion(row.last_version).majorVersion < 4) {
+                              enqueueSnackbar('Operator version must be 4.0 or higher', {
+                                variant: 'error',
+                              });
+                              return;
+                            }
+
                             const firstOp = selectedOperators[0];
                             if (firstOp) {
                               const firstOpVersion = parseVersion(firstOp.last_version);
@@ -493,89 +521,91 @@ export default function ValidatorSelectorOperatorsPage() {
                   )}
                 </Box>
 
-                <Box
-                  sx={{
-                    backgroundColor: 'background.default',
-                    borderRadius: 4,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mb: 2,
-                  }}
-                >
-                  {!allSelectedOperatorsVerified && (
-                    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-                      <Typography variant="subtitle1" sx={{ color: `primary.main` }}>
-                        You have selected one or more operators that are{' '}
-                        <Link
-                          target="_blank"
-                          underline="always"
-                          href={config.links.notVerifiedLink}
-                        >
-                          not verified.
-                        </Link>
-                      </Typography>
-
-                      <Typography gutterBottom variant="body2" sx={{ color: `primary.main` }}>
-                        Unverified operators that were not reviewed and their identity is not
-                        confirmed, may pose a threat to your validators’ performance.
-                      </Typography>
-                      <Typography gutterBottom variant="body2" sx={{ color: `primary.main` }}>
-                        Please proceed only if you know and trust these operators.
-                      </Typography>
-                    </Paper>
-                  )}
-
-                  {selectedOperators.length === 0 && (
-                    <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-                      <Typography variant="subtitle1" sx={{ color: `primary.main` }}>
-                        Please select the operators close to the same region in order to achieve
-                        better performance with low latency.
-                      </Typography>
-                    </Paper>
-                  )}
-                </Box>
-
-                <Box sx={{ width: 1, mb: 2 }} className="validator-count-input">
-                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                    Please enter the number of validators you want to create.
-                  </Typography>
-
-                  <TextField
-                    fullWidth
-                    name="validator_count"
-                    type="number"
-                    size="medium"
-                    inputProps={{
-                      min: 1,
-                      step: 1,
-                      onKeyDown: (e) => {
-                        if (
-                          !/[0-9]/.test(e.key) &&
-                          !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)
-                        ) {
-                          e.preventDefault();
-                        }
-                      },
+                <FormProvider methods={form} onSubmit={onSubmit}>
+                  <Box
+                    sx={{
+                      backgroundColor: 'background.default',
+                      borderRadius: 4,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 2,
                     }}
-                    placeholder="Validator Count"
-                    value={validatorCount}
-                    onChange={updateValidatorCount}
-                  />
-                </Box>
+                  >
+                    {!allSelectedOperatorsVerified && (
+                      <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+                        <Typography variant="subtitle1" sx={{ color: `primary.main` }}>
+                          You have selected one or more operators that are{' '}
+                          <Link
+                            target="_blank"
+                            underline="always"
+                            href={config.links.notVerifiedLink}
+                          >
+                            not verified.
+                          </Link>
+                        </Typography>
 
-                <LoadingButton
-                  fullWidth
-                  color="primary"
-                  size="large"
-                  type="submit"
-                  variant="soft"
-                  loading={generateLoading.value}
-                  disabled={!isSelectedEnoughOperators || !must2verifiedOperators}
-                  onClick={onSelectOperatorsClick}
-                >
-                  Next
-                </LoadingButton>
+                        <Typography gutterBottom variant="body2" sx={{ color: `primary.main` }}>
+                          Unverified operators that were not reviewed and their identity is not
+                          confirmed, may pose a threat to your validators’ performance.
+                        </Typography>
+                        <Typography gutterBottom variant="body2" sx={{ color: `primary.main` }}>
+                          Please proceed only if you know and trust these operators.
+                        </Typography>
+                      </Paper>
+                    )}
+
+                    {selectedOperators.length === 0 && (
+                      <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+                        <Typography variant="subtitle1" sx={{ color: `primary.main` }}>
+                          Please select the operators close to the same region in order to achieve
+                          better performance with low latency.
+                        </Typography>
+                      </Paper>
+                    )}
+                  </Box>
+
+                  <Box sx={{ width: 1, mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                      Please enter the number of validators you want to create.
+                    </Typography>
+
+                    <RHFTextField
+                      fullWidth
+                      name="validatorCount"
+                      type="number"
+                      size="medium"
+                      placeholder="Validator Count"
+                      // helperText="Please enter the number of validators you want to create."
+                    />
+                  </Box>
+
+                  <Box sx={{ width: 1, mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                      Fee recipient address
+                    </Typography>
+
+                    <RHFTextField
+                      fullWidth
+                      name="feeRecipientAddress"
+                      type="text"
+                      size="medium"
+                      placeholder="Fee recipient address"
+                    />
+                  </Box>
+
+                  <LoadingButton
+                    fullWidth
+                    color="primary"
+                    size="large"
+                    type="submit"
+                    variant="soft"
+                    loading={generateLoading.value}
+                    disabled={!isSelectedEnoughOperators || !must2verifiedOperators}
+                  >
+                    Next
+                  </LoadingButton>
+                </FormProvider>
 
                 {/* <LoadingButton
                   fullWidth
