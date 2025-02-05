@@ -20,7 +20,7 @@ export default ({ mode }) => {
     },
     optimizeDeps: {
       exclude: ['js-big-decimal', 'fsevents'],
-      include: ['@chainsafe/bls-keystore', '@chainsafe/ssz'],
+      include: ['@chainsafe/bls-keystore'],
       esbuildOptions: {
         target: 'esnext',
 

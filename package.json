@@ -21,14 +21,13 @@
     "re:build": "yarn rm:all && yarn install && yarn build",
     "re:build-npm": "npm run rm:all && npm install && npm run build",
     "dev:host": "vite --host",
-    "docker:build": "docker build -f ./Dockerfile-local . -t safestake-front-v2",
-    "docker:rm": "docker rm -f safestake-front-v2",
-    "docker:run": "docker run -p 3000:80 --restart=always -d safestake-front-v2",
+    "docker:build": "docker build -f ./Dockerfile-local . -t cluster-node-app",
+    "docker:rm": "docker rm -f cluster-node-app",
+    "docker:run": "docker run -p 3000:80 --restart=always -d cluster-node-app",
     "preview": "vite preview --host --port 80"
   },
   "dependencies": {
     "@chainsafe/bls-keystore": "^3.0.1",
-    "@chainsafe/ssz": "^0.16.0",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",

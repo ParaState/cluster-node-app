@@ -380,7 +380,7 @@ export default function ValidatorSelectorOperatorsPage() {
 
                             if (parseVersion(row.last_version).majorVersion < 4) {
                               enqueueSnackbar('Operator version must be 4.0 or higher', {
-                                variant: 'error',
+                                variant: 'warning',
                               });
                               return;
                             }
