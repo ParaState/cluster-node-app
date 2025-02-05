@@ -12,7 +12,6 @@ import { OverviewAppView } from '@/sections/overview';
 export default function NewHomePage() {
   const { address } = useAccount();
   const { openWallet } = useOpenWallet();
-  console.log('🚀 ~ NewHomePage ~ address:', address);
 
   if (!address) {
     return (

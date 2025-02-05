@@ -36,3 +36,7 @@ export const calcPerformance = (performance?: IResponseOperatorPerformance): str
 
   return total === 0 ? '0' : ((attested / total) * 100).toFixed(2);
 };
+
+export const formatTimestamp = (timestamp: number) => {
+  return dayjs(timestamp * 1000).format('YYYY-MM-DD HH:mm:ss');
+};
