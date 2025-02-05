@@ -7,9 +7,19 @@ import {
   IResponseClusterNodeValidatorItem,
 } from '@/types';
 
-export async function fetchOperators(offset: number = 0): Promise<IResponseOperators> {
+// export async function fetchOperators(offset: number = 0): Promise<IResponseOperators> {
+//   try {
+//     const { data } = await axiosInstance.get(`/server/operator/pag/${offset}`);
+
+//     return data.data;
+//   } catch (error: any) {
+//     console.error(`Error in getOperators: ${error}`);
+//     throw error;
+//   }
+// }
+export async function fetchOperators(body: any): Promise<IResponseOperators> {
   try {
-    const { data } = await axiosInstance.get(`/server/operator/pag/${offset}`);
+    const { data } = await axiosInstance.post(`/server/operator/query`, body);
 
     return data.data;
   } catch (error: any) {

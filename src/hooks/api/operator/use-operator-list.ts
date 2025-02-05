@@ -20,7 +20,7 @@ export function useOperatorList(filter: any, sort: any, searchInput: string) {
         sort,
       };
 
-      return services.clusterNode.fetchOperators(body.pag.offset / body.pag.limit);
+      return services.clusterNode.fetchOperators(body);
     },
     initialPageParam: defaultPagination,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
