@@ -1,28 +1,34 @@
 import { useState } from 'react';
-import { useWriteContract } from 'wagmi';
 import { UseQueryResult } from '@tanstack/react-query';
 
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Card,
   Link,
   Stack,
   Table,
+  Dialog,
+  Button,
   TableRow,
   useTheme,
   MenuItem,
   Skeleton,
+  Checkbox,
   TableBody,
   TableCell,
   CardHeader,
   IconButton,
   Typography,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
   TableContainer,
 } from '@mui/material';
 
 import { useRouter } from '@/routes/hooks';
 
-import { useRemoveValidator, useFeeReceiptAddress } from '@/hooks/contract';
+import { useFeeReceiptAddress } from '@/hooks/contract';
 
 import { isAddressZero, longStringShorten } from '@/utils/string';
 
@@ -30,11 +36,7 @@ import { config } from '@/config';
 import { useBoolean } from '@/hooks';
 import { formatTimestamp } from '@/utils';
 import { useSelectedOperators } from '@/stores';
-import {
-  IResponseValidatorItem,
-  IRequestCommonPagination,
-  IResponseClusterNodeValidatorItem,
-} from '@/types';
+import { IRequestCommonPagination, IResponseClusterNodeValidatorItem } from '@/types';
 
 import Label from '@/components/label';
 import Iconify from '@/components/iconify';
@@ -50,7 +52,6 @@ type Props = {
   pagination: IRequestCommonPagination;
   setPagination: (pagination: IRequestCommonPagination) => void;
   onPaginationChange?: (pagination: IRequestCommonPagination) => void;
-  hideAction?: boolean;
   address: string;
 };
 
@@ -59,7 +60,6 @@ export function ClusterValidatorTable({
   pagination,
   setPagination,
   onPaginationChange,
-  hideAction,
   address,
 }: Props) {
   const router = useRouter();
@@ -68,51 +68,20 @@ export function ClusterValidatorTable({
 
   const removeLoading = useBoolean();
 
-  const { removeValidator } = useRemoveValidator();
-
   const { enqueueSnackbar } = useSnackbar();
 
   const { resetAll } = useSelectedOperators();
 
   const theme = useTheme();
 
-  const { data: hash } = useWriteContract();
-
   const popover = usePopover();
 
-  const [selectedRow, setSelectedRow] = useState<IResponseValidatorItem[]>([]);
+  const { value: dialogOpen, ...setDialogOpen } = useBoolean(false);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    // setPagination({ offset: newPage, limit: pagination!.limit });
-    onPaginationChange?.({ offset: newPage, limit: pagination.limit });
-  };
+  const [selectedRow, setSelectedRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPagination({ offset: 0, limit: +event.target.value });
-  };
-
-  const removeValidatorClick = async () => {
-    const pks = selectedRow.map((row) => row.pk);
-    if (pks.length === 0) {
-      enqueueSnackbar('Please select at least one validator', { variant: 'warning' });
-      return;
-    }
-
-    removeLoading.onTrue();
-
-    try {
-      await removeValidator(pks);
-      await clusterValidatorQuery.refetch();
-      setSelectedRow([]);
-      enqueueSnackbar('Remove validator success', { variant: 'success' });
-      console.log(hash);
-    } catch (error) {
-      enqueueSnackbar(error.details || error.message, { variant: 'error' });
-      console.log('🚀 ~ removeValidator ~ error:', error);
-      console.log(error);
-    } finally {
-      removeLoading.onFalse();
-    }
+  const viewValidatorClick = async () => {
+    setDialogOpen.onTrue();
   };
 
   return (
@@ -127,19 +96,27 @@ export function ClusterValidatorTable({
           </IconButton>
         }
       />
-      {/* <Stack direction="row" px={1} py={1} spacing={1}>
-        {!hideAction && (
-          <LoadingButton
-            variant="soft"
-            color="inherit"
-            loading={removeLoading.value}
-            onClick={() => removeValidatorClick()}
-            disabled={selectedRow.length === 0}
-          >
-            Remove Validator
-          </LoadingButton>
-        )}
-      </Stack> */}
+      <Stack direction="row" px={1} py={1} spacing={1}>
+        <LoadingButton
+          variant="soft"
+          color="inherit"
+          loading={removeLoading.value}
+          onClick={() => viewValidatorClick()}
+          disabled={selectedRow.length === 0}
+        >
+          View Deposit Data
+        </LoadingButton>
+
+        <LoadingButton
+          variant="soft"
+          color="inherit"
+          onClick={() => {
+            router.push(config.routes.setup);
+          }}
+        >
+          Generate Validator
+        </LoadingButton>
+      </Stack>
 
       {false && (
         <Box sx={{ p: 2 }}>
@@ -176,28 +153,36 @@ export function ClusterValidatorTable({
             <TableHeadCustom
               headLabel={[
                 { id: 'id', label: 'Public Key', align: 'left' },
+                { id: 'owner', label: 'Owner', align: 'left' },
                 { id: 'status', label: 'Status', align: 'center' },
                 { id: 'created_at', label: 'Created At', align: 'center' },
               ]}
               rowCount={clusterValidatorQuery.data?.length || 0}
               numSelected={selectedRow.length}
-              // onSelectAllRows={
-              //   !hideAction
-              //     ? (checked) => {
-              //         if (checked) {
-              //           setSelectedRow(clusterValidatorQuery.data?.rows || []);
-              //         } else {
-              //           setSelectedRow([]);
-              //         }
-              //       }
-              //     : undefined
-              // }
+              onSelectAllRows={(checked) => {
+                if (checked) {
+                  setSelectedRow(clusterValidatorQuery.data || []);
+                } else {
+                  setSelectedRow([]);
+                }
+              }}
             />
 
             <TableBody>
               {clusterValidatorQuery.isLoading && <SimpleTableSkeleton skeletonCounter={10} />}
               {clusterValidatorQuery.data?.map((row, index) => (
                 <TableRow key={index}>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={selectedRow.includes(row)}
+                      onClick={() => {
+                        setSelectedRow((prev) =>
+                          prev.includes(row) ? prev.filter((r) => r !== row) : [...prev, row]
+                        );
+                      }}
+                    />
+                  </TableCell>
+
                   <TableCell align="left">
                     <Stack direction="row" alignItems="center">
                       <Link
@@ -209,6 +194,12 @@ export function ClusterValidatorTable({
                       </Link>
                       <CopyButton text={row.pubkey} />
                     </Stack>
+                  </TableCell>
+
+                  <TableCell align="left">
+                    <Typography variant="body2" color="text.secondary">
+                      {longStringShorten(row.owner)}
+                    </Typography>
                   </TableCell>
 
                   <TableCell align="center">
@@ -267,6 +258,39 @@ export function ClusterValidatorTable({
           </Table>
         </Scrollbar>
       </TableContainer>
+
+      <Dialog fullWidth maxWidth="md" open={dialogOpen} onClose={() => setDialogOpen.onFalse()}>
+        <DialogTitle>Deposit Data</DialogTitle>
+        <DialogContent>
+          <Box sx={{ p: 1 }}>
+            <pre style={{ overflow: 'auto' }}>
+              {JSON.stringify(
+                selectedRow.map((row) => JSON.parse(row.deposit_data)),
+                null,
+                2
+              )}
+            </pre>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen.onFalse()}>Close</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              navigator.clipboard.writeText(
+                JSON.stringify(
+                  selectedRow.map((row) => JSON.parse(row.deposit_data)),
+                  null,
+                  2
+                )
+              );
+              enqueueSnackbar('Copied to clipboard');
+            }}
+          >
+            Copy to Clipboard
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* {!clusterValidatorQuery.isLoading && (
         <TablePaginationCustom

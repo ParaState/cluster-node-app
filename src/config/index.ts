@@ -40,6 +40,7 @@ export const config = {
 
   routes: {
     home: '/',
+    setup: '/setup',
     dashboard: '/dashboard',
     operator: {
       home: '/operator',
@@ -119,7 +120,7 @@ export const config = {
 export const navConfig = [
   {
     title: 'My Account',
-    path: config.routes.dashboard,
+    path: config.routes.home,
     auth: true,
   },
   {
@@ -127,13 +128,18 @@ export const navConfig = [
     path: config.links.explorer,
     auth: false,
   },
+  // {
+  //   title: 'Docs',
+  //   path: config.links.docs,
+  //   auth: false,
+  // },
   {
-    title: 'Docs',
-    path: config.links.docs,
+    title: 'Setup',
+    path: config.routes.setup,
     auth: false,
   },
 ];
 
-console.log(config);
+// console.log(config);
 
 export const watchingBlockNumberPaths = [config.routes.validator.confirm, config.routes.dashboard];
