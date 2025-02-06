@@ -289,6 +289,29 @@ export function ClusterValidatorTable({
           >
             Copy to Clipboard
           </Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => {
+              const jsonContent = JSON.stringify(
+                selectedRow.map((row) => JSON.parse(row.deposit_data)),
+                null,
+                2
+              );
+              const blob = new Blob([jsonContent], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `deposit_data_${Date.now()}.json`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+              enqueueSnackbar('Downloaded deposit data');
+            }}
+          >
+            Download JSON
+          </Button>
         </DialogActions>
       </Dialog>
 
