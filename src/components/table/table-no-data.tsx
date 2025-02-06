@@ -4,11 +4,11 @@ import TableCell from '@mui/material/TableCell';
 import { Theme, SxProps } from '@mui/material/styles';
 
 type Props = {
-  notFound: boolean;
+  notFound?: boolean;
   sx?: SxProps<Theme>;
 };
 
-export default function TableNoData({ notFound, sx }: Props) {
+export default function TableNoData({ notFound = true, sx }: Props) {
   return (
     <TableRow>
       {notFound ? (

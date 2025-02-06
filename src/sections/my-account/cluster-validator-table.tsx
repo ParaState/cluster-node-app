@@ -43,7 +43,7 @@ import Iconify from '@/components/iconify';
 import Scrollbar from '@/components/scrollbar';
 import CopyButton from '@/components/copy-button';
 import { useSnackbar } from '@/components/snackbar';
-import { TableHeadCustom } from '@/components/table';
+import { TableNoData, TableHeadCustom } from '@/components/table';
 import CustomPopover, { usePopover } from '@/components/custom-popover';
 import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
 
@@ -254,6 +254,8 @@ export function ClusterValidatorTable({
                     </TableCell> */}
                 </TableRow>
               ))}
+
+              {clusterValidatorQuery.data?.length === 0 && <TableNoData />}
             </TableBody>
           </Table>
         </Scrollbar>
