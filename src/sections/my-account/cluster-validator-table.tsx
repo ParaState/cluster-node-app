@@ -147,9 +147,9 @@ export function ClusterValidatorTable({
         </MenuItem>
       </CustomPopover>
 
-      <TableContainer>
-        <Scrollbar>
-          <Table>
+      <TableContainer sx={{ overflow: 'unset' }}>
+        <Scrollbar sx={{ maxHeight: 800 }}>
+          <Table stickyHeader>
             <TableHeadCustom
               headLabel={[
                 { id: 'id', label: 'Public Key', align: 'left' },
