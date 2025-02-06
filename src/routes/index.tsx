@@ -3,11 +3,12 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import { config } from '@/config';
 import NewPage from '@/pages/newpage';
+import SetupPage from '@/pages/setup';
 import MainLayout from '@/layouts/main';
-import NewHomePage from '@/pages/newhome';
 import CompactLayout from '@/layouts/compact';
 import DashboardLayout from '@/layouts/dashboard';
 
+import { FixedHeader } from '@/components/common';
 import { LoadingScreen } from '@/components/loading-screen';
 import WalletAuthGuard from '@/components/auth/wallet-auth-guard';
 
@@ -31,30 +32,7 @@ const ValidatorClusterConfirmPage = lazy(
 export default function Router() {
   return useRoutes([
     {
-      path: '/',
-      element: (
-        <MainLayout>
-          <Suspense fallback={<LoadingScreen />}>
-            <Outlet />
-          </Suspense>
-        </MainLayout>
-      ),
-      children: [{ element: <NewHomePage />, index: true }],
-    },
-    {
-      path: '/newpage',
-      element: (
-        <DashboardLayout>
-          <Suspense fallback={<LoadingScreen />}>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
-      ),
-      children: [{ element: <NewPage />, index: true }],
-    },
-
-    {
-      path: 'dashboard',
+      path: config.routes.home,
       element: (
         <MainLayout>
           <Suspense fallback={<LoadingScreen />}>
@@ -66,12 +44,35 @@ export default function Router() {
         {
           element: (
             <WalletAuthGuard>
+              <FixedHeader />
               <MyAccountPage />
             </WalletAuthGuard>
           ),
           index: true,
         },
       ],
+    },
+    {
+      path: config.routes.setup,
+      element: (
+        <MainLayout>
+          <Suspense fallback={<LoadingScreen />}>
+            <Outlet />
+          </Suspense>
+        </MainLayout>
+      ),
+      children: [{ element: <SetupPage />, index: true }],
+    },
+    {
+      path: '/testpage',
+      element: (
+        <DashboardLayout>
+          <Suspense fallback={<LoadingScreen />}>
+            <Outlet />
+          </Suspense>
+        </DashboardLayout>
+      ),
+      children: [{ element: <NewPage />, index: true }],
     },
 
     {

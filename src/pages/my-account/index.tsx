@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
-import { Grid, useTheme, Container, Typography } from '@mui/material';
-
-import { useRouter } from '@/routes/hooks';
+import { Grid, Container, Typography } from '@mui/material';
 
 import { useClusterValidator } from '@/hooks/api';
 
@@ -18,10 +16,10 @@ const MyAccountTitle = () => (
 );
 
 export default function MyAccountPage() {
-  const router = useRouter();
+  // const router = useRouter();
 
-  const [validatorPagination, setValidatorPagination] =
-    useState<IRequestCommonPagination>(defaultPagination);
+  // const [validatorPagination, setValidatorPagination] =
+  //   useState<IRequestCommonPagination>(defaultPagination);
 
   const [clusterValidatorPagination, setClusterValidatorPagination] =
     useState<IRequestCommonPagination>(defaultPagination);
@@ -32,7 +30,7 @@ export default function MyAccountPage() {
 
   const { clusterValidatorQuery } = useClusterValidator();
 
-  const theme = useTheme();
+  // const theme = useTheme();
 
   // if (isValidatorEmpty) {
   //   return (

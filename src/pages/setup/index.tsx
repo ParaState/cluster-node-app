@@ -9,7 +9,7 @@ import { useOpenWallet } from '@/hooks';
 
 import { OverviewAppView } from '@/sections/overview';
 
-export default function NewHomePage() {
+export default function SetupPage() {
   const { address } = useAccount();
   const { openWallet } = useOpenWallet();
 
