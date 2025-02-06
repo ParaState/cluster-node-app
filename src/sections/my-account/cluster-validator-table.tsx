@@ -96,7 +96,7 @@ export function ClusterValidatorTable({
           </IconButton>
         }
       />
-      <Stack direction="row" px={1} py={1} spacing={1}>
+      <Stack direction="row" px={2} py={2} spacing={1}>
         <LoadingButton
           variant="soft"
           color="inherit"
