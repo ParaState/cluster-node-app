@@ -60,7 +60,7 @@ import { OperatorCommitteeSizeSelector } from '@/components/operator/operator-co
 
 const formSchema = z.object({
   validatorCount: z.number().min(1),
-  feeRecipientAddress: z.string().refine((value) => isAddress(value), {
+  withdrawalAddress: z.string().refine((value) => isAddress(value), {
     message: 'Provided address is invalid. Please insure you have typed correctly.',
   }),
 });
@@ -88,7 +88,7 @@ export default function ValidatorSelectorOperatorsPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       validatorCount: 1,
-      feeRecipientAddress: address,
+      withdrawalAddress: address,
     },
     mode: 'onChange',
   });
@@ -183,7 +183,7 @@ export default function ValidatorSelectorOperatorsPage() {
     //   return;
     // }
 
-    const { validatorCount, feeRecipientAddress } = data;
+    const { validatorCount, withdrawalAddress } = data;
 
     try {
       generateLoading.onTrue();
@@ -209,7 +209,7 @@ export default function ValidatorSelectorOperatorsPage() {
         [12, 14, 15, 16],
         // operatorIds
         parseEther('32'),
-        feeRecipientAddress as `0x${string}`
+        withdrawalAddress as `0x${string}`
       );
 
       router.push(config.routes.validator.getConfirm(receipt?.transactionHash));
@@ -599,10 +599,10 @@ export default function ValidatorSelectorOperatorsPage() {
 
                     <RHFTextField
                       fullWidth
-                      name="feeRecipientAddress"
+                      name="withdrawalAddress"
                       type="text"
                       size="medium"
-                      placeholder="Fee recipient address"
+                      placeholder="Withdrawal address"
                     />
                   </Box>
 
