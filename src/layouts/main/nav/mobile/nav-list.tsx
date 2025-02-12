@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 
-import Collapse from '@mui/material/Collapse';
-import { stackClasses } from '@mui/material/Stack';
-import { listItemButtonClasses } from '@mui/material/ListItemButton';
+// import Collapse from '@mui/material/Collapse';
+// import { stackClasses } from '@mui/material/Stack';
+// import { listItemButtonClasses } from '@mui/material/ListItemButton';
 
 import { usePathname } from '@/routes/hooks';
 
-import { NavSectionVertical } from '@/components/nav-section';
+// import { NavSectionVertical } from '@/components/nav-section';
 
 import { NavItem } from './nav-item';
 import { NavListProps } from '../types';
@@ -41,7 +41,7 @@ export default function NavList({ data }: NavListProps) {
         active={active}
       />
 
-      {!!data.children && (
+      {/* {!!data.children && (
         <Collapse in={openMenu} unmountOnExit>
           <NavSectionVertical
             data={data.children}
@@ -69,7 +69,7 @@ export default function NavList({ data }: NavListProps) {
             }}
           />
         </Collapse>
-      )}
+      )} */}
     </>
   );
 }
