@@ -61,6 +61,8 @@ export const config = {
       getConfirm: (txid) => `/validator/confirm/${txid}`,
       validatorExit: '/validator/exit',
       validatorGenerateConfirm: '/validator/generate-confirm',
+      validatorPollingTx: '/validator/polling-tx/:txid',
+      getValidatorPollingTx: (txid) => `/validator/polling-tx/${txid}`,
       // goValidatorExit: (pk: string) => `/validator/${pk}/exit`,
     },
   },

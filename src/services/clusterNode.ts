@@ -60,6 +60,16 @@ export async function queryValidatorStatus(
   return list;
 }
 
+export async function filterValidatorStatus(
+  status: IResponseValidatorStatusEnum,
+  action: string,
+  txid: string
+): Promise<IResponseClusterNodeValidatorItem[]> {
+  const data = await queryValidatorStatus(status, action, txid);
+
+  return data.filter((item) => item.generate_txid === txid);
+}
+
 export async function updateValidatorStatus(
   pubkey: string,
   action: string | 'register' | 'deposit' | 'exit',

@@ -57,10 +57,13 @@ export default function ValidatorGenerateConfirmPage() {
   const loading = useBoolean();
 
   const getFee = async () => {
-    loading.onTrue();
-    const fee = await getActionFee(ClusterNodeActionFee.GENERATE_DEPOSIT_DATA);
-    setCurrentFee(fee * BigInt(generateValidatorInfo.validatorCount));
-    loading.onFalse();
+    try {
+      loading.onTrue();
+      const fee = await getActionFee(ClusterNodeActionFee.GENERATE_DEPOSIT_DATA);
+      setCurrentFee(fee * BigInt(generateValidatorInfo.validatorCount));
+    } finally {
+      loading.onFalse();
+    }
   };
 
   useEffect(() => {
@@ -80,9 +83,9 @@ export default function ValidatorGenerateConfirmPage() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
+  // const handleBack = () => {
+  //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  // };
 
   useEffect(() => {
     setActiveStep(0);
@@ -119,7 +122,7 @@ export default function ValidatorGenerateConfirmPage() {
         generateValidatorInfo.withdrawalAddress as `0x${string}`
       );
 
-      router.push(config.routes.validator.getConfirm(receipt?.transactionHash));
+      router.push(config.routes.validator.getValidatorPollingTx(receipt?.transactionHash));
     } catch (error) {
       console.error(error);
       enqueueSnackbar(error?.shortMessage || 'Failed to generate validators', { variant: 'error' });

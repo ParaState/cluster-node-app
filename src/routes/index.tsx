@@ -7,6 +7,7 @@ import SetupPage from '@/pages/setup';
 import MainLayout from '@/layouts/main';
 import CompactLayout from '@/layouts/compact';
 import DashboardLayout from '@/layouts/dashboard';
+import ValidatorPollingTxPage from '@/pages/validator/validator-polling-tx';
 import ValidatorGenerateConfirmPage from '@/pages/validator/validator-generate-confirm';
 
 import { FixedHeader } from '@/components/common';
@@ -113,6 +114,14 @@ export default function Router() {
           element: (
             <WalletAndInitiatorBoundGuard>
               <ValidatorGenerateConfirmPage />
+            </WalletAndInitiatorBoundGuard>
+          ),
+        },
+        {
+          path: config.routes.validator.validatorPollingTx,
+          element: (
+            <WalletAndInitiatorBoundGuard>
+              <ValidatorPollingTxPage />
             </WalletAndInitiatorBoundGuard>
           ),
         },
