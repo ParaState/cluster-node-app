@@ -109,7 +109,7 @@ export function ClusterValidatorTable({
           View Deposit Data
         </LoadingButton>
 
-        <LoadingButton
+        {/* <LoadingButton
           variant="soft"
           color="inherit"
           onClick={() => {
@@ -117,7 +117,7 @@ export function ClusterValidatorTable({
           }}
         >
           Generate Validator
-        </LoadingButton>
+        </LoadingButton> */}
       </Stack>
 
       {false && (

@@ -122,6 +122,12 @@ export const navConfig = [
     title: 'Validators',
     path: config.routes.home,
     auth: true,
+    children: [
+      {
+        title: 'Generate Validator',
+        path: config.routes.validator.selectOperators,
+      },
+    ],
   },
 
   // {

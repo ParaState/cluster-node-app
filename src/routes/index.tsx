@@ -95,7 +95,13 @@ export default function Router() {
 
         {
           path: config.routes.validator.selectOperators,
-          element: <ValidatorSelectOperatorsPage />,
+          element: (
+            <WalletAuthGuard>
+              <InitiatorBoundGuard>
+                <ValidatorSelectOperatorsPage />
+              </InitiatorBoundGuard>
+            </WalletAuthGuard>
+          ),
         },
         {
           path: config.routes.validator.confirm,

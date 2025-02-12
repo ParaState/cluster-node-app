@@ -13,13 +13,10 @@ export type NavItemBaseProps = {
   title: string;
   path: string;
   icon?: React.ReactElement;
-  auth: boolean;
+  auth?: boolean;
   children?: {
-    subheader: string;
-    items: {
-      title: string;
-      path: string;
-    }[];
+    title: string;
+    path: string;
   }[];
 };
 
