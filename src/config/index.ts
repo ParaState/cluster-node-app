@@ -60,6 +60,7 @@ export const config = {
       confirm: '/validator/confirm/:txid',
       getConfirm: (txid) => `/validator/confirm/${txid}`,
       validatorExit: '/validator/exit',
+      validatorGenerateConfirm: '/validator/generate-confirm',
       // goValidatorExit: (pk: string) => `/validator/${pk}/exit`,
     },
   },

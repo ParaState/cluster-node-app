@@ -126,7 +126,7 @@ export function ClusterValidatorTable({
             <Skeleton variant="rectangular" width="100%" height={22} />
           ) : (
             <Typography variant="body2" color="text.secondary">
-              Fee Recipient Address: &nbsp;
+              Withdrawal Address: &nbsp;
               <Typography variant="body2" color="text.primary" display="inline" component="span">
                 {isAddressZero(getFeeRecipientAddressQuery.data)
                   ? address

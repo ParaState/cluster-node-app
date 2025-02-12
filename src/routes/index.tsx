@@ -7,6 +7,7 @@ import SetupPage from '@/pages/setup';
 import MainLayout from '@/layouts/main';
 import CompactLayout from '@/layouts/compact';
 import DashboardLayout from '@/layouts/dashboard';
+import ValidatorGenerateConfirmPage from '@/pages/validator/validator-generate-confirm';
 
 import { FixedHeader } from '@/components/common';
 import { LoadingScreen } from '@/components/loading-screen';
@@ -30,6 +31,14 @@ const ValidatorClusterConfirmPage = lazy(
   () => import('@/pages/validator/validator-cluster-confirm')
 );
 
+function WalletAndInitiatorBoundGuard({ children }: { children: React.ReactNode }) {
+  return (
+    <WalletAuthGuard>
+      <InitiatorBoundGuard>{children}</InitiatorBoundGuard>
+    </WalletAuthGuard>
+  );
+}
+
 export default function Router() {
   return useRoutes([
     {
@@ -44,12 +53,10 @@ export default function Router() {
       children: [
         {
           element: (
-            <WalletAuthGuard>
-              <InitiatorBoundGuard>
-                <FixedHeader />
-                <MyAccountPage />
-              </InitiatorBoundGuard>
-            </WalletAuthGuard>
+            <WalletAndInitiatorBoundGuard>
+              <FixedHeader />
+              <MyAccountPage />
+            </WalletAndInitiatorBoundGuard>
           ),
           index: true,
         },
@@ -96,11 +103,17 @@ export default function Router() {
         {
           path: config.routes.validator.selectOperators,
           element: (
-            <WalletAuthGuard>
-              <InitiatorBoundGuard>
-                <ValidatorSelectOperatorsPage />
-              </InitiatorBoundGuard>
-            </WalletAuthGuard>
+            <WalletAndInitiatorBoundGuard>
+              <ValidatorSelectOperatorsPage />
+            </WalletAndInitiatorBoundGuard>
+          ),
+        },
+        {
+          path: config.routes.validator.validatorGenerateConfirm,
+          element: (
+            <WalletAndInitiatorBoundGuard>
+              <ValidatorGenerateConfirmPage />
+            </WalletAndInitiatorBoundGuard>
           ),
         },
         {

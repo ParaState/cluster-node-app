@@ -64,7 +64,7 @@ export const useClusterNode = () => {
       args: [BigInt(action)],
     });
 
-    return result;
+    return result || 0n;
   };
 
   // bytes memory clusterNodePublicKey,

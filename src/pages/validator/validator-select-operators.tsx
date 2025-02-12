@@ -1,8 +1,8 @@
 import { z } from 'zod';
+import { isAddress } from 'viem';
 import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
-import { isAddress, parseEther } from 'viem';
 import { Fragment, useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -15,7 +15,6 @@ import {
   Link,
   Table,
   Paper,
-  Tooltip,
   Divider,
   Checkbox,
   TableRow,
@@ -38,16 +37,13 @@ import {
 import { useRouter } from '@/routes/hooks';
 
 import { useOperatorList } from '@/hooks/api';
-import { useClusterNode, ClusterNodeActionFee } from '@/hooks/contract/cluster-node';
-import { useTokenApprovalWithAddress } from '@/hooks/contract/token/use-token-approval';
 
 import { parseVersion, formatVersion } from '@/utils/format';
 
 import { config } from '@/config';
-import services from '@/services';
 import { useBoolean } from '@/hooks';
 import { SortTypeEnum } from '@/types';
-import { useSelectedOperators } from '@/stores';
+import { useSelectedOperators, useGenerateValidatorInfo } from '@/stores';
 
 import Iconify from '@/components/iconify';
 import Scrollbar from '@/components/scrollbar';
@@ -69,7 +65,6 @@ export default function ValidatorSelectorOperatorsPage() {
   const router = useRouter();
 
   const theme = useTheme();
-  const { generateDepositData, getActionFee } = useClusterNode();
   const { address } = useAccount();
 
   const [filterBy, setFilterBy] = useState({});
@@ -82,8 +77,6 @@ export default function ValidatorSelectorOperatorsPage() {
   const [sortType = SortTypeEnum.asc, setSortType] = useState<SortTypeEnum>();
   const generateLoading = useBoolean();
 
-  const { approveAllowance } = useTokenApprovalWithAddress(config.contractAddress.clusterNode);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -94,6 +87,8 @@ export default function ValidatorSelectorOperatorsPage() {
   });
 
   const { handleSubmit } = form;
+
+  const { setGenerateValidator } = useGenerateValidatorInfo();
 
   const {
     selectedOperators,
@@ -184,38 +179,47 @@ export default function ValidatorSelectorOperatorsPage() {
     // }
 
     const { validatorCount, withdrawalAddress } = data;
+    const operatorIds = selectedOperators.map((op) => op.id).sort((a, b) => a - b);
+    setGenerateValidator({
+      operatorIds,
+      validatorCount,
+      withdrawalAddress,
+    });
 
-    try {
-      generateLoading.onTrue();
+    router.push(config.routes.validator.validatorGenerateConfirm);
 
-      const result = await services.clusterNode.getInitiatorStatus();
+    // return; //
 
-      const fee = await getActionFee(ClusterNodeActionFee.GENERATE_DEPOSIT_DATA);
+    // try {
+    //   generateLoading.onTrue();
 
-      const approveResult = await approveAllowance(fee! * BigInt(validatorCount));
+    //   const result = await services.clusterNode.getInitiatorStatus();
 
-      if (!approveResult.isTokenEnough) {
-        enqueueSnackbar('Insufficient balance', { variant: 'error' });
-        return;
-      }
+    //   const fee = await getActionFee(ClusterNodeActionFee.GENERATE_DEPOSIT_DATA);
 
-      const operatorIds = selectedOperators.map((op) => op.id).sort((a, b) => a - b);
-      console.log('🚀 ~ onSubmit ~ operatorIds:', operatorIds);
+    //   const approveResult = await approveAllowance(fee! * BigInt(validatorCount));
 
-      const receipt = await generateDepositData(
-        result.cluster_pubkey,
-        validatorCount,
-        // TODO: uncomment
-        [12, 14, 15, 16],
-        // operatorIds
-        parseEther('32'),
-        withdrawalAddress as `0x${string}`
-      );
+    //   if (!approveResult.isTokenEnough) {
+    //     enqueueSnackbar('Insufficient balance', { variant: 'error' });
+    //     return;
+    //   }
 
-      router.push(config.routes.validator.getConfirm(receipt?.transactionHash));
-    } finally {
-      generateLoading.onFalse();
-    }
+    //   console.log('🚀 ~ onSubmit ~ operatorIds:', operatorIds);
+
+    //   const receipt = await generateDepositData(
+    //     result.cluster_pubkey,
+    //     validatorCount,
+    //     // TODO: uncomment
+    //     // [12, 14, 15, 16],
+    //     operatorIds,
+    //     parseEther('32'),
+    //     withdrawalAddress as `0x${string}`
+    //   );
+
+    //   router.push(config.routes.validator.getConfirm(receipt?.transactionHash));
+    // } finally {
+    //   generateLoading.onFalse();
+    // }
   });
 
   return (
@@ -346,12 +350,6 @@ export default function ValidatorSelectorOperatorsPage() {
                           </Typography>
                           {/* <CommonSortIcon sort={sortType} isActive={sortId === 'validator_count'} /> */}
                         </Stack>
-
-                        {false && (
-                          <Tooltip title="Monthly performance" enterTouchDelay={0}>
-                            <Iconify icon="material-symbols:info" width={16} />
-                          </Tooltip>
-                        )}
                       </Stack>
                     </StyledTableCell>
 
@@ -583,18 +581,16 @@ export default function ValidatorSelectorOperatorsPage() {
 
                   <Box sx={{ width: 1, mb: 2 }}>
                     <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">Fee recipient address</Typography>
-                      <Tooltip title="The fee recipient address is where you will receive your validator rewards. This can be any Ethereum address that you control.">
-                        <Link
-                          variant="body2"
-                          underline="always"
-                          target="_blank"
-                          href={config.links.lidoCsm}
-                          sx={{ p: 0.5 }}
-                        >
-                          (Lido CSM)
-                        </Link>
-                      </Tooltip>
+                      <Typography variant="subtitle2">Withdrawal address</Typography>
+                      <Link
+                        variant="body2"
+                        underline="always"
+                        target="_blank"
+                        href={config.links.lidoCsm}
+                        sx={{ p: 0.5 }}
+                      >
+                        (Lido CSM)
+                      </Link>
                     </Stack>
 
                     <RHFTextField
