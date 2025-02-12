@@ -33,9 +33,9 @@ import { useFeeReceiptAddress } from '@/hooks/contract';
 import { isAddressZero, longStringShorten } from '@/utils/string';
 
 import { config } from '@/config';
-import { useBoolean } from '@/hooks';
 import { formatTimestamp } from '@/utils';
 import { useSelectedOperators } from '@/stores';
+import { useBoolean, useCopyToClipboard } from '@/hooks';
 import { IRequestCommonPagination, IResponseClusterNodeValidatorItem } from '@/types';
 
 import Label from '@/components/label';
@@ -63,6 +63,8 @@ export function ClusterValidatorTable({
   address,
 }: Props) {
   const router = useRouter();
+
+  const { copy } = useCopyToClipboard();
 
   const { getFeeRecipientAddressQuery } = useFeeReceiptAddress(address!);
 
@@ -111,7 +113,7 @@ export function ClusterValidatorTable({
           variant="soft"
           color="inherit"
           onClick={() => {
-            router.push(config.routes.setup);
+            router.push(config.routes.validator.selectOperators);
           }}
         >
           Generate Validator
@@ -189,6 +191,8 @@ export function ClusterValidatorTable({
                         href={`${config.links.validator(row.pubkey)}`}
                         target="_blank"
                         sx={{ fontFamily: 'monospace' }}
+                        data-tooltip-id="pubkey-tooltip"
+                        data-tooltip-content={row.pubkey}
                       >
                         {longStringShorten(row.pubkey)}
                       </Link>
@@ -279,7 +283,7 @@ export function ClusterValidatorTable({
           <Button
             variant="contained"
             onClick={() => {
-              navigator.clipboard.writeText(
+              copy(
                 JSON.stringify(
                   selectedRow.map((row) => JSON.parse(row.deposit_data)),
                   null,

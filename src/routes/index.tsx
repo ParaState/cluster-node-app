@@ -11,6 +11,7 @@ import DashboardLayout from '@/layouts/dashboard';
 import { FixedHeader } from '@/components/common';
 import { LoadingScreen } from '@/components/loading-screen';
 import WalletAuthGuard from '@/components/auth/wallet-auth-guard';
+import InitiatorBoundGuard from '@/components/auth/initiator-bound-guard';
 
 const Page404 = lazy(() => import('@/pages/404'));
 
@@ -44,8 +45,10 @@ export default function Router() {
         {
           element: (
             <WalletAuthGuard>
-              <FixedHeader />
-              <MyAccountPage />
+              <InitiatorBoundGuard>
+                <FixedHeader />
+                <MyAccountPage />
+              </InitiatorBoundGuard>
             </WalletAuthGuard>
           ),
           index: true,

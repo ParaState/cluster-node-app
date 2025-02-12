@@ -6,6 +6,11 @@ export interface IResponseInitiatorStatus {
   updated_at: number;
 }
 
+export enum IResponseInitiatorStatusEnum {
+  ready = 'Ready',
+  completed = 'Completed',
+}
+
 export enum IResponseValidatorStatusEnum {
   ready = 'ready',
   registered = 'registered',

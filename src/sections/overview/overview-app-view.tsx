@@ -16,7 +16,7 @@ import services from '@/services';
 import { config } from '@/config';
 import { useBoolean } from '@/hooks';
 import { HEADER } from '@/layouts/config-layout';
-import { IResponseInitiatorStatus } from '@/types';
+import { IResponseInitiatorStatus, IResponseInitiatorStatusEnum } from '@/types';
 
 import Iconify from '@/components/iconify';
 import LoadingScreen from '@/components/loading-screen/loading-screen';
@@ -260,7 +260,7 @@ export default function OverviewAppView() {
       return;
     }
 
-    if (initiatorStatus?.status !== 'Completed') {
+    if (initiatorStatus?.status !== IResponseInitiatorStatusEnum.completed) {
       enqueueSnackbar(
         `Please wait for initiator status to be completed, status: ${initiatorStatus?.status}`,
         {
@@ -402,7 +402,10 @@ export default function OverviewAppView() {
           <SetupItem
             index="4"
             title="Select operators to generate deposit data"
-            checked={initiatorStatus?.status === 'Completed' && initiatorStatus?.owner === address}
+            checked={
+              initiatorStatus?.status === IResponseInitiatorStatusEnum.completed &&
+              initiatorStatus?.owner === address
+            }
             onClick={goToSelectOperators}
             buttonText="run"
             divider={false}

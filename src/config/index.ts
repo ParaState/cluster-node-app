@@ -119,15 +119,11 @@ export const config = {
 
 export const navConfig = [
   {
-    title: 'My Account',
+    title: 'Validators',
     path: config.routes.home,
     auth: true,
   },
-  {
-    title: 'Explorer',
-    path: config.links.explorer,
-    auth: false,
-  },
+
   // {
   //   title: 'Docs',
   //   path: config.links.docs,
@@ -136,6 +132,11 @@ export const navConfig = [
   {
     title: 'Setup',
     path: config.routes.setup,
+    auth: true,
+  },
+  {
+    title: 'Explorer',
+    path: config.links.explorer,
     auth: false,
   },
 ];
