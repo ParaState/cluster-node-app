@@ -10,6 +10,7 @@ import { useClusterNode } from '@/hooks/contract';
 import { getClusterPubkey, setClusterPubkey } from '@/utils/storage-available';
 
 import services from '@/services';
+import { IResponseValidatorStatusEnum } from '@/types';
 
 export default function TestClusterPage() {
   const { address } = useAccount();
@@ -96,7 +97,7 @@ export default function TestClusterPage() {
   const updateValidatorStatusClick = async () => {
     const result = await services.clusterNode.updateValidatorStatus(
       '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb9226111111',
-      'register',
+      IResponseValidatorStatusEnum.registered,
       '0xffb3653637767ba5d5a36c28af7c2f9c4cf7c4aff57148a1b7e2eb802ce04cf4'
     );
 

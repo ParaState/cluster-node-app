@@ -150,5 +150,3 @@ export const navConfig = [
 ];
 
 // console.log(config);
-
-export const watchingBlockNumberPaths = [config.routes.validator.confirm, config.routes.dashboard];
