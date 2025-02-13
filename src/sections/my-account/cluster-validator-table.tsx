@@ -86,7 +86,8 @@ export function ClusterValidatorTable({
 
   useEffect(() => {
     resetSelectedValidator();
-  }, [resetSelectedValidator]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const removeLoading = useBoolean();
 
