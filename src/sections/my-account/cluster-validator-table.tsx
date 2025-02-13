@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { upperFirst } from 'lodash';
 import { UseQueryResult } from '@tanstack/react-query';
 
 import { LoadingButton } from '@mui/lab';
@@ -10,6 +11,7 @@ import {
   Table,
   Dialog,
   Button,
+  Tooltip,
   TableRow,
   useTheme,
   MenuItem,
@@ -17,6 +19,7 @@ import {
   Checkbox,
   TableBody,
   TableCell,
+  FormGroup,
   CardHeader,
   IconButton,
   Typography,
@@ -24,6 +27,7 @@ import {
   DialogActions,
   DialogContent,
   TableContainer,
+  FormControlLabel,
 } from '@mui/material';
 
 import { useRouter } from '@/routes/hooks';
@@ -36,14 +40,18 @@ import { config } from '@/config';
 import { formatTimestamp } from '@/utils';
 import { useSelectedOperators } from '@/stores';
 import { useBoolean, useCopyToClipboard } from '@/hooks';
-import { IRequestCommonPagination, IResponseClusterNodeValidatorItem } from '@/types';
+import {
+  IRequestCommonPagination,
+  IResponseValidatorStatusEnum,
+  IResponseClusterNodeValidatorItem,
+} from '@/types';
 
 import Label from '@/components/label';
 import Iconify from '@/components/iconify';
 import Scrollbar from '@/components/scrollbar';
 import CopyButton from '@/components/copy-button';
 import { useSnackbar } from '@/components/snackbar';
-import { TableNoData, TableHeadCustom } from '@/components/table';
+import { TableNoData, StyledTableCell } from '@/components/table';
 import CustomPopover, { usePopover } from '@/components/custom-popover';
 import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
 
@@ -68,6 +76,12 @@ export function ClusterValidatorTable({
 
   const { getFeeRecipientAddressQuery } = useFeeReceiptAddress(address!);
 
+  const [validatorFilter, setValidatorFilter] = useState<{
+    status: string;
+  }>({
+    status: IResponseValidatorStatusEnum.all,
+  });
+
   const removeLoading = useBoolean();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -77,14 +91,32 @@ export function ClusterValidatorTable({
   const theme = useTheme();
 
   const popover = usePopover();
+  // const filterPopover = usePopover();
 
   const { value: dialogOpen, ...setDialogOpen } = useBoolean(false);
 
   const [selectedRow, setSelectedRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
 
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+
   const viewValidatorClick = async () => {
     setDialogOpen.onTrue();
   };
+
+  const handleApplyFilter = (filter: any) => {
+    setValidatorFilter({ ...filter });
+    setFilterDialogOpen(false);
+  };
+
+  const handleClearFilter = () => {
+    setValidatorFilter({ status: IResponseValidatorStatusEnum.all });
+    setFilterDialogOpen(false);
+  };
+
+  const filteredData = clusterValidatorQuery.data?.filter((row) => {
+    if (validatorFilter.status === IResponseValidatorStatusEnum.all) return true;
+    return row.status === validatorFilter.status;
+  });
 
   return (
     <Card>
@@ -152,7 +184,7 @@ export function ClusterValidatorTable({
       <TableContainer sx={{ overflow: 'unset' }}>
         <Scrollbar sx={{ maxHeight: 800 }}>
           <Table stickyHeader>
-            <TableHeadCustom
+            {/* <TableHeadCustom
               headLabel={[
                 { id: 'id', label: 'Public Key', align: 'left' },
                 { id: 'owner', label: 'Owner', align: 'left' },
@@ -168,11 +200,108 @@ export function ClusterValidatorTable({
                   setSelectedRow([]);
                 }
               }}
-            />
+            /> */}
+
+            <TableRow>
+              <StyledTableCell padding="checkbox">
+                <Checkbox
+                  indeterminate={
+                    !!selectedRow.length &&
+                    selectedRow.length < (clusterValidatorQuery.data?.length || 0)
+                  }
+                  checked={
+                    !!clusterValidatorQuery.data?.length &&
+                    selectedRow.length === clusterValidatorQuery.data?.length
+                  }
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    if (event.target.checked) {
+                      setSelectedRow(clusterValidatorQuery.data || []);
+                    } else {
+                      setSelectedRow([]);
+                    }
+                  }}
+                />
+              </StyledTableCell>
+
+              <StyledTableCell align="left">
+                <Typography variant="caption">Public Key</Typography>
+              </StyledTableCell>
+
+              <StyledTableCell align="left">
+                <Typography variant="caption">Owner</Typography>
+              </StyledTableCell>
+
+              <StyledTableCell
+                align="center"
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    color: () => theme.palette.primary.main,
+                  },
+                }}
+                // onClick={(event) => {
+                //   // setFilterDialogOpen(true);
+                //   filterPopover.onOpen(event);
+                // }}
+              >
+                <Tooltip
+                  slotProps={{
+                    tooltip: {
+                      sx: {
+                        color: '#514E6A',
+                        backgroundColor: '#ffff',
+                        boxShadow: theme.customShadows.dropdown,
+                        p: theme.spacing(1),
+                      },
+                    },
+                  }}
+                  title={
+                    <Stack spacing={1}>
+                      {Object.values(IResponseValidatorStatusEnum).map((status) => (
+                        <MenuItem
+                          key={status}
+                          onClick={() => {
+                            setValidatorFilter({ status });
+                            // filterPopover.onClose();
+                          }}
+                        >
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={validatorFilter.status === status}
+                                onChange={() => {
+                                  setValidatorFilter({ status });
+                                  // filterPopover.onClose();
+                                }}
+                              />
+                            }
+                            label={status}
+                          />
+                        </MenuItem>
+                      ))}
+                    </Stack>
+                  }
+                >
+                  <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
+                    <Typography variant="caption">Status</Typography>
+                    <Iconify
+                      icon={
+                        validatorFilter.status !== IResponseValidatorStatusEnum.all
+                          ? 'iconoir:filter-solid'
+                          : 'iconoir:filter'
+                      }
+                      width={16}
+                    />
+                  </Stack>
+                </Tooltip>
+              </StyledTableCell>
+
+              <StyledTableCell align="right">Created At</StyledTableCell>
+            </TableRow>
 
             <TableBody>
               {clusterValidatorQuery.isLoading && <SimpleTableSkeleton skeletonCounter={10} />}
-              {clusterValidatorQuery.data?.map((row, index) => (
+              {filteredData?.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell padding="checkbox">
                     <Checkbox
@@ -212,54 +341,15 @@ export function ClusterValidatorTable({
                     </Label>
                   </TableCell>
 
-                  <TableCell align="center">
+                  <TableCell align="right">
                     <Typography variant="body2" color="text.secondary">
                       {formatTimestamp(row.created_at)}
                     </Typography>
                   </TableCell>
-
-                  {/* <TableCell
-                      align="center"
-                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end' }}
-                    >
-                      <Tooltip title="Remove validator" placement="top">
-                        <LoadingButton
-                          // loading={currentRemoveValidator.current === row.pk}
-                          loadingPosition="start"
-                          // onClick={() => removeValidatorClick(row.pk)}
-                          sx={{ '& .MuiButton-startIcon': { mr: 0 } }}
-                          startIcon={
-                            <Iconify
-                              sx={{ mr: 0 }}
-                              width={24}
-                              icon="material-symbols:delete-outline"
-                              color={theme.palette.grey[600]}
-                            />
-                          }
-                        />
-                      </Tooltip>
-
-                      <Tooltip title="Validator exit" placement="top">
-                        <LoadingButton
-                          onClick={() =>
-                            // router.push(config.routes.validator.goValidatorExit(row.pk))
-                            router.push(config.routes.validator.validatorExit)
-                          }
-                          sx={{ '& .MuiButton-startIcon': { mr: 0 } }}
-                          startIcon={
-                            <Iconify
-                              width={24}
-                              icon="iconamoon:exit-bold"
-                              color={theme.palette.grey[600]}
-                            />
-                          }
-                        />
-                      </Tooltip>
-                    </TableCell> */}
                 </TableRow>
               ))}
 
-              {clusterValidatorQuery.data?.length === 0 && <TableNoData />}
+              {filteredData?.length === 0 && <TableNoData />}
             </TableBody>
           </Table>
         </Scrollbar>
@@ -321,19 +411,90 @@ export function ClusterValidatorTable({
         </DialogActions>
       </Dialog>
 
-      {/* {!clusterValidatorQuery.isLoading && (
-        <TablePaginationCustom
-          count={clusterValidatorQuery.data?.length || 0}
-          page={pagination.offset}
-          rowsPerPage={pagination.limit}
-          // rowsPerPageOptions={[]}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          dense={false}
-          showFirstButton
-          showLastButton
-        />
-      )} */}
+      {/* <CustomPopover
+        open={filterPopover.open}
+        onClose={filterPopover.onClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        {Object.values(IResponseValidatorStatusEnum).map((status) => (
+          <MenuItem
+            key={status}
+            onClick={() => {
+              setValidatorFilter({ status });
+              filterPopover.onClose();
+            }}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={validatorFilter.status === status}
+                  onChange={() => {
+                    setValidatorFilter({ status });
+                    filterPopover.onClose();
+                  }}
+                />
+              }
+              label={upperFirst(status)}
+            />
+          </MenuItem>
+        ))}
+      </CustomPopover> */}
+
+      <Dialog
+        open={filterDialogOpen}
+        onClose={() => setFilterDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Typography variant="h6">Filter by Status</Typography>
+            <IconButton aria-label="close" onClick={() => setFilterDialogOpen(false)}>
+              <Iconify icon="eva:close-fill" color={theme.palette.common.black} />
+            </IconButton>
+          </Stack>
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={2}>
+            {/* <TextField
+              fullWidth
+              label="Public Key"
+              value={publicKeyFilter}
+              onChange={(e) => setPublicKeyFilter(e.target.value)}
+              sx={{ my: 1 }}
+            /> */}
+            <FormGroup>
+              {Object.values(IResponseValidatorStatusEnum)
+                // .filter((status) => status !== IResponseValidatorStatusEnum.all)
+                .map((status) => (
+                  <FormControlLabel
+                    key={status}
+                    control={
+                      <Checkbox
+                        checked={validatorFilter.status === status}
+                        onChange={(e) => {
+                          setValidatorFilter({
+                            status: e.target.checked ? status : '',
+                          });
+                        }}
+                      />
+                    }
+                    label={upperFirst(status)}
+                  />
+                ))}
+            </FormGroup>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClearFilter}>Clear</Button>
+          <Button onClick={() => handleApplyFilter(validatorFilter)} variant="contained">
+            Apply
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }

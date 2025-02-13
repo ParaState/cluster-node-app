@@ -12,11 +12,11 @@ export enum IResponseInitiatorStatusEnum {
 }
 
 export enum IResponseValidatorStatusEnum {
-  ready = 'ready',
-  registered = 'registered',
-  deposited = 'deposited',
-  exited = 'exited',
-  all = 'all',
+  all = 'All',
+  ready = 'Ready',
+  registered = 'Registered',
+  deposited = 'Deposited',
+  exited = 'Exited',
 }
 
 export interface IResponseClusterNodeValidatorItem {
