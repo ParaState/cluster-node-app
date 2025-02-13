@@ -1,6 +1,6 @@
 import { useWatchAsset } from 'wagmi';
 import { enqueueSnackbar } from 'notistack';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
@@ -21,7 +21,7 @@ import {
   StepContent,
 } from '@mui/material';
 
-import { useParams, useRouter } from '@/routes/hooks';
+import { useRouter } from '@/routes/hooks';
 
 import { useBoolean } from '@/hooks/use-boolean';
 import { useTokenBalance, useRegisterValidator } from '@/hooks/contract';
@@ -31,11 +31,8 @@ import { formatEtherFixed } from '@/utils/format';
 
 import { config } from '@/config';
 import services from '@/services';
-import {
-  CurrentFeeMode,
-  IResponseValidatorStatusEnum,
-  IResponseClusterNodeValidatorItem,
-} from '@/types';
+import { useSelectedValidator } from '@/stores';
+import { CurrentFeeMode, IResponseValidatorStatusEnum } from '@/types';
 
 import Iconify from '@/components/iconify';
 import { CommonBack } from '@/components/common';
@@ -47,17 +44,14 @@ const batchSize = 20;
 
 export default function ValidatorClusterConfirmPage() {
   const router = useRouter();
-  const { txid } = useParams();
 
   const { watchAsset } = useWatchAsset();
 
-  const [clusterNodeValidators, setClusterNodeValidators] = useState<
-    IResponseClusterNodeValidatorItem[]
-  >([]);
+  const { selectedValidator } = useSelectedValidator();
 
   const clusterNodeValidatorsGrouped = Array.from(
-    { length: Math.ceil(clusterNodeValidators.length / batchSize) },
-    (_, i) => clusterNodeValidators.slice(i * batchSize, (i + 1) * batchSize)
+    { length: Math.ceil(selectedValidator.length / batchSize) },
+    (_, i) => selectedValidator.slice(i * batchSize, (i + 1) * batchSize)
   );
 
   const [successIndex, setSuccessIndex] = useState<number[]>([]);
@@ -79,7 +73,7 @@ export default function ValidatorClusterConfirmPage() {
 
   const { balance } = useTokenBalance();
 
-  const currentFee = getSubscriptionFeeFeeByFeeMode(currentFeeMode, clusterNodeValidators.length);
+  const currentFee = getSubscriptionFeeFeeByFeeMode(currentFeeMode, selectedValidator.length);
 
   const { registerClusterNodeValidator, registerClusterNodeValidatorEstimation } =
     useRegisterValidator();
@@ -101,20 +95,6 @@ export default function ValidatorClusterConfirmPage() {
       return newArr;
     });
   };
-
-  const fetchValidators = useCallback(async () => {
-    const res = await services.clusterNode.queryValidatorStatus(
-      IResponseValidatorStatusEnum.all,
-      IResponseValidatorStatusEnum.all,
-      txid!
-    );
-    setClusterNodeValidators(res);
-  }, [txid]);
-
-  useEffect(() => {
-    if (!txid) return;
-    fetchValidators();
-  }, [fetchValidators, txid]);
 
   useEffect(() => {
     setActiveStep(0);
@@ -153,7 +133,9 @@ export default function ValidatorClusterConfirmPage() {
   const onRunValidatorClick = async (index: number) => {
     setRunningValidatorIndex(index);
 
-    const validator = clusterNodeValidatorsGrouped[index].filter((v) => v.deposit_data);
+    const currentGroupValidators = clusterNodeValidatorsGrouped[index];
+
+    const validator = currentGroupValidators.filter((v) => v.deposit_data);
     console.log('🚀 ~ onRunValidatorClick ~ validator:', validator);
 
     // setRunningValidatorIndex(index);
@@ -168,7 +150,14 @@ export default function ValidatorClusterConfirmPage() {
     }
 
     try {
-      await registerClusterNodeValidator(validator, currentFee);
+      const txid = await registerClusterNodeValidator(validator, currentFee);
+
+      await services.clusterNode.updateValidatorStatusBatch(
+        validator,
+        IResponseValidatorStatusEnum.registered,
+        txid
+      );
+
       setSuccessIndex((prev) => [...prev, index]);
     } catch (error) {
       enqueueSnackbar(error?.details || error?.message, { variant: 'error' });
@@ -184,7 +173,7 @@ export default function ValidatorClusterConfirmPage() {
         return (
           <Stack direction="column" alignItems="start" className="step1" flexGrow={1}>
             <Typography variant="body1" mb={2}>
-              Total Validators: {clusterNodeValidators.length}
+              Total Validators: {selectedValidator.length}
             </Typography>
 
             {/* <Stack direction="column" alignItems="start">
@@ -277,7 +266,7 @@ export default function ValidatorClusterConfirmPage() {
         return (
           <Stack direction="column" alignItems="start" className="step2" flexGrow={1}>
             <Typography variant="body1" mb={2}>
-              You Have {clusterNodeValidators.length} Validators, Validator Public Keys:
+              You Have {selectedValidator.length} Validators, Validator Public Keys:
             </Typography>
 
             <Box
@@ -349,7 +338,7 @@ export default function ValidatorClusterConfirmPage() {
                 disabled={successIndex.length !== clusterNodeValidatorsGrouped.length}
                 disableRipple
                 onClick={() => {
-                  router.replace(config.routes.validator.success);
+                  router.replace(config.routes.home);
                 }}
               >
                 Finish

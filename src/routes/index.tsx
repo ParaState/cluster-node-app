@@ -126,8 +126,12 @@ export default function Router() {
           ),
         },
         {
-          path: config.routes.validator.confirm,
-          element: <ValidatorClusterConfirmPage />,
+          path: config.routes.validator.validatorRegistrationNetwork,
+          element: (
+            <WalletAndInitiatorBoundGuard>
+              <ValidatorClusterConfirmPage />
+            </WalletAndInitiatorBoundGuard>
+          ),
         },
         { path: config.routes.validator.success, element: <ValidatorSuccessPage /> },
       ],

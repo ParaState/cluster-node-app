@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { upperFirst } from 'lodash';
+import { useState, useEffect } from 'react';
 import { UseQueryResult } from '@tanstack/react-query';
 
 import { LoadingButton } from '@mui/lab';
@@ -38,8 +38,8 @@ import { isAddressZero, longStringShorten } from '@/utils/string';
 
 import { config } from '@/config';
 import { formatTimestamp } from '@/utils';
-import { useSelectedOperators } from '@/stores';
 import { useBoolean, useCopyToClipboard } from '@/hooks';
+import { useSelectedOperators, useSelectedValidator } from '@/stores';
 import {
   IRequestCommonPagination,
   IResponseValidatorStatusEnum,
@@ -76,11 +76,17 @@ export function ClusterValidatorTable({
 
   const { getFeeRecipientAddressQuery } = useFeeReceiptAddress(address!);
 
+  const { setSelectedValidator, resetSelectedValidator } = useSelectedValidator();
+
   const [validatorFilter, setValidatorFilter] = useState<{
     status: string;
   }>({
     status: IResponseValidatorStatusEnum.all,
   });
+
+  useEffect(() => {
+    resetSelectedValidator();
+  }, [resetSelectedValidator]);
 
   const removeLoading = useBoolean();
 
@@ -141,15 +147,24 @@ export function ClusterValidatorTable({
           View Deposit Data
         </LoadingButton>
 
-        {/* <LoadingButton
+        <LoadingButton
           variant="soft"
           color="inherit"
+          disabled={selectedRow.length === 0}
           onClick={() => {
-            router.push(config.routes.validator.selectOperators);
+            const isAllReady = selectedRow.every(
+              (row) => row.status === IResponseValidatorStatusEnum.ready
+            );
+            if (isAllReady) {
+              setSelectedValidator(selectedRow);
+              router.push(config.routes.validator.validatorRegistrationNetwork);
+            } else {
+              enqueueSnackbar('Please select all ready validators');
+            }
           }}
         >
-          Generate Validator
-        </LoadingButton> */}
+          Register Validator
+        </LoadingButton>
       </Stack>
 
       {false && (
@@ -184,24 +199,6 @@ export function ClusterValidatorTable({
       <TableContainer sx={{ overflow: 'unset' }}>
         <Scrollbar sx={{ maxHeight: 800 }}>
           <Table stickyHeader>
-            {/* <TableHeadCustom
-              headLabel={[
-                { id: 'id', label: 'Public Key', align: 'left' },
-                { id: 'owner', label: 'Owner', align: 'left' },
-                { id: 'status', label: 'Status', align: 'center' },
-                { id: 'created_at', label: 'Created At', align: 'center' },
-              ]}
-              rowCount={clusterValidatorQuery.data?.length || 0}
-              numSelected={selectedRow.length}
-              onSelectAllRows={(checked) => {
-                if (checked) {
-                  setSelectedRow(clusterValidatorQuery.data || []);
-                } else {
-                  setSelectedRow([]);
-                }
-              }}
-            /> */}
-
             <TableRow>
               <StyledTableCell padding="checkbox">
                 <Checkbox

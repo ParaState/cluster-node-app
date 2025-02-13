@@ -102,6 +102,8 @@ export const useRegisterValidator = () => {
     await client?.waitForTransactionReceipt({
       hash,
     });
+
+    return hash;
   };
 
   const registerClusterNodeValidatorEstimation = async (

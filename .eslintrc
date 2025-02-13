@@ -45,6 +45,8 @@
     "jsx-a11y/control-has-associated-label": 0,
     "@typescript-eslint/no-use-before-define": 0,
     "import/no-cycle": [1, { "maxDepth": 1 }],
+    "no-await-in-loop": 0,
+    "no-restricted-syntax": 0,
     "react/jsx-no-useless-fragment": [
       1,
       {
