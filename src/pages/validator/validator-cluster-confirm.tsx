@@ -36,9 +36,8 @@ import { CurrentFeeMode, IRequestValidatorActionEnum } from '@/types';
 
 import Iconify from '@/components/iconify';
 import { CommonBack } from '@/components/common';
-import { ValidatorBeachonLink } from '@/components/validator';
 import { useGlobalConfig } from '@/components/global-config-init';
-import ValidatorFeeToggleButton from '@/components/validator/validator-fee-toggle-button';
+import { ValidatorBeachonLink, ValidatorFeeToggleButton } from '@/components/validator';
 
 const batchSize = 20;
 

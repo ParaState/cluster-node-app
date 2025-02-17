@@ -31,7 +31,7 @@ import {
 
 import { useRouter } from '@/routes/hooks';
 
-import { useClusterNode, useFeeReceiptAddress } from '@/hooks/contract';
+import { useClusterNode } from '@/hooks/contract';
 
 import { longStringShorten } from '@/utils/string';
 
@@ -53,8 +53,7 @@ import { useSnackbar } from '@/components/snackbar';
 import { TableNoData, StyledTableCell } from '@/components/table';
 import CustomPopover, { usePopover } from '@/components/custom-popover';
 import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
-
-import { ValidatorSetFeeReceiptBox, ValidatorSetFeeReceiptDialog } from '@/sections/my-account';
+import { ValidatorSetFeeReceiptBox, ValidatorSetFeeReceiptDialog } from '@/components/validator';
 
 type Props = {
   clusterValidatorQuery: UseQueryResult<IResponseClusterNodeValidatorItem[], Error>;
@@ -76,8 +75,6 @@ export function ClusterValidatorTable({
   const router = useRouter();
 
   const { copy } = useCopyToClipboard();
-
-  const { getFeeRecipientAddressQuery } = useFeeReceiptAddress(address!);
 
   const { setSelectedValidator, resetSelectedValidator } = useSelectedValidator();
 

@@ -43,8 +43,7 @@ import CustomPopover, { usePopover } from '@/components/custom-popover';
 import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
 import { TableHeadCustom, TablePaginationCustom } from '@/components/table';
 import { SubscriptionEstimateFeePaid } from '@/components/subscription-fee-paid';
-
-import { ValidatorSetFeeReceiptDialog } from '@/sections/my-account/validator-set-fee-receipt-dialog';
+import { ValidatorSetFeeReceiptDialog } from '@/components/validator/validator-set-fee-receipt-dialog';
 
 type Props = {
   validatorQuery: UseQueryResult<IResponseValidators, Error>;
@@ -316,11 +315,7 @@ export function OwnedValidatorTable({
         />
       )}
       {/* {dialogOpen && ( */}
-      <ValidatorSetFeeReceiptDialog
-        pks={selectedRow.map((row) => row.pk)}
-        dialogOpen={dialogOpen}
-        onClose={setDialogOpen.onFalse}
-      />
+      <ValidatorSetFeeReceiptDialog dialogOpen={dialogOpen} onClose={setDialogOpen.onFalse} />
       {/* )} */}
     </Card>
   );

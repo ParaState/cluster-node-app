@@ -9,7 +9,7 @@ interface ValidatorFeeToggleButtonProps {
   onChange: (value: CurrentFeeMode) => void;
 }
 
-export default function ValidatorFeeToggleButton(props: ValidatorFeeToggleButtonProps) {
+export function ValidatorFeeToggleButton(props: ValidatorFeeToggleButtonProps) {
   const { onChange } = props;
   const [feeMode, setFeeMode] = useState(CurrentFeeMode.month);
 
