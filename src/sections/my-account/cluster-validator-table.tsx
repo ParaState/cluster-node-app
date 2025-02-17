@@ -15,7 +15,6 @@ import {
   TableRow,
   useTheme,
   MenuItem,
-  Skeleton,
   Checkbox,
   TableBody,
   TableCell,
@@ -32,9 +31,9 @@ import {
 
 import { useRouter } from '@/routes/hooks';
 
-import { useFeeReceiptAddress } from '@/hooks/contract';
+import { useClusterNode, useFeeReceiptAddress } from '@/hooks/contract';
 
-import { isAddressZero, longStringShorten } from '@/utils/string';
+import { longStringShorten } from '@/utils/string';
 
 import { config } from '@/config';
 import { formatTimestamp } from '@/utils';
@@ -55,6 +54,8 @@ import { TableNoData, StyledTableCell } from '@/components/table';
 import CustomPopover, { usePopover } from '@/components/custom-popover';
 import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
 
+import { ValidatorSetFeeReceiptBox, ValidatorSetFeeReceiptDialog } from '@/sections/my-account';
+
 type Props = {
   clusterValidatorQuery: UseQueryResult<IResponseClusterNodeValidatorItem[], Error>;
   pagination: IRequestCommonPagination;
@@ -70,6 +71,8 @@ export function ClusterValidatorTable({
   onPaginationChange,
   address,
 }: Props) {
+  const { generateExitData } = useClusterNode();
+
   const router = useRouter();
 
   const { copy } = useCopyToClipboard();
@@ -101,6 +104,8 @@ export function ClusterValidatorTable({
   // const filterPopover = usePopover();
 
   const { value: dialogOpen, ...setDialogOpen } = useBoolean(false);
+  const { value: feeReceiptDialogOpen, ...setFeeReceiptDialogOpen } = useBoolean(false);
+  const exitLoading = useBoolean();
 
   const [selectedRow, setSelectedRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
 
@@ -125,6 +130,24 @@ export function ClusterValidatorTable({
     return row.status === validatorFilter.status;
   });
 
+  const handleExitValidator = async (validators: IResponseClusterNodeValidatorItem[]) => {
+    try {
+      console.log('exit validator', validators);
+      exitLoading.onTrue();
+      const clusterPublicKey = validators[0].pubkey;
+      const validatorPubKeys = validators.map((v) => v.pubkey);
+      const activeEpoch = 1;
+
+      const receipt = await generateExitData(clusterPublicKey, validatorPubKeys, activeEpoch);
+
+      console.log('transactionHash', receipt?.transactionHash);
+    } catch (error) {
+      console.error('error', error);
+    } finally {
+      exitLoading.onFalse();
+    }
+  };
+
   return (
     <Card>
       <CardHeader
@@ -137,7 +160,7 @@ export function ClusterValidatorTable({
           </IconButton>
         }
       />
-      <Stack direction="row" px={2} py={2} spacing={1}>
+      <Stack direction="row" px={2} pt={2} pb={1} spacing={1}>
         <LoadingButton
           variant="soft"
           color="inherit"
@@ -166,24 +189,37 @@ export function ClusterValidatorTable({
         >
           Register Validator
         </LoadingButton>
+
+        <LoadingButton
+          variant="soft"
+          color="inherit"
+          loading={exitLoading.value}
+          disabled={selectedRow.length === 0}
+          onClick={() => {
+            // TODO
+            // const isAllDeposited = selectedRow.every(
+            //   (row) => row.status === IResponseValidatorStatusEnum.deposited
+            // );
+            // if (isAllDeposited) {
+            handleExitValidator(selectedRow);
+            // } else {
+            //   enqueueSnackbar('Please select all deposited validators');
+            // }
+          }}
+        >
+          Exit Validator
+        </LoadingButton>
+
+        <LoadingButton
+          variant="soft"
+          color="inherit"
+          onClick={() => setFeeReceiptDialogOpen.onTrue()}
+        >
+          Set Fee Recipient Address
+        </LoadingButton>
       </Stack>
 
-      {false && (
-        <Box sx={{ p: 2 }}>
-          {getFeeRecipientAddressQuery.isLoading ? (
-            <Skeleton variant="rectangular" width="100%" height={22} />
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              Withdrawal Address: &nbsp;
-              <Typography variant="body2" color="text.primary" display="inline" component="span">
-                {isAddressZero(getFeeRecipientAddressQuery.data)
-                  ? address
-                  : getFeeRecipientAddressQuery.data}
-              </Typography>
-            </Typography>
-          )}
-        </Box>
-      )}
+      <ValidatorSetFeeReceiptBox address={address} />
 
       <CustomPopover open={popover.open} onClose={popover.onClose}>
         <MenuItem
@@ -493,6 +529,11 @@ export function ClusterValidatorTable({
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ValidatorSetFeeReceiptDialog
+        dialogOpen={feeReceiptDialogOpen}
+        onClose={setFeeReceiptDialogOpen.onFalse}
+      />
     </Card>
   );
 }

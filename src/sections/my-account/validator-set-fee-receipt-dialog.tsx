@@ -26,7 +26,6 @@ import FormProvider, { RHFTextField } from '@/components/hook-form';
 type Props = {
   dialogOpen: boolean;
   onClose: () => void;
-  pks: string[];
 };
 
 const schema = z.object({
@@ -43,7 +42,7 @@ enum AddressType {
 
 type FormSchema = z.infer<typeof schema>;
 
-export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose, pks }: Props) => {
+export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose }: Props) => {
   const { address } = useAccount();
   const { setFeeRecipientAddress, getFeeRecipientAddressQuery } = useFeeReceiptAddress(address!);
   // console.log(
