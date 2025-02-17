@@ -442,6 +442,18 @@ export function ClusterValidatorTable({
           >
             Download JSON
           </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              // 1. lido csm batch register
+              // 2. https://holesky.launchpad.ethereum.org/en/
+              router.push(config.routes.validator.home);
+            }}
+          >
+            Deposit ETH
+          </Button>
         </DialogActions>
       </Dialog>
 

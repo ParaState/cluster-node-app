@@ -248,9 +248,9 @@ export default function ValidatorGenerateConfirmPage() {
 
       <Stack spacing={3} sx={{ maxWidth: 700, mx: 'auto', mb: 4 }}>
         <Typography variant="h2" textAlign="center">
-          Confirm
+          Generate
           <Typography display="inline" variant="inherit" color="primary.main" px={1}>
-            Operators
+            Validators
           </Typography>
         </Typography>
 

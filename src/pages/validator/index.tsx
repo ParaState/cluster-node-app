@@ -43,7 +43,7 @@ export default function ValidatorHomePage() {
             >
               <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
                 <CardButton
-                  text="Create new"
+                  text="Using Launchpad"
                   width={210}
                   onClick={() => router.push(config.routes.validator.create)}
                 />
@@ -57,7 +57,7 @@ export default function ValidatorHomePage() {
                 <CardButton
                   // isLoading={result.isRefetching}
                   isLoading={result.isLoading}
-                  text="Import existing"
+                  text="Using Lido CSM"
                   width={210}
                   onClick={async () => {
                     // const { data } = await result.refetch();

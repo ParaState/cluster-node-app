@@ -36,6 +36,8 @@ export const config = {
     oldToken: import.meta.env.VITE_OLD_TOKEN_CONTRACT_ADDRESS,
     operatorConfig: import.meta.env.VITE_OPERATOR_CONFIG_CONTRACT_ADDRESS,
     clusterNode: import.meta.env.VITE_CLUSTER_NODE_CONTRACT_ADDRESS,
+    csmModule: import.meta.env.VITE_CSM_MODULE_CONTRACT_ADDRESS,
+    csmAccounting: import.meta.env.VITE_CSM_ACCOUNTING_CONTRACT_ADDRESS,
   },
 
   routes: {
