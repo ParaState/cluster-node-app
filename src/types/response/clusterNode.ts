@@ -19,6 +19,12 @@ export enum IResponseValidatorStatusEnum {
   exited = 'Exited',
 }
 
+export enum IRequestValidatorActionEnum {
+  register = 'register',
+  deposit = 'deposit',
+  exit = 'exit',
+}
+
 export interface IResponseClusterNodeValidatorItem {
   cluster_pubkey: string;
   created_at: number;

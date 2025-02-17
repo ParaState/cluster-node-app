@@ -9,7 +9,7 @@ import { useParams, useRouter } from '@/routes/hooks';
 import services from '@/services';
 import { config } from '@/config';
 import { useGenerateValidatorInfo } from '@/stores';
-import { IResponseValidatorStatusEnum, IResponseClusterNodeValidatorItem } from '@/types';
+import { IResponseClusterNodeValidatorItem } from '@/types';
 
 import { CommonBack } from '@/components/common';
 
@@ -25,11 +25,14 @@ export default function ValidatorPollingTxPage() {
   >([]);
 
   const fetchValidators = async () => {
-    const res = await services.clusterNode.filterValidatorStatus(
-      IResponseValidatorStatusEnum.all,
-      IResponseValidatorStatusEnum.all,
-      txid!
-    );
+    const res = await services.clusterNode.queryValidatorStatus({
+      pubkey: '',
+      status: '',
+      generate_txid: txid!,
+      register_txid: '',
+      deposit_txid: '',
+      exit_txid: '',
+    });
 
     setClusterNodeValidators(res);
 

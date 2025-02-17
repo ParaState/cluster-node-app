@@ -32,7 +32,7 @@ import { formatEtherFixed } from '@/utils/format';
 import { config } from '@/config';
 import services from '@/services';
 import { useSelectedValidator } from '@/stores';
-import { CurrentFeeMode, IResponseValidatorStatusEnum } from '@/types';
+import { CurrentFeeMode, IRequestValidatorActionEnum } from '@/types';
 
 import Iconify from '@/components/iconify';
 import { CommonBack } from '@/components/common';
@@ -152,9 +152,9 @@ export default function ValidatorClusterConfirmPage() {
     try {
       const txid = await registerClusterNodeValidator(validator, currentFee);
 
-      await services.clusterNode.updateValidatorStatusBatch(
-        validator,
-        IResponseValidatorStatusEnum.registered,
+      await services.clusterNode.updateValidatorStatus(
+        validator.map((v) => v.pubkey),
+        IRequestValidatorActionEnum.register,
         txid
       );
 

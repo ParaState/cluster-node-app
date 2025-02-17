@@ -3,6 +3,7 @@ import axiosInstance from '@/utils/axios';
 import {
   IResponseOperators,
   IResponseInitiatorStatus,
+  IRequestValidatorActionEnum,
   IResponseValidatorStatusEnum,
   IResponseClusterNodeValidatorItem,
 } from '@/types';
@@ -37,17 +38,20 @@ export async function getInitiatorStatus(): Promise<IResponseInitiatorStatus> {
 
 // {{host}}/initiator/bind/:owner
 export async function bindInitiatorOwner(owner: string) {
-  const { data } = await axiosInstance.get(`/server/initiator/bind/${owner}`);
+  const { data } = await axiosInstance.post(`/server/initiator/bind/${owner}`);
 
   return data.data;
 }
 
-export async function queryValidatorStatus(
-  status: IResponseValidatorStatusEnum,
-  action: IResponseValidatorStatusEnum,
-  txid: string
-): Promise<IResponseClusterNodeValidatorItem[]> {
-  const { data } = await axiosInstance.get(`/server/validator/${status}/${action}/${txid}`);
+export async function queryValidatorStatus(body: {
+  pubkey: string;
+  status: IResponseValidatorStatusEnum | string;
+  generate_txid: string;
+  register_txid: string;
+  deposit_txid: string;
+  exit_txid: string;
+}): Promise<IResponseClusterNodeValidatorItem[]> {
+  const { data } = await axiosInstance.post(`/server/validator/query`, body);
 
   const list = data.data as IResponseClusterNodeValidatorItem[];
 
@@ -60,36 +64,58 @@ export async function queryValidatorStatus(
   return list;
 }
 
-export async function filterValidatorStatus(
-  status: IResponseValidatorStatusEnum,
-  action: IResponseValidatorStatusEnum,
-  txid: string
-): Promise<IResponseClusterNodeValidatorItem[]> {
-  const data = await queryValidatorStatus(status, action, txid);
+// export async function queryValidatorStatus(
+//   status: IResponseValidatorStatusEnum,
+//   action: IResponseValidatorStatusEnum,
+//   txid: string
+// ): Promise<IResponseClusterNodeValidatorItem[]> {
+//   const { data } = await axiosInstance.get(`/server/validator/${status}/${action}/${txid}`);
 
-  return data.filter((item) => item.generate_txid === txid);
-}
+//   const list = data.data as IResponseClusterNodeValidatorItem[];
+
+//   if (list) {
+//     list.forEach((item) => {
+//       item.operators.sort((a, b) => a.operator_id - b.operator_id);
+//     });
+//   }
+
+//   return list;
+// }
+
+// export async function filterValidatorStatus(
+//   status: IResponseValidatorStatusEnum,
+//   action: IResponseValidatorStatusEnum,
+//   txid: string
+// ): Promise<IResponseClusterNodeValidatorItem[]> {
+//   const data = await queryValidatorStatus(status, action, txid);
+
+//   return data.filter((item) => item.generate_txid === txid);
+// }
 
 export async function updateValidatorStatus(
-  pubkey: string,
-  action: IResponseValidatorStatusEnum,
+  pubkey: string[],
+  action: IRequestValidatorActionEnum,
   txid: string
 ): Promise<IResponseClusterNodeValidatorItem[]> {
-  const { data } = await axiosInstance.post(`/server/validator/${pubkey}/${action}/${txid}`);
+  const { data } = await axiosInstance.post(`/server/validator/update`, {
+    pubkey,
+    action,
+    txid,
+  });
 
   return data.data;
 }
 
-export async function updateValidatorStatusBatch(
-  validators: IResponseClusterNodeValidatorItem[],
-  action: IResponseValidatorStatusEnum,
-  txid: string
-) {
-  for (const validator of validators) {
-    try {
-      await updateValidatorStatus(validator.pubkey, action, txid);
-    } catch (error) {
-      console.error(`Error in updateValidatorStatusBatch: ${error}`);
-    }
-  }
-}
+// export async function updateValidatorStatusBatch(
+//   validators: IResponseClusterNodeValidatorItem[],
+//   action: IRequestValidatorActionEnum,
+//   txid: string
+// ) {
+//   for (const validator of validators) {
+//     try {
+//       await updateValidatorStatus(validator.pubkey, action, txid);
+//     } catch (error) {
+//       console.error(`Error in updateValidatorStatusBatch: ${error}`);
+//     }
+//   }
+// }
