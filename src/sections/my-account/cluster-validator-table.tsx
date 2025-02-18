@@ -193,15 +193,16 @@ export function ClusterValidatorTable({
           loading={exitLoading.value}
           disabled={selectedRow.length === 0}
           onClick={() => {
-            // TODO
-            // const isAllDeposited = selectedRow.every(
-            //   (row) => row.status === IResponseValidatorStatusEnum.deposited
-            // );
-            // if (isAllDeposited) {
-            handleExitValidator(selectedRow);
-            // } else {
-            //   enqueueSnackbar('Please select all deposited validators');
-            // }
+            const isAllDeposited = selectedRow.every(
+              (row) => row.status === IResponseValidatorStatusEnum.deposited
+            );
+            if (isAllDeposited) {
+              handleExitValidator(selectedRow);
+            } else {
+              enqueueSnackbar('Please select all deposited validators', {
+                variant: 'warning',
+              });
+            }
           }}
         >
           Exit Validator
@@ -446,6 +447,7 @@ export function ClusterValidatorTable({
             onClick={() => {
               // 1. lido csm batch register
               // 2. https://holesky.launchpad.ethereum.org/en/
+              setSelectedValidator(selectedRow);
               router.push(config.routes.validator.home);
             }}
           >

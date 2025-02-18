@@ -1,3 +1,4 @@
+import { multicall } from 'viem/actions';
 import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 
 import { networkContract } from '@/config/contract';
@@ -142,7 +143,25 @@ export const useRegisterValidator = () => {
     }
   };
 
+  const checkValidatorIsRegistered = async (pks: string[]) => {
+    const calls = pks.map((pk) => ({
+      ...networkContract,
+      functionName: '_validatorDatas',
+      args: [pk],
+    }));
+
+    const results = await multicall(client!, {
+      contracts: calls,
+      allowFailure: true,
+    });
+
+    console.log('🚀 ~ checkValidatorRegistered ~ results:', results);
+
+    return results.length > 0;
+  };
+
   return {
+    checkValidatorIsRegistered,
     registerClusterNodeValidator,
     registerClusterNodeValidatorEstimation,
     prepareClusterNodeContractConfig,
