@@ -41,24 +41,24 @@ export const useRegisterValidator = () => {
       validator.operators.map((operator) => operator.encrypt_key)
     );
 
-    console.log(
-      '🚀 ~ useRegisterValidator ~ validatorPublicKeys:',
-      JSON.stringify(validatorPublicKeys)
-    );
-    console.log(
-      '🚀 ~ useRegisterValidator ~ validatorOperatorIds:',
-      JSON.stringify(validatorOperatorIds, (key, value) =>
-        typeof value === 'bigint' ? value.toString() : value
-      )
-    );
-    console.log(
-      '🚀 ~ useRegisterValidator ~ validatorSharedKeys:',
-      JSON.stringify(validatorSharedKeys)
-    );
-    console.log(
-      '🚀 ~ useRegisterValidator ~ validatorEncryptKeys:',
-      JSON.stringify(validatorEncryptKeys)
-    );
+    // console.log(
+    //   '🚀 ~ useRegisterValidator ~ validatorPublicKeys:',
+    //   JSON.stringify(validatorPublicKeys)
+    // );
+    // console.log(
+    //   '🚀 ~ useRegisterValidator ~ validatorOperatorIds:',
+    //   JSON.stringify(validatorOperatorIds, (key, value) =>
+    //     typeof value === 'bigint' ? value.toString() : value
+    //   )
+    // );
+    // console.log(
+    //   '🚀 ~ useRegisterValidator ~ validatorSharedKeys:',
+    //   JSON.stringify(validatorSharedKeys)
+    // );
+    // console.log(
+    //   '🚀 ~ useRegisterValidator ~ validatorEncryptKeys:',
+    //   JSON.stringify(validatorEncryptKeys)
+    // );
 
     if (isBatch) {
       const eachAmount = paySubscriptionFee / BigInt(validators.length);
@@ -157,7 +157,15 @@ export const useRegisterValidator = () => {
 
     console.log('🚀 ~ checkValidatorRegistered ~ results:', results);
 
-    return results.length > 0;
+    // return results.length > 0;
+
+    const isAllSuccess = results.every((result) => result.status === 'success');
+
+    if (!isAllSuccess) return false;
+
+    const isAllNotRegistered = results.every((result) => result?.result?.[4] === false);
+
+    return isAllNotRegistered;
   };
 
   return {

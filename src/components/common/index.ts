@@ -14,5 +14,3 @@ export * from './center-container';
 export * from './common-status-label';
 
 export * from './import-token-to-wallet';
-
-export * from './special-operator-status-label';

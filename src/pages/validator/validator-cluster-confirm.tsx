@@ -65,7 +65,7 @@ export default function ValidatorClusterConfirmPage() {
 
   const isApproveLoading = useBoolean();
   const isApproved = useBoolean(false);
-  const isCheckValidatorRegisteredLoading = useBoolean();
+  // const isCheckValidatorRegisteredLoading = useBoolean();
   const approveButtonText = isApproved.value ? 'Approved' : `Approve ${tokenInfo.symbol}`;
 
   const [runningValidatorIndex, setRunningValidatorIndex] = useState<number | null>(null);
@@ -78,7 +78,7 @@ export default function ValidatorClusterConfirmPage() {
   const {
     registerClusterNodeValidator,
     registerClusterNodeValidatorEstimation,
-    checkValidatorIsRegistered,
+    // checkValidatorIsRegistered,
   } = useRegisterValidator();
 
   const [activeStep, setActiveStep] = useState(0);
@@ -155,11 +155,13 @@ export default function ValidatorClusterConfirmPage() {
     try {
       const txid = await registerClusterNodeValidator(validator, currentFee);
 
-      await services.clusterNode.updateValidatorStatus(
-        validator.map((v) => v.pubkey),
-        IRequestValidatorActionEnum.register,
-        txid
-      );
+      const body = validator.map((v) => ({
+        pubkey: v.pubkey,
+        action: IRequestValidatorActionEnum.register,
+        txid,
+      }));
+
+      await services.clusterNode.updateValidatorStatus(body);
 
       setSuccessIndex((prev) => [...prev, index]);
     } catch (error) {
@@ -169,56 +171,58 @@ export default function ValidatorClusterConfirmPage() {
     }
   };
 
-  const handleCheckValidatorRegistered = async () => {
-    try {
-      isCheckValidatorRegisteredLoading.onTrue();
-      const result = await checkValidatorIsRegistered(selectedValidator.map((v) => v.pubkey));
-      // const result = await checkValidatorIsRegistered([
-      //   '0xa99408b47d515a1ea093489d5f36bba4ca7c60f16b7d2642eee16c1aa3ce8f0c67931cec1975c61d224e810fc077a723',
-      //   '0x87a470542a099a29301880ee63fd017ef553fdec987c6ba9a5de946a6185b08a1271147a81777158c6b2e0f3443af1fd',
-      // ]);
-      console.log('🚀 ~ handleCheckValidatorRegistered ~ result:', result);
-      if (result) {
-        enqueueSnackbar('Some of validators are registered to network contract', {
-          variant: 'error',
-        });
-      }
+  // const handleCheckValidatorRegistered = async () => {
+  //   try {
+  //     isCheckValidatorRegisteredLoading.onTrue();
+  //     const result = await checkValidatorIsRegistered(selectedValidator.map((v) => v.pubkey));
+  //     // const result = await checkValidatorIsRegistered([
+  //     //   '0xa99408b47d515a1ea093489d5f36bba4ca7c60f16b7d2642eee16c1aa3ce8f0c67931cec1975c61d224e810fc077a723',
+  //     //   '0x87a470542a099a29301880ee63fd017ef553fdec987c6ba9a5de946a6185b08a1271147a81777158c6b2e0f3443af1fd',
+  //     // ]);
+  //     console.log('🚀 ~ handleCheckValidatorRegistered ~ result:', result);
+  //     if (result) {
+  //       enqueueSnackbar('Some of validators are registered to network contract', {
+  //         variant: 'error',
+  //       });
 
-      handleNext();
-    } finally {
-      isCheckValidatorRegisteredLoading.onFalse();
-    }
-  };
+  //       return;
+  //     }
+
+  //     handleNext();
+  //   } finally {
+  //     isCheckValidatorRegisteredLoading.onFalse();
+  //   }
+  // };
 
   const steps = [
-    {
-      label: 'Check Validator Registration',
-      render: () => {
-        return (
-          <Stack direction="column" alignItems="start" className="step1" flexGrow={1}>
-            <Typography variant="body1" mb={2}>
-              Checking if validators are registered to network contract
-            </Typography>
+    // {
+    //   label: 'Check Validator Registration',
+    //   render: () => {
+    //     return (
+    //       <Stack direction="column" alignItems="start" className="step1" flexGrow={1}>
+    //         <Typography variant="body1" mb={2}>
+    //           Checking if validators are registered to network contract
+    //         </Typography>
 
-            <Stack direction="row" width={1}>
-              <LoadingButton
-                sx={{ width: 300 }}
-                color="primary"
-                size="large"
-                type="submit"
-                variant="soft"
-                loading={isCheckValidatorRegisteredLoading.value}
-                onClick={() => {
-                  handleCheckValidatorRegistered();
-                }}
-              >
-                Check Validators
-              </LoadingButton>
-            </Stack>
-          </Stack>
-        );
-      },
-    },
+    //         <Stack direction="row" width={1}>
+    //           <LoadingButton
+    //             sx={{ width: 300 }}
+    //             color="primary"
+    //             size="large"
+    //             type="submit"
+    //             variant="soft"
+    //             loading={isCheckValidatorRegisteredLoading.value}
+    //             onClick={() => {
+    //               handleCheckValidatorRegistered();
+    //             }}
+    //           >
+    //             Check Validators
+    //           </LoadingButton>
+    //         </Stack>
+    //       </Stack>
+    //     );
+    //   },
+    // },
     {
       label: `Approve DVT`,
       render: () => {

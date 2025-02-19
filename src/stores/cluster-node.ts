@@ -24,3 +24,10 @@ export const useSelectedValidator = () => {
 
   return { selectedValidator, setSelectedValidator, resetSelectedValidator };
 };
+
+export const nodeOperatorIdAtom = atomWithStorage('nodeOperatorId', '');
+
+export const useNodeOperatorId = () => {
+  const [nodeOperatorId, setNodeOperatorId] = useAtom(nodeOperatorIdAtom);
+  return { nodeOperatorId, setNodeOperatorId };
+};

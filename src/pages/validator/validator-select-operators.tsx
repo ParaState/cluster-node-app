@@ -575,7 +575,6 @@ export default function ValidatorSelectorOperatorsPage() {
                       type="number"
                       size="medium"
                       placeholder="Validator Count"
-                      // helperText="Please enter the number of validators you want to create."
                     />
                   </Box>
 

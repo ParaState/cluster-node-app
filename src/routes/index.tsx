@@ -8,6 +8,7 @@ import MainLayout from '@/layouts/main';
 import CompactLayout from '@/layouts/compact';
 import DashboardLayout from '@/layouts/dashboard';
 import ValidatorPollingTxPage from '@/pages/validator/validator-polling-tx';
+import LidoCSMRegistrationPage from '@/pages/validator/lido-csm-registration';
 import ValidatorGenerateConfirmPage from '@/pages/validator/validator-generate-confirm';
 
 import { FixedHeader } from '@/components/common';
@@ -130,6 +131,14 @@ export default function Router() {
           element: (
             <WalletAndInitiatorBoundGuard>
               <ValidatorClusterConfirmPage />
+            </WalletAndInitiatorBoundGuard>
+          ),
+        },
+        {
+          path: config.routes.validator.lidoCsmRegistration,
+          element: (
+            <WalletAndInitiatorBoundGuard>
+              <LidoCSMRegistrationPage />
             </WalletAndInitiatorBoundGuard>
           ),
         },

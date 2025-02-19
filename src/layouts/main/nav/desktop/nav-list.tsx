@@ -1,18 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
-// import Fade from '@mui/material/Fade';
-// import Paper from '@mui/material/Paper';
-// import Stack from '@mui/material/Stack';
-// import Portal from '@mui/material/Portal';
-// import { useTheme } from '@mui/material/styles';
-// import ListSubheader from '@mui/material/ListSubheader';
+import { Box, Stack, Tooltip, useTheme, MenuItem, Typography } from '@mui/material';
 
 import { useRouter, usePathname } from '@/routes/hooks';
-
-// import { paper } from '@/theme/css';
-// import { HEADER } from '@/layouts/config-layout';
-
-import { Stack, Tooltip, useTheme, MenuItem, Typography } from '@mui/material';
 
 import { NavItem } from './nav-item';
 // import { NavListProps, NavSubListProps } from '../types';
@@ -76,18 +66,23 @@ export default function NavList({ data, sx }: NavListProps & { sx?: object }) {
           </Stack>
         }
       >
-        <NavItem
-          open={openMenu}
-          onMouseEnter={handleOpenMenu}
-          onMouseLeave={handleCloseMenu}
-          title={data.title}
-          path={data.path}
-          auth={data.auth}
-          hasChild={!!data.children}
-          externalLink={data.path.includes('http')}
-          active={active}
-          sx={sx}
-        />
+        <Box>
+          <NavItem
+            open={openMenu}
+            onMouseEnter={handleOpenMenu}
+            onMouseLeave={handleCloseMenu}
+            onClick={() => {
+              router.push(data.path);
+            }}
+            title={data.title}
+            path={data.path}
+            auth={data.auth}
+            hasChild={!!data.children}
+            externalLink={data.path.includes('http')}
+            active={active}
+            sx={sx}
+          />
+        </Box>
       </Tooltip>
     );
   }

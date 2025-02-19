@@ -1,3 +1,5 @@
+export * from './lido';
+
 export * from './token';
 
 export * from './common';

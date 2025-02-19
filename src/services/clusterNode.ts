@@ -3,7 +3,6 @@ import axiosInstance from '@/utils/axios';
 import {
   IResponseOperators,
   IResponseInitiatorStatus,
-  IRequestValidatorActionEnum,
   IResponseValidatorStatusEnum,
   IResponseClusterNodeValidatorItem,
 } from '@/types';
@@ -93,15 +92,9 @@ export async function queryValidatorStatus(body: {
 // }
 
 export async function updateValidatorStatus(
-  pubkey: string[],
-  action: IRequestValidatorActionEnum,
-  txid: string
+  body: any
 ): Promise<IResponseClusterNodeValidatorItem[]> {
-  const { data } = await axiosInstance.post(`/server/validator/update`, {
-    pubkey,
-    action,
-    txid,
-  });
+  const { data } = await axiosInstance.post(`/server/validator/update`, body);
 
   return data.data;
 }

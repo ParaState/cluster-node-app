@@ -96,8 +96,6 @@ export const useClusterNode = () => {
       hash,
     });
 
-    console.log('🚀 ~ registerClusterNode ~ receipt:', receipt);
-
     return receipt;
   };
 
@@ -115,8 +113,6 @@ export const useClusterNode = () => {
     const receipt = await client?.waitForTransactionReceipt({
       hash,
     });
-
-    console.log('🚀 ~ registerClusterNode ~ receipt:', receipt);
 
     return receipt;
   };

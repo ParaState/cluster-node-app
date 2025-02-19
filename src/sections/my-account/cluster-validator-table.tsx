@@ -36,11 +36,13 @@ import { useClusterNode } from '@/hooks/contract';
 import { longStringShorten } from '@/utils/string';
 
 import { config } from '@/config';
+import services from '@/services';
 import { formatTimestamp } from '@/utils';
 import { useBoolean, useCopyToClipboard } from '@/hooks';
 import { useSelectedOperators, useSelectedValidator } from '@/stores';
 import {
   IRequestCommonPagination,
+  IRequestValidatorActionEnum,
   IResponseValidatorStatusEnum,
   IResponseClusterNodeValidatorItem,
 } from '@/types';
@@ -108,7 +110,7 @@ export function ClusterValidatorTable({
 
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
-  const viewValidatorClick = async () => {
+  const viewValidatorClick = () => {
     setDialogOpen.onTrue();
   };
 
@@ -137,12 +139,24 @@ export function ClusterValidatorTable({
 
       const receipt = await generateExitData(clusterPublicKey, validatorPubKeys, activeEpoch);
 
-      console.log('transactionHash', receipt?.transactionHash);
+      const body = validators.map((v) => ({
+        pubkey: v.pubkey,
+        action: IRequestValidatorActionEnum.exit,
+        txid: receipt?.transactionHash,
+      }));
+
+      await services.clusterNode.updateValidatorStatus(body);
+      enqueueSnackbar('Exit validator successfully');
     } catch (error) {
       console.error('error', error);
+      enqueueSnackbar(error?.details || error?.message, { variant: 'error' });
     } finally {
       exitLoading.onFalse();
     }
+  };
+
+  const checkStatus = (status: IResponseValidatorStatusEnum) => {
+    return selectedRow.every((row) => row.status === status);
   };
 
   return (
@@ -161,21 +175,10 @@ export function ClusterValidatorTable({
         <LoadingButton
           variant="soft"
           color="inherit"
-          loading={removeLoading.value}
-          onClick={() => viewValidatorClick()}
-          disabled={selectedRow.length === 0}
-        >
-          View Deposit Data
-        </LoadingButton>
-
-        <LoadingButton
-          variant="soft"
-          color="inherit"
           disabled={selectedRow.length === 0}
           onClick={() => {
-            const isAllReady = selectedRow.every(
-              (row) => row.status === IResponseValidatorStatusEnum.ready
-            );
+            const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
+
             if (isAllReady) {
               setSelectedValidator(selectedRow);
               router.push(config.routes.validator.validatorRegistrationNetwork);
@@ -190,12 +193,21 @@ export function ClusterValidatorTable({
         <LoadingButton
           variant="soft"
           color="inherit"
+          loading={removeLoading.value}
+          onClick={viewValidatorClick}
+          disabled={selectedRow.length === 0}
+        >
+          View Deposit Data
+        </LoadingButton>
+
+        <LoadingButton
+          variant="soft"
+          color="inherit"
           loading={exitLoading.value}
           disabled={selectedRow.length === 0}
           onClick={() => {
-            const isAllDeposited = selectedRow.every(
-              (row) => row.status === IResponseValidatorStatusEnum.deposited
-            );
+            const isAllDeposited = checkStatus(IResponseValidatorStatusEnum.deposited);
+
             if (isAllDeposited) {
               handleExitValidator(selectedRow);
             } else {
@@ -447,8 +459,16 @@ export function ClusterValidatorTable({
             onClick={() => {
               // 1. lido csm batch register
               // 2. https://holesky.launchpad.ethereum.org/en/
-              setSelectedValidator(selectedRow);
-              router.push(config.routes.validator.home);
+              const isAllRegistered = checkStatus(IResponseValidatorStatusEnum.registered);
+
+              if (isAllRegistered) {
+                setSelectedValidator(selectedRow);
+                router.push(config.routes.validator.home);
+              } else {
+                enqueueSnackbar('Please select all registered validators', {
+                  variant: 'warning',
+                });
+              }
             }}
           >
             Deposit ETH

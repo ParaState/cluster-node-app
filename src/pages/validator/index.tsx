@@ -73,7 +73,7 @@ export default function ValidatorHomePage() {
                       );
                     } else {
                       resetAll();
-                      router.push(config.routes.validator.email);
+                      router.push(config.routes.validator.lidoCsmRegistration);
                     }
                   }}
                 />

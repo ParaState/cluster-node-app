@@ -64,6 +64,7 @@ export const config = {
       validatorGenerateConfirm: '/validator/generate-confirm',
       validatorPollingTx: '/validator/polling-tx/:txid',
       getValidatorPollingTx: (txid) => `/validator/polling-tx/${txid}`,
+      lidoCsmRegistration: '/validator/lido-csm-registration',
       // goValidatorExit: (pk: string) => `/validator/${pk}/exit`,
     },
   },

@@ -93,14 +93,7 @@ export default function TestClusterPage() {
     // console.log('🚀 ~ queryValidatorStatusClick ~ result:', result);
   };
 
-  const updateValidatorStatusClick = async () => {
-    // const result = await services.clusterNode.updateValidatorStatus(
-    //   '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb9226111111',
-    //   IResponseValidatorStatusEnum.registered,
-    //   '0xffb3653637767ba5d5a36c28af7c2f9c4cf7c4aff57148a1b7e2eb802ce04cf4'
-    // );
-    // console.log('🚀 ~ updateValidatorStatusClick ~ result:', result);
-  };
+  const updateValidatorStatusClick = async () => {};
 
   useEffect(() => {
     getInitiatorStatusClick();

@@ -45,3 +45,15 @@ export interface IResponseClusterNodeValidatorItem {
   status: string;
   updated_at: number;
 }
+
+export interface IResponseValidatorDepositData {
+  pubkey: string;
+  withdrawal_credentials: string;
+  amount: number;
+  signature: string;
+  fork_version: string;
+  network_name: string;
+  deposit_message_root: string;
+  deposit_data_root: string;
+  deposit_cli_version: string;
+}
