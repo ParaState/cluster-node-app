@@ -49,10 +49,7 @@ export const useClusterNode = () => {
 
     const receipt = await client?.waitForTransactionReceipt({
       hash,
-      confirmations: 1,
     });
-
-    console.log('🚀 ~ registerClusterNode ~ receipt:', receipt);
 
     return receipt;
   };

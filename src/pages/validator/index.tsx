@@ -38,30 +38,15 @@ export default function ValidatorHomePage() {
         <Grid container spacing={2} py={4} justifyContent="center">
           <Grid item xs={12} md={4}>
             <CommonCard
-              title="Any validator can run on the SafeStake network: create a new validator."
+              title="Participate in the Lido on Ethereum protocol as Node Operators."
               type="validator"
             >
               <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
                 <CardButton
-                  text="Using Launchpad"
-                  width={210}
-                  onClick={() => router.push(config.routes.validator.create)}
-                />
-                <Iconify width={42} height={42} icon="fluent-mdl2:add-to" color="white" />
-              </Stack>
-            </CommonCard>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <CommonCard title="Or import your existing one to begin." type="validator">
-              <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
-                <CardButton
-                  // isLoading={result.isRefetching}
                   isLoading={result.isLoading}
                   text="Using Lido CSM"
                   width={210}
                   onClick={async () => {
-                    // const { data } = await result.refetch();
-                    // const isAddressUsedByOperator = data;
                     const isAddressUsedByOperator = result.data;
 
                     if (isAddressUsedByOperator) {
@@ -86,6 +71,23 @@ export default function ValidatorHomePage() {
               </Stack>
             </CommonCard>
           </Grid>
+
+          <Grid item xs={12} md={4}>
+            <CommonCard
+              title="Any validator can run on the SafeStake network: create a new validator."
+              type="validator"
+            >
+              <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+                <CardButton
+                  text="Using Launchpad"
+                  width={210}
+                  onClick={() => router.push(config.routes.validator.create)}
+                />
+                <Iconify width={42} height={42} icon="fluent-mdl2:add-to" color="white" />
+              </Stack>
+            </CommonCard>
+          </Grid>
+
           {false && (
             <Grid item xs={12} md={4}>
               <CommonCard title="Become to Initiator" type="validator">

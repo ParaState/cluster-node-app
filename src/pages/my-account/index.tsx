@@ -53,18 +53,6 @@ export default function MyAccountPage() {
 
       <Grid container sx={{ mt: 2 }}>
         <Grid item xs={12} md={12}>
-          {/* {false && (
-            <OwnedValidatorTable
-              address={address!}
-              validatorQuery={validatorQuery}
-              pagination={validatorPagination}
-              setPagination={setValidatorPagination}
-              onPaginationChange={(pagination) => {
-                setValidatorPagination(pagination);
-              }}
-            />
-          )} */}
-
           <ClusterValidatorTable
             address={address!}
             clusterValidatorQuery={clusterValidatorQuery}

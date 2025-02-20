@@ -38,8 +38,8 @@ import { longStringShorten } from '@/utils/string';
 import { config } from '@/config';
 import services from '@/services';
 import { formatTimestamp } from '@/utils';
+import { useSelectedValidator } from '@/stores';
 import { useBoolean, useCopyToClipboard } from '@/hooks';
-import { useSelectedOperators, useSelectedValidator } from '@/stores';
 import {
   IRequestCommonPagination,
   IRequestValidatorActionEnum,
@@ -95,8 +95,6 @@ export function ClusterValidatorTable({
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { resetAll } = useSelectedOperators();
-
   const theme = useTheme();
 
   const popover = usePopover();
@@ -107,12 +105,13 @@ export function ClusterValidatorTable({
   const exitLoading = useBoolean();
 
   const [selectedRow, setSelectedRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
+  const [viewDepositRow, setViewDepositRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
 
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
-  const viewValidatorClick = () => {
-    setDialogOpen.onTrue();
-  };
+  // const viewValidatorClick = () => {
+  //   setDialogOpen.onTrue();
+  // };
 
   const handleApplyFilter = (filter: any) => {
     setValidatorFilter({ ...filter });
@@ -159,6 +158,26 @@ export function ClusterValidatorTable({
     return selectedRow.every((row) => row.status === status);
   };
 
+  const handleDepositETH = () => {
+    // 1. lido csm batch register
+    // 2. https://holesky.launchpad.ethereum.org/en/
+    const isAllRegistered = checkStatus(IResponseValidatorStatusEnum.registered);
+
+    if (!isAllRegistered) {
+      handleToastStatus(IResponseValidatorStatusEnum.registered);
+      return;
+    }
+
+    setSelectedValidator(selectedRow);
+    router.push(config.routes.validator.home);
+  };
+
+  const handleToastStatus = (status: IResponseValidatorStatusEnum) => {
+    enqueueSnackbar(`Please select all ${status} validators, or filter by status`, {
+      variant: 'warning',
+    });
+  };
+
   return (
     <Card>
       <CardHeader
@@ -172,25 +191,28 @@ export function ClusterValidatorTable({
         }
       />
       <Stack direction="row" px={2} pt={2} pb={1} spacing={1}>
-        <LoadingButton
-          variant="soft"
-          color="inherit"
-          disabled={selectedRow.length === 0}
-          onClick={() => {
-            const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
+        <Tooltip title="Run Validator on the SafeStake Network" placement="top">
+          <LoadingButton
+            variant="soft"
+            color="inherit"
+            disabled={selectedRow.length === 0}
+            onClick={() => {
+              const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
 
-            if (isAllReady) {
+              if (!isAllReady) {
+                handleToastStatus(IResponseValidatorStatusEnum.ready);
+                return;
+              }
+
               setSelectedValidator(selectedRow);
               router.push(config.routes.validator.validatorRegistrationNetwork);
-            } else {
-              enqueueSnackbar('Please select all ready validators');
-            }
-          }}
-        >
-          Register Validator
-        </LoadingButton>
+            }}
+          >
+            Run Validator
+          </LoadingButton>
+        </Tooltip>
 
-        <LoadingButton
+        {/* <LoadingButton
           variant="soft"
           color="inherit"
           loading={removeLoading.value}
@@ -198,6 +220,16 @@ export function ClusterValidatorTable({
           disabled={selectedRow.length === 0}
         >
           View Deposit Data
+        </LoadingButton> */}
+
+        <LoadingButton
+          variant="soft"
+          color="inherit"
+          loading={removeLoading.value}
+          onClick={handleDepositETH}
+          disabled={selectedRow.length === 0}
+        >
+          Deposit ETH
         </LoadingButton>
 
         <LoadingButton
@@ -208,31 +240,30 @@ export function ClusterValidatorTable({
           onClick={() => {
             const isAllDeposited = checkStatus(IResponseValidatorStatusEnum.deposited);
 
-            if (isAllDeposited) {
-              handleExitValidator(selectedRow);
-            } else {
-              enqueueSnackbar('Please select all deposited validators', {
-                variant: 'warning',
-              });
+            if (!isAllDeposited) {
+              handleToastStatus(IResponseValidatorStatusEnum.deposited);
+              return;
             }
+
+            handleExitValidator(selectedRow);
           }}
         >
           Exit Validator
         </LoadingButton>
 
-        <LoadingButton
+        {/* <LoadingButton
           variant="soft"
           color="inherit"
           onClick={() => setFeeReceiptDialogOpen.onTrue()}
         >
-          Set Fee Recipient Address
-        </LoadingButton>
+          Update Fee Recipient Address
+        </LoadingButton> */}
       </Stack>
 
       <ValidatorSetFeeReceiptBox address={address} />
 
       <CustomPopover open={popover.open} onClose={popover.onClose}>
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             resetAll();
             router.push(config.routes.validator.validatorExit);
@@ -240,6 +271,14 @@ export function ClusterValidatorTable({
         >
           <Iconify width={24} icon="iconamoon:exit-bold" color={theme.palette.grey[600]} />
           Validator Exit
+        </MenuItem> */}
+        <MenuItem
+          onClick={() => {
+            setFeeReceiptDialogOpen.onTrue();
+          }}
+        >
+          <Iconify width={24} icon="mingcute:edit-line" color={theme.palette.grey[600]} />
+          Update Fee Recipient Address
         </MenuItem>
       </CustomPopover>
 
@@ -259,7 +298,7 @@ export function ClusterValidatorTable({
                   }
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     if (event.target.checked) {
-                      setSelectedRow(clusterValidatorQuery.data || []);
+                      setSelectedRow(filteredData || []);
                     } else {
                       setSelectedRow([]);
                     }
@@ -341,6 +380,8 @@ export function ClusterValidatorTable({
               </StyledTableCell>
 
               <StyledTableCell align="right">Created At</StyledTableCell>
+
+              <StyledTableCell align="right">Action</StyledTableCell>
             </TableRow>
 
             <TableBody>
@@ -390,6 +431,24 @@ export function ClusterValidatorTable({
                       {formatTimestamp(row.created_at)}
                     </Typography>
                   </TableCell>
+
+                  <TableCell align="right">
+                    <Tooltip title="View Validator">
+                      <IconButton
+                        color="inherit"
+                        onClick={() => {
+                          if (selectedRow.length <= 1) {
+                            setViewDepositRow([row]);
+                          } else {
+                            setViewDepositRow(selectedRow);
+                          }
+                          setDialogOpen.onTrue();
+                        }}
+                      >
+                        <Iconify icon="mdi:eye" color={theme.palette.grey[600]} />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                 </TableRow>
               ))}
 
@@ -405,7 +464,7 @@ export function ClusterValidatorTable({
           <Box sx={{ p: 1 }}>
             <pre style={{ overflow: 'auto' }}>
               {JSON.stringify(
-                selectedRow.map((row) => JSON.parse(row.deposit_data)),
+                viewDepositRow.map((row) => JSON.parse(row.deposit_data)),
                 null,
                 2
               )}
@@ -419,7 +478,7 @@ export function ClusterValidatorTable({
             onClick={() => {
               copy(
                 JSON.stringify(
-                  selectedRow.map((row) => JSON.parse(row.deposit_data)),
+                  viewDepositRow.map((row) => JSON.parse(row.deposit_data)),
                   null,
                   2
                 )
@@ -434,7 +493,7 @@ export function ClusterValidatorTable({
             color="success"
             onClick={() => {
               const jsonContent = JSON.stringify(
-                selectedRow.map((row) => JSON.parse(row.deposit_data)),
+                viewDepositRow.map((row) => JSON.parse(row.deposit_data)),
                 null,
                 2
               );
@@ -451,27 +510,6 @@ export function ClusterValidatorTable({
             }}
           >
             Download JSON
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              // 1. lido csm batch register
-              // 2. https://holesky.launchpad.ethereum.org/en/
-              const isAllRegistered = checkStatus(IResponseValidatorStatusEnum.registered);
-
-              if (isAllRegistered) {
-                setSelectedValidator(selectedRow);
-                router.push(config.routes.validator.home);
-              } else {
-                enqueueSnackbar('Please select all registered validators', {
-                  variant: 'warning',
-                });
-              }
-            }}
-          >
-            Deposit ETH
           </Button>
         </DialogActions>
       </Dialog>

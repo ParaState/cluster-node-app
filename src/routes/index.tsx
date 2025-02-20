@@ -73,7 +73,16 @@ export default function Router() {
           </Suspense>
         </MainLayout>
       ),
-      children: [{ element: <SetupPage />, index: true }],
+      children: [
+        {
+          element: (
+            <WalletAuthGuard>
+              <SetupPage />
+            </WalletAuthGuard>
+          ),
+          index: true,
+        },
+      ],
     },
     {
       path: '/testpage',

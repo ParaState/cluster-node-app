@@ -1,4 +1,5 @@
 export * from './calc';
+export * from './auth';
 export * from './axios';
 export * from './format';
 export * from './string';

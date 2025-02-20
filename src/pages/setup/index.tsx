@@ -7,7 +7,7 @@ import RouterLink from '@/routes/components/router-link';
 import { formatAddress } from '@/utils';
 import { useOpenWallet } from '@/hooks';
 
-import { OverviewAppView } from '@/sections/overview';
+import { SetUpView } from '@/sections/overview';
 
 export default function SetupPage() {
   const { address } = useAccount();
@@ -41,7 +41,7 @@ export default function SetupPage() {
 
   return (
     <Container maxWidth="xl">
-      <OverviewAppView />
+      <SetUpView />
     </Container>
   );
 }
