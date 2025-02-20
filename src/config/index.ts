@@ -1,4 +1,4 @@
-import { CurrentFeeMode } from '@/types';
+import { CurrentFeeMode, IResponseValidatorStatusEnum } from '@/types';
 
 const explorerUrl = import.meta.env.VITE_EXPLORER_URL;
 const networkId = +import.meta.env.VITE_NETWORK_ID;
@@ -49,6 +49,14 @@ export const config = {
       operator: '/operator/:id',
       getOperator: (id: string) => `/operator/${id}`,
       verify: '/operator/verify',
+    },
+    clusterValidator: {
+      home: '/cluster-validator',
+      status: '/cluster-validator/:status',
+      run: `/cluster-validator/${IResponseValidatorStatusEnum.ready}`,
+      activate: `/cluster-validator/${IResponseValidatorStatusEnum.registered}`,
+      deposit: `/cluster-validator/${IResponseValidatorStatusEnum.deposited}`,
+      exit: `/cluster-validator/${IResponseValidatorStatusEnum.exited}`,
     },
     validator: {
       home: '/validator',
@@ -125,12 +133,24 @@ export const config = {
 export const navConfig = [
   {
     title: 'Validators',
-    path: config.routes.home,
+    path: config.routes.clusterValidator.home,
     auth: true,
     children: [
       {
         title: 'Generate Validator',
         path: config.routes.validator.selectOperators,
+      },
+      {
+        title: 'Run Validator',
+        path: config.routes.clusterValidator.run,
+      },
+      {
+        title: 'Activate Validator',
+        path: config.routes.clusterValidator.activate,
+      },
+      {
+        title: 'Exit Validator',
+        path: config.routes.clusterValidator.deposit,
       },
     ],
   },

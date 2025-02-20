@@ -29,7 +29,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 
-import { useRouter } from '@/routes/hooks';
+import { useParams, useRouter, usePathname } from '@/routes/hooks';
 
 import { useClusterNode } from '@/hooks/contract';
 
@@ -53,9 +53,9 @@ import Scrollbar from '@/components/scrollbar';
 import CopyButton from '@/components/copy-button';
 import { useSnackbar } from '@/components/snackbar';
 import { TableNoData, StyledTableCell } from '@/components/table';
+import { ValidatorSetFeeReceiptBox } from '@/components/validator';
 import CustomPopover, { usePopover } from '@/components/custom-popover';
 import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
-import { ValidatorSetFeeReceiptBox, ValidatorSetFeeReceiptDialog } from '@/components/validator';
 
 type Props = {
   clusterValidatorQuery: UseQueryResult<IResponseClusterNodeValidatorItem[], Error>;
@@ -72,6 +72,14 @@ export function ClusterValidatorTable({
   onPaginationChange,
   address,
 }: Props) {
+  const { status = IResponseValidatorStatusEnum.all } = useParams();
+  // console.log('🚀 ~ status:', status);
+
+  const pathname = usePathname();
+  // console.log('🚀 ~ pathname:', pathname);
+
+  const [currentPathname, setCurrentPathname] = useState(pathname);
+
   const { generateExitData } = useClusterNode();
 
   const router = useRouter();
@@ -86,28 +94,39 @@ export function ClusterValidatorTable({
     status: IResponseValidatorStatusEnum.all,
   });
 
-  useEffect(() => {
-    resetSelectedValidator();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const removeLoading = useBoolean();
 
   const { enqueueSnackbar } = useSnackbar();
 
   const theme = useTheme();
 
-  const popover = usePopover();
+  const txPopover = usePopover();
+
   // const filterPopover = usePopover();
 
   const { value: dialogOpen, ...setDialogOpen } = useBoolean(false);
-  const { value: feeReceiptDialogOpen, ...setFeeReceiptDialogOpen } = useBoolean(false);
   const exitLoading = useBoolean();
 
   const [selectedRow, setSelectedRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
   const [viewDepositRow, setViewDepositRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
+  const [selectedTxRow, setSelectedTxRow] = useState<IResponseClusterNodeValidatorItem>();
 
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+
+  useEffect(() => {
+    resetSelectedValidator();
+    setCurrentPathname(pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // console.log('🚀 ~ useEffect ~ currentPathname:', currentPathname, pathname);
+    if (currentPathname !== pathname) {
+      setSelectedRow([]);
+      setValidatorFilter({ status: status as IResponseValidatorStatusEnum });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   // const viewValidatorClick = () => {
   //   setDialogOpen.onTrue();
@@ -123,8 +142,10 @@ export function ClusterValidatorTable({
     setFilterDialogOpen(false);
   };
 
+  const isFilteredByAll = validatorFilter.status === IResponseValidatorStatusEnum.all;
+
   const filteredData = clusterValidatorQuery.data?.filter((row) => {
-    if (validatorFilter.status === IResponseValidatorStatusEnum.all) return true;
+    if (isFilteredByAll) return true;
     return row.status === validatorFilter.status;
   });
 
@@ -154,8 +175,12 @@ export function ClusterValidatorTable({
     }
   };
 
-  const checkStatus = (status: IResponseValidatorStatusEnum) => {
-    return selectedRow.every((row) => row.status === status);
+  const checkStatus = (validatorStatus: IResponseValidatorStatusEnum) => {
+    return selectedRow.every((row) => row.status === validatorStatus);
+  };
+
+  const checkPathnameStatus = (value: IResponseValidatorStatusEnum) => {
+    return status === value;
   };
 
   const handleDepositETH = () => {
@@ -172,8 +197,8 @@ export function ClusterValidatorTable({
     router.push(config.routes.validator.home);
   };
 
-  const handleToastStatus = (status: IResponseValidatorStatusEnum) => {
-    enqueueSnackbar(`Please select all ${status} validators, or filter by status`, {
+  const handleToastStatus = (value: IResponseValidatorStatusEnum) => {
+    enqueueSnackbar(`Please select all ${value} validators, or filter by status`, {
       variant: 'warning',
     });
   };
@@ -184,35 +209,38 @@ export function ClusterValidatorTable({
         title="Cluster validators"
         color="text.primary"
         sx={{ px: 2 }}
-        action={
-          <IconButton color="inherit" onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        }
+        // action={
+        //   <IconButton color="inherit" onClick={popover.onOpen}>
+        //     <Iconify icon="eva:more-vertical-fill" />
+        //   </IconButton>
+        // }
       />
-      <Stack direction="row" px={2} pt={2} pb={1} spacing={1}>
-        <Tooltip title="Run Validator on the SafeStake Network" placement="top">
-          <LoadingButton
-            variant="soft"
-            color="inherit"
-            disabled={selectedRow.length === 0}
-            onClick={() => {
-              const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
+      {!checkPathnameStatus(IResponseValidatorStatusEnum.all) && (
+        <Stack direction="row" px={2} pt={2} pb={1} spacing={1}>
+          {checkPathnameStatus(IResponseValidatorStatusEnum.ready) && (
+            <Tooltip title="Run Validator on the SafeStake Network" placement="top">
+              <LoadingButton
+                variant="soft"
+                color="inherit"
+                disabled={selectedRow.length === 0}
+                onClick={() => {
+                  const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
 
-              if (!isAllReady) {
-                handleToastStatus(IResponseValidatorStatusEnum.ready);
-                return;
-              }
+                  if (!isAllReady) {
+                    handleToastStatus(IResponseValidatorStatusEnum.ready);
+                    return;
+                  }
 
-              setSelectedValidator(selectedRow);
-              router.push(config.routes.validator.validatorRegistrationNetwork);
-            }}
-          >
-            Run Validator
-          </LoadingButton>
-        </Tooltip>
+                  setSelectedValidator(selectedRow);
+                  router.push(config.routes.validator.validatorRegistrationNetwork);
+                }}
+              >
+                Run Validator
+              </LoadingButton>
+            </Tooltip>
+          )}
 
-        {/* <LoadingButton
+          {/* <LoadingButton
           variant="soft"
           color="inherit"
           loading={removeLoading.value}
@@ -222,48 +250,53 @@ export function ClusterValidatorTable({
           View Deposit Data
         </LoadingButton> */}
 
-        <LoadingButton
-          variant="soft"
-          color="inherit"
-          loading={removeLoading.value}
-          onClick={handleDepositETH}
-          disabled={selectedRow.length === 0}
-        >
-          Deposit ETH
-        </LoadingButton>
+          {checkPathnameStatus(IResponseValidatorStatusEnum.registered) && (
+            <LoadingButton
+              variant="soft"
+              color="inherit"
+              loading={removeLoading.value}
+              onClick={handleDepositETH}
+              disabled={selectedRow.length === 0}
+            >
+              Deposit ETH
+            </LoadingButton>
+          )}
 
-        <LoadingButton
-          variant="soft"
-          color="inherit"
-          loading={exitLoading.value}
-          disabled={selectedRow.length === 0}
-          onClick={() => {
-            const isAllDeposited = checkStatus(IResponseValidatorStatusEnum.deposited);
+          {checkPathnameStatus(IResponseValidatorStatusEnum.deposited) && (
+            <LoadingButton
+              variant="soft"
+              color="inherit"
+              loading={exitLoading.value}
+              disabled={selectedRow.length === 0}
+              onClick={() => {
+                const isAllDeposited = checkStatus(IResponseValidatorStatusEnum.deposited);
 
-            if (!isAllDeposited) {
-              handleToastStatus(IResponseValidatorStatusEnum.deposited);
-              return;
-            }
+                if (!isAllDeposited) {
+                  handleToastStatus(IResponseValidatorStatusEnum.deposited);
+                  return;
+                }
 
-            handleExitValidator(selectedRow);
-          }}
-        >
-          Exit Validator
-        </LoadingButton>
+                handleExitValidator(selectedRow);
+              }}
+            >
+              Exit Validator
+            </LoadingButton>
+          )}
 
-        {/* <LoadingButton
+          {/* <LoadingButton
           variant="soft"
           color="inherit"
           onClick={() => setFeeReceiptDialogOpen.onTrue()}
         >
           Update Fee Recipient Address
         </LoadingButton> */}
-      </Stack>
+        </Stack>
+      )}
 
       <ValidatorSetFeeReceiptBox address={address} />
 
-      <CustomPopover open={popover.open} onClose={popover.onClose}>
-        {/* <MenuItem
+      {/* <CustomPopover open={popover.open} onClose={popover.onClose}>
+        <MenuItem
           onClick={() => {
             resetAll();
             router.push(config.routes.validator.validatorExit);
@@ -271,7 +304,7 @@ export function ClusterValidatorTable({
         >
           <Iconify width={24} icon="iconamoon:exit-bold" color={theme.palette.grey[600]} />
           Validator Exit
-        </MenuItem> */}
+        </MenuItem>
         <MenuItem
           onClick={() => {
             setFeeReceiptDialogOpen.onTrue();
@@ -280,7 +313,7 @@ export function ClusterValidatorTable({
           <Iconify width={24} icon="mingcute:edit-line" color={theme.palette.grey[600]} />
           Update Fee Recipient Address
         </MenuItem>
-      </CustomPopover>
+      </CustomPopover> */}
 
       <TableContainer sx={{ overflow: 'unset' }}>
         <Scrollbar sx={{ maxHeight: 800 }}>
@@ -310,9 +343,9 @@ export function ClusterValidatorTable({
                 <Typography variant="caption">Public Key</Typography>
               </StyledTableCell>
 
-              <StyledTableCell align="left">
+              {/* <StyledTableCell align="left">
                 <Typography variant="caption">Owner</Typography>
-              </StyledTableCell>
+              </StyledTableCell> */}
 
               <StyledTableCell
                 align="center"
@@ -322,64 +355,69 @@ export function ClusterValidatorTable({
                     color: () => theme.palette.primary.main,
                   },
                 }}
-                // onClick={(event) => {
-                //   // setFilterDialogOpen(true);
-                //   filterPopover.onOpen(event);
-                // }}
               >
-                <Tooltip
-                  slotProps={{
-                    tooltip: {
-                      sx: {
-                        color: '#514E6A',
-                        backgroundColor: '#ffff',
-                        boxShadow: theme.customShadows.dropdown,
-                        p: theme.spacing(1),
+                {status === IResponseValidatorStatusEnum.all ? (
+                  <Tooltip
+                    slotProps={{
+                      tooltip: {
+                        sx: {
+                          color: '#514E6A',
+                          backgroundColor: '#ffff',
+                          boxShadow: theme.customShadows.dropdown,
+                          p: theme.spacing(1),
+                        },
                       },
-                    },
-                  }}
-                  title={
-                    <Stack spacing={1}>
-                      {Object.values(IResponseValidatorStatusEnum).map((status) => (
-                        <MenuItem
-                          key={status}
-                          onClick={() => {
-                            setValidatorFilter({ status });
-                            // filterPopover.onClose();
-                          }}
-                        >
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                checked={validatorFilter.status === status}
-                                onChange={() => {
-                                  setValidatorFilter({ status });
-                                  // filterPopover.onClose();
-                                }}
-                              />
-                            }
-                            label={status}
-                          />
-                        </MenuItem>
-                      ))}
+                    }}
+                    title={
+                      <Stack spacing={1}>
+                        {Object.values(IResponseValidatorStatusEnum).map((validatorStatus) => (
+                          <MenuItem
+                            key={validatorStatus}
+                            onClick={() => {
+                              setValidatorFilter({ status: validatorStatus });
+                              // filterPopover.onClose();
+                            }}
+                          >
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={validatorFilter.status === validatorStatus}
+                                  onChange={() => {
+                                    setValidatorFilter({ status: validatorStatus });
+                                    // filterPopover.onClose();
+                                  }}
+                                />
+                              }
+                              label={validatorStatus}
+                            />
+                          </MenuItem>
+                        ))}
+                      </Stack>
+                    }
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="center"
+                      spacing={0.5}
+                    >
+                      <Typography variant="caption">Status</Typography>
+                      <Iconify
+                        icon={
+                          validatorFilter.status !== IResponseValidatorStatusEnum.all
+                            ? 'iconoir:filter-solid'
+                            : 'iconoir:filter'
+                        }
+                        width={16}
+                      />
                     </Stack>
-                  }
-                >
-                  <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
-                    <Typography variant="caption">Status</Typography>
-                    <Iconify
-                      icon={
-                        validatorFilter.status !== IResponseValidatorStatusEnum.all
-                          ? 'iconoir:filter-solid'
-                          : 'iconoir:filter'
-                      }
-                      width={16}
-                    />
-                  </Stack>
-                </Tooltip>
+                  </Tooltip>
+                ) : (
+                  <Typography variant="caption">Status</Typography>
+                )}
               </StyledTableCell>
 
-              <StyledTableCell align="right">Created At</StyledTableCell>
+              <StyledTableCell align="center">Created At</StyledTableCell>
 
               <StyledTableCell align="right">Action</StyledTableCell>
             </TableRow>
@@ -414,11 +452,11 @@ export function ClusterValidatorTable({
                     </Stack>
                   </TableCell>
 
-                  <TableCell align="left">
+                  {/* <TableCell align="left">
                     <Typography variant="body2" color="text.secondary">
                       {longStringShorten(row.owner)}
                     </Typography>
-                  </TableCell>
+                  </TableCell> */}
 
                   <TableCell align="center">
                     <Label variant="soft" color="info">
@@ -426,14 +464,14 @@ export function ClusterValidatorTable({
                     </Label>
                   </TableCell>
 
-                  <TableCell align="right">
+                  <TableCell align="center">
                     <Typography variant="body2" color="text.secondary">
                       {formatTimestamp(row.created_at)}
                     </Typography>
                   </TableCell>
 
                   <TableCell align="right">
-                    <Tooltip title="View Validator">
+                    <Tooltip title="View Validator" placement="top">
                       <IconButton
                         color="inherit"
                         onClick={() => {
@@ -448,6 +486,15 @@ export function ClusterValidatorTable({
                         <Iconify icon="mdi:eye" color={theme.palette.grey[600]} />
                       </IconButton>
                     </Tooltip>
+                    <IconButton
+                      color="inherit"
+                      onClick={(event) => {
+                        setSelectedTxRow(row);
+                        txPopover.onOpen(event);
+                      }}
+                    >
+                      <Iconify icon="eva:more-vertical-fill" />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -514,6 +561,37 @@ export function ClusterValidatorTable({
         </DialogActions>
       </Dialog>
 
+      <CustomPopover open={txPopover.open} onClose={txPopover.onClose}>
+        {selectedTxRow?.generate_txid && (
+          <MenuItem>
+            <Link href={`${config.links.etherTxLink(selectedTxRow.generate_txid)}`} target="_blank">
+              Generate Tx
+            </Link>
+          </MenuItem>
+        )}
+        {selectedTxRow?.register_txid && (
+          <MenuItem>
+            <Link href={`${config.links.etherTxLink(selectedTxRow.register_txid)}`} target="_blank">
+              Register Tx
+            </Link>
+          </MenuItem>
+        )}
+        {selectedTxRow?.deposit_txid && (
+          <MenuItem>
+            <Link href={`${config.links.etherTxLink(selectedTxRow.deposit_txid)}`} target="_blank">
+              Deposit Tx
+            </Link>
+          </MenuItem>
+        )}
+        {selectedTxRow?.exit_txid && (
+          <MenuItem>
+            <Link href={`${config.links.etherTxLink(selectedTxRow.exit_txid)}`} target="_blank">
+              Exit Tx
+            </Link>
+          </MenuItem>
+        )}
+      </CustomPopover>
+
       {/* <CustomPopover
         open={filterPopover.open}
         onClose={filterPopover.onClose}
@@ -572,20 +650,20 @@ export function ClusterValidatorTable({
             <FormGroup>
               {Object.values(IResponseValidatorStatusEnum)
                 // .filter((status) => status !== IResponseValidatorStatusEnum.all)
-                .map((status) => (
+                .map((validatorStatus) => (
                   <FormControlLabel
-                    key={status}
+                    key={validatorStatus}
                     control={
                       <Checkbox
-                        checked={validatorFilter.status === status}
+                        checked={validatorFilter.status === validatorStatus}
                         onChange={(e) => {
                           setValidatorFilter({
-                            status: e.target.checked ? status : '',
+                            status: e.target.checked ? validatorStatus : '',
                           });
                         }}
                       />
                     }
-                    label={upperFirst(status)}
+                    label={upperFirst(validatorStatus)}
                   />
                 ))}
             </FormGroup>
@@ -598,11 +676,6 @@ export function ClusterValidatorTable({
           </Button>
         </DialogActions>
       </Dialog>
-
-      <ValidatorSetFeeReceiptDialog
-        dialogOpen={feeReceiptDialogOpen}
-        onClose={setFeeReceiptDialogOpen.onFalse}
-      />
     </Card>
   );
 }

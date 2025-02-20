@@ -315,7 +315,7 @@ export default function LidoCSMRegistrationPage() {
                 disabled={successIndex.length !== clusterNodeValidatorsGrouped.length}
                 disableRipple
                 onClick={() => {
-                  router.replace(config.routes.home);
+                  router.replace(config.routes.clusterValidator.home);
                 }}
               >
                 Finish

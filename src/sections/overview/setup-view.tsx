@@ -342,7 +342,9 @@ export default function SetUpView() {
                 >
                   Continue
                 </LoadingButton>
-                <Button onClick={stepper.handleBack}>Back</Button>
+                <Button onClick={stepper.handleBack} variant="outlined">
+                  Back
+                </Button>
               </Stack>
             </StepContent>
           </Step>
@@ -365,7 +367,9 @@ export default function SetUpView() {
                   Finish
                 </LoadingButton>
 
-                <Button onClick={stepper.handleBack}>Back</Button>
+                <Button onClick={stepper.handleBack} variant="outlined">
+                  Back
+                </Button>
               </Stack>
             </StepContent>
           </Step>

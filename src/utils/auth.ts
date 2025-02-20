@@ -19,13 +19,24 @@ export const getSignatureHeader = () => {
 };
 
 export const isVerifiedSignature = () => {
-  const { 'v-deadline': deadline, 'v-signature': signature } = getSignatureHeader();
+  const {
+    'v-deadline': deadline,
+    'v-signature': signature,
+    'v-owner': owner,
+  } = getSignatureHeader();
 
-  if (!deadline || !signature) {
+  if (!deadline || !signature || !owner) {
     return false;
   }
 
   const now = Math.floor(Date.now() / 1000);
   const deadlineTimestamp = parseInt(deadline, 10);
-  return now < deadlineTimestamp;
+
+  const isExpired = now > deadlineTimestamp;
+
+  if (isExpired) {
+    clearSignatureHeader();
+  }
+
+  return !isExpired;
 };

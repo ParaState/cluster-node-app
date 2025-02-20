@@ -21,7 +21,7 @@ const InitiatorBoundGuard = ({ children }: Props) => {
   const { address } = useAccount();
   const router = useRouter();
   const [initiatorStatus, setInitiatorStatus] = useState<IResponseInitiatorStatus>();
-  const loading = useBoolean();
+  const loading = useBoolean(true);
 
   useEffect(() => {
     const getInitiatorStatus = async () => {

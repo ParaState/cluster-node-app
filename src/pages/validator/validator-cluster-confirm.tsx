@@ -394,7 +394,7 @@ export default function ValidatorClusterConfirmPage() {
                 disabled={successIndex.length !== clusterNodeValidatorsGrouped.length}
                 disableRipple
                 onClick={() => {
-                  router.replace(config.routes.home);
+                  router.replace(config.routes.clusterValidator.home);
                 }}
               >
                 Finish

@@ -5,6 +5,8 @@ import Box, { BoxProps } from '@mui/material/Box';
 
 import { RouterLink } from '@/routes/components';
 
+import { config } from '@/config';
+
 export interface LogoProps extends BoxProps {
   disabledLink?: boolean;
 }
@@ -90,7 +92,11 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
     }
 
     return (
-      <Link component={RouterLink} href="/" sx={{ display: 'contents' }}>
+      <Link
+        component={RouterLink}
+        href={config.routes.clusterValidator.home}
+        sx={{ display: 'contents' }}
+      >
         {logo}
       </Link>
     );

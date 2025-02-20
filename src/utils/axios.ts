@@ -27,7 +27,7 @@ export const requestInterceptor = (config: AxiosRequestConfig) => {
 
 axiosInstance.interceptors.request.use(requestInterceptor as any, (error) => Promise.reject(error));
 
-export const responseIntercepter = async (res: AxiosResponse<IResponseCommonData>) => {
+export const responseInterceptor = async (res: AxiosResponse<IResponseCommonData>) => {
   if (res && res.status === 200) {
     switch (res.data.code) {
       case 200:
@@ -43,6 +43,6 @@ export const responseIntercepter = async (res: AxiosResponse<IResponseCommonData
   return Promise.reject(res);
 };
 
-axiosInstance.interceptors.response.use(responseIntercepter, (error) => Promise.reject(error));
+axiosInstance.interceptors.response.use(responseInterceptor, (error) => Promise.reject(error));
 
 export default axiosInstance;

@@ -87,7 +87,10 @@ export default function ValidatorPollingTxPage() {
               <Typography variant="h6" color="success.main">
                 All validators generated successfully!
               </Typography>
-              <Button variant="contained" onClick={() => router.push(config.routes.home)}>
+              <Button
+                variant="contained"
+                onClick={() => router.push(config.routes.clusterValidator.home)}
+              >
                 Go to Validators
               </Button>
             </Stack>

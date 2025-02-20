@@ -44,7 +44,7 @@ function WalletAndInitiatorBoundGuard({ children }: { children: React.ReactNode 
 export default function Router() {
   return useRoutes([
     {
-      path: config.routes.home,
+      path: config.routes.clusterValidator.home,
       element: (
         <MainLayout>
           <Suspense fallback={<LoadingScreen />}>
@@ -61,6 +61,15 @@ export default function Router() {
             </WalletAndInitiatorBoundGuard>
           ),
           index: true,
+        },
+        {
+          path: config.routes.clusterValidator.status,
+          element: (
+            <WalletAndInitiatorBoundGuard>
+              <FixedHeader />
+              <MyAccountPage />
+            </WalletAndInitiatorBoundGuard>
+          ),
         },
       ],
     },
