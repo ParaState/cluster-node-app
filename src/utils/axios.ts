@@ -1,8 +1,9 @@
 import { enqueueSnackbar } from 'notistack';
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 
-import { getSignatureHeader } from '@/utils';
 import { IResponseCommonData } from '@/types';
+
+import { getSignatureHeader } from './auth';
 
 const axiosInstance = axios.create({
   timeout: 60 * 1000,
