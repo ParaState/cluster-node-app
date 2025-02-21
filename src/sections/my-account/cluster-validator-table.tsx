@@ -29,9 +29,9 @@ import {
   FormControlLabel,
 } from '@mui/material';
 
-import { useParams, useRouter, usePathname } from '@/routes/hooks';
+import { useParams, useRouter } from '@/routes/hooks';
 
-import { useClusterNode } from '@/hooks/contract';
+import { useClusterNode, useRegisterValidator } from '@/hooks/contract';
 
 import { longStringShorten } from '@/utils/string';
 
@@ -75,10 +75,10 @@ export function ClusterValidatorTable({
   const { status = IResponseValidatorStatusEnum.all } = useParams();
   // console.log('🚀 ~ status:', status);
 
-  const pathname = usePathname();
+  // const pathname = usePathname();
   // console.log('🚀 ~ pathname:', pathname);
 
-  const [currentPathname, setCurrentPathname] = useState(pathname);
+  // const [currentPathname, setCurrentPathname] = useState(pathname);
 
   const { generateExitData } = useClusterNode();
 
@@ -91,7 +91,8 @@ export function ClusterValidatorTable({
   const [validatorFilter, setValidatorFilter] = useState<{
     status: string;
   }>({
-    status: IResponseValidatorStatusEnum.all,
+    // status: IResponseValidatorStatusEnum.all,
+    status,
   });
 
   const removeLoading = useBoolean();
@@ -113,20 +114,27 @@ export function ClusterValidatorTable({
 
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
+  const { checkValidatorIsRegistered } = useRegisterValidator();
+
   useEffect(() => {
     resetSelectedValidator();
-    setCurrentPathname(pathname);
+    // setCurrentPathname(pathname);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // useEffect(() => {
+  //   console.log('🚀 ~ useEffect ~ currentPathname:', currentPathname === pathname);
+  //   if (currentPathname !== pathname) {
+  //     setSelectedRow([]);
+  //     setValidatorFilter({ status: status as IResponseValidatorStatusEnum });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [pathname]);
+
   useEffect(() => {
-    // console.log('🚀 ~ useEffect ~ currentPathname:', currentPathname, pathname);
-    if (currentPathname !== pathname) {
-      setSelectedRow([]);
-      setValidatorFilter({ status: status as IResponseValidatorStatusEnum });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    // console.log('🚀 ~ useEffect ~ status:', status);
+    setValidatorFilter({ status });
+  }, [status]);
 
   // const viewValidatorClick = () => {
   //   setDialogOpen.onTrue();
@@ -203,6 +211,21 @@ export function ClusterValidatorTable({
     });
   };
 
+  const handleRunValidator = async () => {
+    console.log('🚀 ~ handleRunValidator ~ selectedRow:', selectedRow);
+    const isRegistered = await checkValidatorIsRegistered(selectedRow.map((row) => row.pubkey));
+    console.log('🚀 ~ handleRunValidator ~ isRegistered:', isRegistered);
+    // const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
+
+    // if (!isAllReady) {
+    //   handleToastStatus(IResponseValidatorStatusEnum.ready);
+    //   return;
+    // }
+
+    // setSelectedValidator(selectedRow);
+    // router.push(config.routes.validator.validatorRegistrationNetwork);
+  };
+
   return (
     <Card>
       <CardHeader
@@ -220,20 +243,11 @@ export function ClusterValidatorTable({
           {checkPathnameStatus(IResponseValidatorStatusEnum.ready) && (
             <Tooltip title="Run Validator on the SafeStake Network" placement="top">
               <LoadingButton
+                component="span"
                 variant="soft"
                 color="inherit"
                 disabled={selectedRow.length === 0}
-                onClick={() => {
-                  const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
-
-                  if (!isAllReady) {
-                    handleToastStatus(IResponseValidatorStatusEnum.ready);
-                    return;
-                  }
-
-                  setSelectedValidator(selectedRow);
-                  router.push(config.routes.validator.validatorRegistrationNetwork);
-                }}
+                onClick={handleRunValidator}
               >
                 Run Validator
               </LoadingButton>
@@ -322,13 +336,9 @@ export function ClusterValidatorTable({
               <StyledTableCell padding="checkbox">
                 <Checkbox
                   indeterminate={
-                    !!selectedRow.length &&
-                    selectedRow.length < (clusterValidatorQuery.data?.length || 0)
+                    !!selectedRow.length && selectedRow.length < (filteredData?.length || 0)
                   }
-                  checked={
-                    !!clusterValidatorQuery.data?.length &&
-                    selectedRow.length === clusterValidatorQuery.data?.length
-                  }
+                  checked={!!filteredData?.length && selectedRow.length === filteredData?.length}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     if (event.target.checked) {
                       setSelectedRow(filteredData || []);
