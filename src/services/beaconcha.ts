@@ -160,7 +160,13 @@ export async function getValidatorsByGroup(publicKeys: string[]) {
   const isExitedValidator = new Map<string, boolean>();
 
   try {
-    const data = await getBeaconchaValidators(publicKeys);
+    // max publicKeys is 100, split it to 100 as batch
+    const data: IResponseValidatorBeaconItem[] = [];
+    for (let i = 0; i < publicKeys.length; i += 100) {
+      const batchPublicKeys = publicKeys.slice(i, i + 100);
+      const batchData = await getBeaconchaValidators(batchPublicKeys);
+      data.push(...batchData);
+    }
 
     for (const validator of data) {
       switch (validator.status) {

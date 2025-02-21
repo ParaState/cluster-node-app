@@ -200,6 +200,15 @@ export function ClusterValidatorTable({
         // '0xa8fd06ccf9158357109e07272855bf7e988eede6de3751544228b3188d0a223d2a31f4d289a43a6a5fc3781af1c9a5fc',
       ]);
 
+      // await services.clusterNode.updateValidatorStatus([
+      //   {
+      //     pubkey:
+      //       '0xa8fd06ccf9158357109e07272855bf7e988eede6de3751544228b3188d0a223d2a31f4d289a43a6a5fc3781af1c9a5fc',
+      //     action: IRequestValidatorActionEnum.deposit,
+      //     txid: '',
+      //   },
+      // ]);
+
       const { canDepositValidator, canExitValidator, isExitedValidator } = results;
 
       const canDepositValidators = selectedRow.filter((v) => canDepositValidator.get(v.pubkey));
