@@ -115,7 +115,7 @@ export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose }: Props) => 
     >
       <DialogTitle id="confirmation-dialog-title">
         <Typography component="div" variant="subtitle1">
-          Set fee recipient address
+          Update Fee Recipient Address
         </Typography>
       </DialogTitle>
       <DialogContent>
