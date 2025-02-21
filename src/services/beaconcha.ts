@@ -154,6 +154,64 @@ export async function getBeaconchaValidators(publicKeys: string[]) {
   return data;
 }
 
+export async function getValidatorsByGroup(publicKeys: string[]) {
+  const canDepositValidator = new Map<string, boolean>();
+  const canExitValidator = new Map<string, boolean>();
+  const isExitedValidator = new Map<string, boolean>();
+
+  try {
+    const data = await getBeaconchaValidators(publicKeys);
+
+    for (const validator of data) {
+      switch (validator.status) {
+        case ValidatorStatus.exited:
+        case ValidatorStatus.exitingOnline:
+        case ValidatorStatus.slashing:
+        case ValidatorStatus.slashed:
+          isExitedValidator.set(validator.pubkey, true);
+          break;
+        case ValidatorStatus.pending:
+        case ValidatorStatus.activeOnline:
+        case ValidatorStatus.activeOffline:
+          canExitValidator.set(validator.pubkey, true);
+          break;
+        default:
+          canDepositValidator.set(validator.pubkey, true);
+          break;
+      }
+    }
+
+    return {
+      canDepositValidator,
+      canExitValidator,
+      isExitedValidator,
+    };
+  } catch (error) {
+    if (
+      error.response?.status === 400 &&
+      error.response?.data?.status ===
+        'ERROR: invalid validator argument, pubkey(s) did not resolve to a validator index'
+    ) {
+      publicKeys.forEach((pk) => {
+        canDepositValidator.set(pk, true);
+      });
+    }
+
+    return {
+      canDepositValidator,
+      canExitValidator,
+      isExitedValidator,
+    };
+  }
+}
+
+export function filterStatusValidators(
+  data: IResponseValidatorBeaconItem[],
+  status: ValidatorStatus[]
+) {
+  return data.filter((validator) => status.includes(validator.status as ValidatorStatus));
+}
+
 export function filterExitedOrSlasedValidators(data: IResponseValidatorBeaconItem[]) {
   const items = data.filter((validator) => {
     // slashing need to add?

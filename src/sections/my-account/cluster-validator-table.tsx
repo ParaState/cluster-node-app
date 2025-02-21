@@ -195,14 +195,39 @@ export function ClusterValidatorTable({
         return;
       }
 
-      const keys = await services.beaconcha.getBeaconchaValidatorsIsActiveV2([
+      const results = await services.beaconcha.getValidatorsByGroup([
         ...selectedRow.map((v) => v.pubkey),
         // '0xa8fd06ccf9158357109e07272855bf7e988eede6de3751544228b3188d0a223d2a31f4d289a43a6a5fc3781af1c9a5fc',
       ]);
-      console.log('🚀 ~ handleDepositETH ~ keys:', keys);
 
-      setSelectedValidator(selectedRow);
-      // router.push(config.routes.validator.home);
+      const { canDepositValidator, canExitValidator, isExitedValidator } = results;
+
+      const canDepositValidators = selectedRow.filter((v) => canDepositValidator.get(v.pubkey));
+      const canExitValidators = selectedRow.filter((v) => canExitValidator.get(v.pubkey));
+      const isExitedValidators = selectedRow.filter((v) => isExitedValidator.get(v.pubkey));
+
+      if (canExitValidators.length > 0) {
+        await services.clusterNode.updateValidatorStatus(
+          canExitValidators.map((v) => ({
+            pubkey: v.pubkey,
+            action: IRequestValidatorActionEnum.deposit,
+            txid: '',
+          }))
+        );
+      }
+
+      if (isExitedValidators.length > 0) {
+        await services.clusterNode.updateValidatorStatus(
+          isExitedValidators.map((v) => ({
+            pubkey: v.pubkey,
+            action: IRequestValidatorActionEnum.exit,
+            txid: '',
+          }))
+        );
+      }
+
+      setSelectedValidator(canDepositValidators);
+      router.push(config.routes.validator.home);
     } finally {
       depositLoading.onFalse();
     }
