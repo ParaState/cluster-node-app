@@ -1,5 +1,5 @@
 import { upperFirst } from 'lodash';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UseQueryResult } from '@tanstack/react-query';
 
 import { LoadingButton } from '@mui/lab';
@@ -55,7 +55,7 @@ import { useSnackbar } from '@/components/snackbar';
 import { TableNoData, StyledTableCell } from '@/components/table';
 import { ValidatorSetFeeReceiptBox } from '@/components/validator';
 import CustomPopover, { usePopover } from '@/components/custom-popover';
-import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
+import SimpleTableSkeleton from '@/components/table/simple-table-skeleton'; // 引入对号图标
 
 type Props = {
   clusterValidatorQuery: UseQueryResult<IResponseClusterNodeValidatorItem[], Error>;
@@ -95,8 +95,6 @@ export function ClusterValidatorTable({
     status,
   });
 
-  const removeLoading = useBoolean();
-
   const { enqueueSnackbar } = useSnackbar();
 
   const theme = useTheme();
@@ -107,6 +105,8 @@ export function ClusterValidatorTable({
 
   const { value: dialogOpen, ...setDialogOpen } = useBoolean(false);
   const exitLoading = useBoolean();
+  const depositLoading = useBoolean();
+  const runValidatorLoading = useBoolean();
 
   const [selectedRow, setSelectedRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
   const [viewDepositRow, setViewDepositRow] = useState<IResponseClusterNodeValidatorItem[]>([]);
@@ -114,22 +114,12 @@ export function ClusterValidatorTable({
 
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
-  const { checkValidatorIsRegistered } = useRegisterValidator();
+  const { filterValidatorIsRegistered } = useRegisterValidator();
 
   useEffect(() => {
     resetSelectedValidator();
-    // setCurrentPathname(pathname);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // useEffect(() => {
-  //   console.log('🚀 ~ useEffect ~ currentPathname:', currentPathname === pathname);
-  //   if (currentPathname !== pathname) {
-  //     setSelectedRow([]);
-  //     setValidatorFilter({ status: status as IResponseValidatorStatusEnum });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [pathname]);
 
   useEffect(() => {
     // console.log('🚀 ~ useEffect ~ status:', status);
@@ -159,11 +149,13 @@ export function ClusterValidatorTable({
 
   const handleExitValidator = async (validators: IResponseClusterNodeValidatorItem[]) => {
     try {
-      console.log('exit validator', validators);
       exitLoading.onTrue();
+
+      const epochResponse = await services.beaconcha.getLatestEpoch();
+      const activeEpoch = epochResponse.data.epoch;
+
       const clusterPublicKey = validators[0].pubkey;
       const validatorPubKeys = validators.map((v) => v.pubkey);
-      const activeEpoch = 1;
 
       const receipt = await generateExitData(clusterPublicKey, validatorPubKeys, activeEpoch);
 
@@ -191,18 +183,29 @@ export function ClusterValidatorTable({
     return status === value;
   };
 
-  const handleDepositETH = () => {
-    // 1. lido csm batch register
-    // 2. https://holesky.launchpad.ethereum.org/en/
-    const isAllRegistered = checkStatus(IResponseValidatorStatusEnum.registered);
+  const handleDepositETH = async () => {
+    try {
+      depositLoading.onTrue();
+      // 1. lido csm batch register
+      // 2. https://holesky.launchpad.ethereum.org/en/
+      const isAllRegistered = checkStatus(IResponseValidatorStatusEnum.registered);
 
-    if (!isAllRegistered) {
-      handleToastStatus(IResponseValidatorStatusEnum.registered);
-      return;
+      if (!isAllRegistered) {
+        handleToastStatus(IResponseValidatorStatusEnum.registered);
+        return;
+      }
+
+      const keys = await services.beaconcha.getBeaconchaValidatorsIsActiveV2([
+        ...selectedRow.map((v) => v.pubkey),
+        // '0xa8fd06ccf9158357109e07272855bf7e988eede6de3751544228b3188d0a223d2a31f4d289a43a6a5fc3781af1c9a5fc',
+      ]);
+      console.log('🚀 ~ handleDepositETH ~ keys:', keys);
+
+      setSelectedValidator(selectedRow);
+      // router.push(config.routes.validator.home);
+    } finally {
+      depositLoading.onFalse();
     }
-
-    setSelectedValidator(selectedRow);
-    router.push(config.routes.validator.home);
   };
 
   const handleToastStatus = (value: IResponseValidatorStatusEnum) => {
@@ -212,18 +215,29 @@ export function ClusterValidatorTable({
   };
 
   const handleRunValidator = async () => {
-    console.log('🚀 ~ handleRunValidator ~ selectedRow:', selectedRow);
-    const isRegistered = await checkValidatorIsRegistered(selectedRow.map((row) => row.pubkey));
-    console.log('🚀 ~ handleRunValidator ~ isRegistered:', isRegistered);
-    // const isAllReady = checkStatus(IResponseValidatorStatusEnum.ready);
+    try {
+      runValidatorLoading.onTrue();
 
-    // if (!isAllReady) {
-    //   handleToastStatus(IResponseValidatorStatusEnum.ready);
-    //   return;
-    // }
+      console.log(selectedRow);
+      const { registered, notRegistered } = await filterValidatorIsRegistered(selectedRow);
+      console.log('🚀 ~ handleRunValidator ~ registered:', registered);
+      console.log('🚀 ~ handleRunValidator ~ notRegistered:', notRegistered);
 
-    // setSelectedValidator(selectedRow);
-    // router.push(config.routes.validator.validatorRegistrationNetwork);
+      if (registered.length > 0) {
+        await services.clusterNode.updateValidatorStatus(
+          registered.map((v) => ({
+            pubkey: v.pubkey,
+            action: IRequestValidatorActionEnum.register,
+            txid: '',
+          }))
+        );
+      }
+
+      setSelectedValidator(notRegistered);
+      router.push(config.routes.validator.validatorRegistrationNetwork);
+    } finally {
+      runValidatorLoading.onFalse();
+    }
   };
 
   return (
@@ -248,6 +262,7 @@ export function ClusterValidatorTable({
                 color="inherit"
                 disabled={selectedRow.length === 0}
                 onClick={handleRunValidator}
+                loading={runValidatorLoading.value}
               >
                 Run Validator
               </LoadingButton>
@@ -268,7 +283,7 @@ export function ClusterValidatorTable({
             <LoadingButton
               variant="soft"
               color="inherit"
-              loading={removeLoading.value}
+              loading={depositLoading.value}
               onClick={handleDepositETH}
               disabled={selectedRow.length === 0}
             >

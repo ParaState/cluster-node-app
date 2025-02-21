@@ -92,6 +92,7 @@ function getValidatorStatus(data: IResponseValidatorBeaconItem): CommonValidator
         data,
       };
     case ValidatorStatus.activeOnline:
+    case ValidatorStatus.activeOffline:
       return {
         success: false,
         message: activeMsg,

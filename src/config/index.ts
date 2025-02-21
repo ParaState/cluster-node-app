@@ -20,7 +20,7 @@ export const config = {
   // eth network id
   networkId,
   // wallet connect
-  projectId: `f5a1d403c1c9d7165e314a74559a4276`,
+  projectId: `a62cdc83b24414033cb932992dc7b0b6`,
   // env name
   envName: import.meta.env.VITE_ENV_NAME,
   isDevnet: import.meta.env.VITE_ENV_NAME === 'development',

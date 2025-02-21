@@ -1,4 +1,3 @@
-import { multicall } from 'viem/actions';
 import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 
 import { networkContract } from '@/config/contract';
@@ -143,33 +142,46 @@ export const useRegisterValidator = () => {
     }
   };
 
-  const checkValidatorIsRegistered = async (pks: string[]) => {
-    const calls = pks.map((pk) => ({
+  const getValidatorData = async (pk: string) => {
+    const result = await client!.readContract({
       ...networkContract,
       functionName: '_validatorDatas',
-      args: [pk],
-    }));
-
-    const results = await multicall(client!, {
-      contracts: calls,
-      allowFailure: true,
+      args: [pk as `0x${string}`],
     });
 
-    console.log('🚀 ~ checkValidatorRegistered ~ results:', results);
+    return result;
+  };
 
-    // return results.length > 0;
+  const filterValidatorIsRegistered = async (validators: IResponseClusterNodeValidatorItem[]) => {
+    // const registeredMap = new Map<string, IResponseClusterNodeValidatorItem>();
+    // const notRegisteredMap = new Map<string, IResponseClusterNodeValidatorItem>();
+    const map = new Map<string, boolean>();
 
-    const isAllSuccess = results.every((result) => result.status === 'success');
+    for (const validator of validators) {
+      const result = await getValidatorData(validator.pubkey);
+      if (result && result[4]) {
+        // registeredMap.set(validator.pubkey, validator);
+        map.set(validator.pubkey, true);
+      } else {
+        // notRegisteredMap.set(validator.pubkey, validator);
+        map.set(validator.pubkey, false);
+      }
+    }
 
-    if (!isAllSuccess) return false;
+    // const registered = validators.filter((validator) => registeredMap.has(validator.pubkey));
+    // const notRegistered = validators.filter((validator) => notRegisteredMap.has(validator.pubkey));
 
-    const isAllNotRegistered = results.every((result) => result?.result?.[4] === false);
+    const registered = validators.filter((validator) => map.get(validator.pubkey));
+    const notRegistered = validators.filter((validator) => !map.get(validator.pubkey));
 
-    return isAllNotRegistered;
+    return {
+      registered,
+      notRegistered,
+    };
   };
 
   return {
-    checkValidatorIsRegistered,
+    filterValidatorIsRegistered,
     registerClusterNodeValidator,
     registerClusterNodeValidatorEstimation,
     prepareClusterNodeContractConfig,

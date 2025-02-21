@@ -171,29 +171,6 @@ export default function ValidatorClusterConfirmPage() {
     }
   };
 
-  // const handleCheckValidatorRegistered = async () => {
-  //   try {
-  //     isCheckValidatorRegisteredLoading.onTrue();
-  //     const result = await checkValidatorIsRegistered(selectedValidator.map((v) => v.pubkey));
-  //     // const result = await checkValidatorIsRegistered([
-  //     //   '0xa99408b47d515a1ea093489d5f36bba4ca7c60f16b7d2642eee16c1aa3ce8f0c67931cec1975c61d224e810fc077a723',
-  //     //   '0x87a470542a099a29301880ee63fd017ef553fdec987c6ba9a5de946a6185b08a1271147a81777158c6b2e0f3443af1fd',
-  //     // ]);
-  //     console.log('🚀 ~ handleCheckValidatorRegistered ~ result:', result);
-  //     if (result) {
-  //       enqueueSnackbar('Some of validators are registered to network contract', {
-  //         variant: 'error',
-  //       });
-
-  //       return;
-  //     }
-
-  //     handleNext();
-  //   } finally {
-  //     isCheckValidatorRegisteredLoading.onFalse();
-  //   }
-  // };
-
   const steps = [
     // {
     //   label: 'Check Validator Registration',
