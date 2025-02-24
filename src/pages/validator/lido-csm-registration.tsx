@@ -69,7 +69,6 @@ export default function LidoCSMRegistrationPage() {
     if (nodeOperatorId) {
       form.setValue('nodeOperatorId', +nodeOperatorId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodeOperatorId]);
 
   const { handleSubmit } = form;

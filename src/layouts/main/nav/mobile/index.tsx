@@ -24,7 +24,6 @@ export default function NavMobile() {
     if (openMenu) {
       handleCloseMenu();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleOpenMenu = useCallback(() => {

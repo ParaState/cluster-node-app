@@ -289,133 +289,135 @@ export default function SetUpView() {
         }}
       />
 
-      <Typography variant="h3" pt={10} textAlign="left">
-        <Typography display="inline" variant="inherit" color="primary.main">
-          Cluster Node
+      <Box maxWidth={660}>
+        <Typography variant="h3" pt={10} textAlign="left">
+          <Typography display="inline" variant="inherit" color="primary.main">
+            Cluster Node
+          </Typography>
+          &nbsp;Setup Instructions
         </Typography>
-        &nbsp;Setup Instructions
-      </Typography>
 
-      <Typography variant="body1" pt={2} pb={4}>
-        Everything you need to prepare before becoming a cluster node.
-      </Typography>
+        <Typography variant="body1" pt={2} pb={4}>
+          Everything you need to prepare before becoming a cluster node.
+        </Typography>
 
-      <Card sx={{ p: 3, py: 4, minWidth: 660 }}>
-        <Stepper activeStep={stepper.activeStep} orientation="vertical">
-          <Step>
-            <StepLabel>
-              <Typography variant="h6" fontSize={20}>
-                Service Status Check
-              </Typography>
-            </StepLabel>
-            <StepContent>
-              <Typography>Check your service is available</Typography>
-              <Stack direction="row" spacing={1} mt={2}>
-                <LoadingButton
-                  variant="contained"
-                  loading={serviceCheckLoading.value}
-                  onClick={() => {
-                    fetchClusterNode();
-                  }}
-                >
-                  Continue
-                </LoadingButton>
-              </Stack>
-            </StepContent>
-          </Step>
+        <Card sx={{ p: 3, py: 4, minWidth: 660 }}>
+          <Stepper activeStep={stepper.activeStep} orientation="vertical">
+            <Step>
+              <StepLabel>
+                <Typography variant="h6" fontSize={20}>
+                  Service Status Check
+                </Typography>
+              </StepLabel>
+              <StepContent>
+                <Typography>Check your service is available</Typography>
+                <Stack direction="row" spacing={1} mt={2}>
+                  <LoadingButton
+                    variant="contained"
+                    loading={serviceCheckLoading.value}
+                    onClick={() => {
+                      fetchClusterNode();
+                    }}
+                  >
+                    Continue
+                  </LoadingButton>
+                </Stack>
+              </StepContent>
+            </Step>
 
-          <Step>
-            <StepLabel>
-              <Typography variant="h6" fontSize={20}>
-                Register Node
-              </Typography>
-            </StepLabel>
-            <StepContent>
-              <Typography maxWidth={600}>
-                Register cluster node into contract and bind your initiator owner with address
-              </Typography>
-              <Stack direction="row" spacing={1} mt={2}>
-                <LoadingButton
-                  variant="contained"
-                  onClick={registerClusterNodeClick}
-                  loading={registerClusterNodeLoading.value}
-                >
-                  Continue
-                </LoadingButton>
-                <Button onClick={stepper.handleBack} variant="outlined">
-                  Back
-                </Button>
-              </Stack>
-            </StepContent>
-          </Step>
+            <Step>
+              <StepLabel>
+                <Typography variant="h6" fontSize={20}>
+                  Register Node
+                </Typography>
+              </StepLabel>
+              <StepContent>
+                <Typography maxWidth={600}>
+                  Register cluster node into contract and bind your initiator owner with address
+                </Typography>
+                <Stack direction="row" spacing={1} mt={2}>
+                  <LoadingButton
+                    variant="contained"
+                    onClick={registerClusterNodeClick}
+                    loading={registerClusterNodeLoading.value}
+                  >
+                    Continue
+                  </LoadingButton>
+                  <Button onClick={stepper.handleBack} variant="outlined">
+                    Back
+                  </Button>
+                </Stack>
+              </StepContent>
+            </Step>
 
-          <Step>
-            <StepLabel>
-              <Typography variant="h6" fontSize={20}>
-                Select Operators
-              </Typography>
-            </StepLabel>
-            <StepContent>
-              <Typography>Select operators to generate deposit data</Typography>
-              <Stack direction="row" spacing={1} mt={2}>
-                <LoadingButton
-                  variant="contained"
-                  onClick={() => {
-                    router.push(config.routes.validator.selectOperators);
-                  }}
-                >
-                  Finish
-                </LoadingButton>
+            <Step>
+              <StepLabel>
+                <Typography variant="h6" fontSize={20}>
+                  Select Operators
+                </Typography>
+              </StepLabel>
+              <StepContent>
+                <Typography>Select operators to generate deposit data</Typography>
+                <Stack direction="row" spacing={1} mt={2}>
+                  <LoadingButton
+                    variant="contained"
+                    onClick={() => {
+                      router.push(config.routes.validator.selectOperators);
+                    }}
+                  >
+                    Finish
+                  </LoadingButton>
 
-                <Button onClick={stepper.handleBack} variant="outlined">
-                  Back
-                </Button>
-              </Stack>
-            </StepContent>
-          </Step>
-        </Stepper>
+                  <Button onClick={stepper.handleBack} variant="outlined">
+                    Back
+                  </Button>
+                </Stack>
+              </StepContent>
+            </Step>
+          </Stepper>
 
-        {false && (
-          <Stack direction="column" spacing={2}>
-            <SetupItem
-              index="1"
-              title="Check your service is available"
-              checked={serviceOk.value}
-              onClick={getInitiatorStatus}
-            />
+          {false && (
+            <Stack direction="column" spacing={2}>
+              <SetupItem
+                index="1"
+                title="Check your service is available"
+                checked={serviceOk.value}
+                onClick={getInitiatorStatus}
+              />
 
-            <SetupItem
-              index="2"
-              title="Register cluster node into contract"
-              checked={!!clusterNode?.isRegistered}
-              onClick={registerClusterNodeClick}
-              buttonText="register"
-              disabled={clusterNode?.isRegistered}
-              loading={registerClusterNodeLoading.value}
-            />
+              <SetupItem
+                index="2"
+                title="Register cluster node into contract"
+                checked={!!clusterNode?.isRegistered}
+                onClick={registerClusterNodeClick}
+                buttonText="register"
+                disabled={clusterNode?.isRegistered}
+                loading={registerClusterNodeLoading.value}
+              />
 
-            <SetupItem
-              index="3"
-              title="Bind your initiator owner with address"
-              checked={!!initiatorStatus?.owner}
-              onClick={bindInitiatorOwner}
-              buttonText="bind"
-            />
+              <SetupItem
+                index="3"
+                title="Bind your initiator owner with address"
+                checked={!!initiatorStatus?.owner}
+                onClick={bindInitiatorOwner}
+                buttonText="bind"
+              />
 
-            <SetupItem
-              index="4"
-              title="Select operators to generate deposit data"
-              checked={
-                initiatorStatus?.status === IResponseInitiatorStatusEnum.completed &&
-                initiatorStatus?.owner === address
-              }
-              onClick={goToSelectOperators}
-              buttonText="run"
-              divider={false}
-            />
-          </Stack>
-        )}
-      </Card>
+              <SetupItem
+                index="4"
+                title="Select operators to generate deposit data"
+                checked={
+                  initiatorStatus?.status === IResponseInitiatorStatusEnum.completed &&
+                  initiatorStatus?.owner === address
+                }
+                onClick={goToSelectOperators}
+                buttonText="run"
+                divider={false}
+              />
+            </Stack>
+          )}
+        </Card>
+      </Box>
     </Container>
   );
 }

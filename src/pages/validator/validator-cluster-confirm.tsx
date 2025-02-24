@@ -102,7 +102,6 @@ export default function ValidatorClusterConfirmPage() {
   useEffect(() => {
     setActiveStep(0);
     isApproved.onFalse();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFeeMode]);
 
   const importTokenToWallet = () => {

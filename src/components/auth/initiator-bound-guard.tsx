@@ -35,7 +35,6 @@ const InitiatorBoundGuard = ({ children }: Props) => {
     };
 
     getInitiatorStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading.value) {

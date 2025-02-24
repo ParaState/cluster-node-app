@@ -66,7 +66,6 @@ export const GlobalConfigInit = () => {
       const [symbol, name, decimals] = tokenResult.data;
       setTokenInfo({ symbol: symbol.result!, name: name.result!, decimals: decimals.result! });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenResult.data]);
 
   useAccountEffect({

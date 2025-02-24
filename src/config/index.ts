@@ -38,6 +38,8 @@ export const config = {
     clusterNode: import.meta.env.VITE_CLUSTER_NODE_CONTRACT_ADDRESS,
     csmModule: import.meta.env.VITE_CSM_MODULE_CONTRACT_ADDRESS,
     csmAccounting: import.meta.env.VITE_CSM_ACCOUNTING_CONTRACT_ADDRESS,
+    lidoWithdrawalAddress: import.meta.env.VITE_LIDO_WITHDRAWAL_ADDRESS,
+    lidoFeeRecipient: import.meta.env.VITE_LIDO_FEE_RECIPIENT_ADDRESS,
   },
 
   routes: {
@@ -131,25 +133,29 @@ export const config = {
 };
 
 export const navConfig = [
+  // {
+  //   title: 'Generate',
+  //   path: config.routes.validator.selectOperators,
+  // },
   {
     title: 'Validators',
     path: config.routes.clusterValidator.home,
     auth: true,
     children: [
       {
-        title: 'Generate Validator',
+        title: 'Generate',
         path: config.routes.validator.selectOperators,
       },
       {
-        title: 'Run Validator',
+        title: 'Run',
         path: config.routes.clusterValidator.run,
       },
       {
-        title: 'Activate Validator',
+        title: 'Activate',
         path: config.routes.clusterValidator.activate,
       },
       {
-        title: 'Exit Validator',
+        title: 'Exit',
         path: config.routes.clusterValidator.deposit,
       },
     ],

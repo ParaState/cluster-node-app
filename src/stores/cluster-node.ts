@@ -31,3 +31,21 @@ export const useNodeOperatorId = () => {
   const [nodeOperatorId, setNodeOperatorId] = useAtom(nodeOperatorIdAtom);
   return { nodeOperatorId, setNodeOperatorId };
 };
+
+const hasVisitedAtom = atomWithStorage<string>(
+  'hasVisited',
+  localStorage.getItem('hasVisited') || ''
+);
+
+export const useFirstVisit = () => {
+  const [hasVisited, setHasVisited] = useAtom(hasVisitedAtom);
+
+  const markAsVisited = () => {
+    setHasVisited(new Date().toISOString());
+  };
+
+  return {
+    isFirstVisit: !hasVisited,
+    markAsVisited,
+  };
+};

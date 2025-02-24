@@ -9,6 +9,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import {
   Grid,
+  Link,
+  Stack,
   Button,
   Dialog,
   Typography,
@@ -19,6 +21,7 @@ import {
 
 import { useFeeReceiptAddress } from '@/hooks/contract';
 
+import { config } from '@/config';
 import { isAddressZero } from '@/utils';
 
 import FormProvider, { RHFTextField } from '@/components/hook-form';
@@ -57,7 +60,7 @@ export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose }: Props) => 
     addressType: AddressType.owner,
   };
 
-  const methods = useForm<FormSchema>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(schema),
     defaultValues,
     mode: 'onChange',
@@ -65,21 +68,21 @@ export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose }: Props) => 
 
   useEffect(() => {
     if (getFeeRecipientAddressQuery.data) {
-      methods.setValue(
+      form.setValue(
         'address',
         isAddressZero(getFeeRecipientAddressQuery.data)
           ? address!
           : getFeeRecipientAddressQuery.data!
       );
     }
-  }, [getFeeRecipientAddressQuery.data, address, methods]);
+  }, [getFeeRecipientAddressQuery.data]);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const {
     handleSubmit,
     formState: { isSubmitting, isValid },
-  } = methods;
+  } = form;
 
   // const addressType = methods.watch('addressType');
 
@@ -105,7 +108,7 @@ export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose }: Props) => 
 
   return (
     <Dialog
-      maxWidth="xs"
+      maxWidth="sm"
       fullWidth
       open={dialogOpen}
       // onClose={() => {
@@ -114,13 +117,26 @@ export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose }: Props) => 
       // }}
     >
       <DialogTitle id="confirmation-dialog-title">
-        <Typography component="div" variant="subtitle1">
-          Update Fee Recipient Address
-        </Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography component="div" variant="subtitle1">
+            Update Fee Recipient Address
+          </Typography>
+
+          <Link
+            sx={{ cursor: 'pointer' }}
+            variant="body2"
+            underline="always"
+            onClick={() => {
+              form.setValue('address', config.contractAddress.lidoFeeRecipient);
+            }}
+          >
+            (Fill Lido CSM fee recipient address)
+          </Link>
+        </Stack>
       </DialogTitle>
       <DialogContent>
         <Grid container direction="column">
-          <FormProvider methods={methods} onSubmit={onSubmit}>
+          <FormProvider methods={form} onSubmit={onSubmit}>
             <RHFTextField
               name="address"
               type="text"

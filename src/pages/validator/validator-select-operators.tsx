@@ -128,7 +128,7 @@ export default function ValidatorSelectorOperatorsPage() {
     // } else {
     //   operatorQuery.refetch();
     // }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     // }, [sortId, sortType, searchInput]);
   }, [sortId, sortType]);
 
@@ -221,6 +221,8 @@ export default function ValidatorSelectorOperatorsPage() {
     //   generateLoading.onFalse();
     // }
   });
+
+  const withdrawalAddress = form.watch('withdrawalAddress');
 
   return (
     <Container maxWidth="xl">
@@ -582,15 +584,28 @@ export default function ValidatorSelectorOperatorsPage() {
                     <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
                       <Typography variant="subtitle2">Withdrawal address</Typography>
                       <Link
+                        sx={{ cursor: 'pointer' }}
                         variant="body2"
                         underline="always"
-                        target="_blank"
-                        href={config.links.lidoCsm}
-                        sx={{ p: 0.5 }}
+                        onClick={() => {
+                          form.setValue(
+                            'withdrawalAddress',
+                            config.contractAddress.lidoWithdrawalAddress
+                          );
+                        }}
                       >
-                        (Lido CSM)
+                        (Fill Lido CSM withdrawal address)
                       </Link>
+                      <IconButton component="a" href={config.links.lidoCsm} target="_blank">
+                        <Iconify icon="gridicons:external" />
+                      </IconButton>
                     </Stack>
+
+                    {withdrawalAddress === config.contractAddress.lidoWithdrawalAddress && (
+                      <Typography variant="caption" fontWeight={700} color="error">
+                        Do NOT make a deposit to Lido CSM withdrawal address!
+                      </Typography>
+                    )}
 
                     <RHFTextField
                       fullWidth

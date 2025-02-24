@@ -37,9 +37,9 @@ import { longStringShorten } from '@/utils/string';
 
 import { config } from '@/config';
 import services from '@/services';
-import { formatTimestamp } from '@/utils';
 import { useSelectedValidator } from '@/stores';
 import { useBoolean, useCopyToClipboard } from '@/hooks';
+import { formatTimestamp, getBaseBeaconchaUrl } from '@/utils';
 import {
   IRequestCommonPagination,
   IRequestValidatorActionEnum,
@@ -118,7 +118,6 @@ export function ClusterValidatorTable({
 
   useEffect(() => {
     resetSelectedValidator();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -382,6 +381,7 @@ export function ClusterValidatorTable({
         <Scrollbar sx={{ maxHeight: 800 }}>
           <Table stickyHeader>
             <TableRow>
+              {/* {!checkPathnameStatus(IResponseValidatorStatusEnum.all) && ( */}
               <StyledTableCell padding="checkbox">
                 <Checkbox
                   indeterminate={
@@ -397,6 +397,7 @@ export function ClusterValidatorTable({
                   }}
                 />
               </StyledTableCell>
+              {/* )} */}
 
               <StyledTableCell align="left">
                 <Typography variant="caption">Public Key</Typography>
@@ -476,6 +477,8 @@ export function ClusterValidatorTable({
                 )}
               </StyledTableCell>
 
+              <StyledTableCell align="center">Operators</StyledTableCell>
+
               <StyledTableCell align="center">Created At</StyledTableCell>
 
               <StyledTableCell align="right">Action</StyledTableCell>
@@ -485,6 +488,7 @@ export function ClusterValidatorTable({
               {clusterValidatorQuery.isLoading && <SimpleTableSkeleton skeletonCounter={10} />}
               {filteredData?.map((row, index) => (
                 <TableRow key={index}>
+                  {/* {!checkPathnameStatus(IResponseValidatorStatusEnum.all) && ( */}
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selectedRow.includes(row)}
@@ -495,6 +499,7 @@ export function ClusterValidatorTable({
                       }}
                     />
                   </TableCell>
+                  {/* )} */}
 
                   <TableCell align="left">
                     <Stack direction="row" alignItems="center">
@@ -524,36 +529,71 @@ export function ClusterValidatorTable({
                   </TableCell>
 
                   <TableCell align="center">
+                    <Stack alignItems="center" direction="row" justifyContent="center">
+                      {row.operators.map((operator, kindex) => (
+                        <Typography key={`${kindex}-${index}`} variant="body2">
+                          <Link
+                            href={`${config.links.operator(operator.operator_id)}`}
+                            target="_blank"
+                          >
+                            {operator.operator_id}
+                          </Link>
+                          &nbsp;
+                        </Typography>
+                      ))}
+                    </Stack>
+                  </TableCell>
+
+                  <TableCell align="center">
                     <Typography variant="body2" color="text.secondary">
                       {formatTimestamp(row.created_at)}
                     </Typography>
                   </TableCell>
 
                   <TableCell align="right">
-                    <Tooltip title="View Validator" placement="top">
+                    <Stack direction="row" alignItems="center" justifyContent="flex-end">
+                      <Tooltip title="View Deposit Data" placement="top">
+                        <IconButton
+                          color="inherit"
+                          onClick={() => {
+                            if (selectedRow.length <= 1) {
+                              setViewDepositRow([row]);
+                            } else {
+                              setViewDepositRow(selectedRow);
+                            }
+                            setDialogOpen.onTrue();
+                          }}
+                        >
+                          <Iconify icon="mdi:eye" color={theme.palette.grey[600]} />
+                        </IconButton>
+                      </Tooltip>
+                      {row.status === IResponseValidatorStatusEnum.deposited && (
+                        <Tooltip title="View Validator on Beaconcha" placement="top">
+                          <IconButton
+                            target="_blank"
+                            href={`${getBaseBeaconchaUrl()}/validator/${row.pubkey}`}
+                          >
+                            <Iconify
+                              width={26}
+                              icon="mingcute:radar-2-line"
+                              className="caption"
+                              color={theme.palette.grey[700]}
+                              sx={{ mt: 0.5 }}
+                            />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+
                       <IconButton
                         color="inherit"
-                        onClick={() => {
-                          if (selectedRow.length <= 1) {
-                            setViewDepositRow([row]);
-                          } else {
-                            setViewDepositRow(selectedRow);
-                          }
-                          setDialogOpen.onTrue();
+                        onClick={(event) => {
+                          setSelectedTxRow(row);
+                          txPopover.onOpen(event);
                         }}
                       >
-                        <Iconify icon="mdi:eye" color={theme.palette.grey[600]} />
+                        <Iconify icon="eva:more-vertical-fill" />
                       </IconButton>
-                    </Tooltip>
-                    <IconButton
-                      color="inherit"
-                      onClick={(event) => {
-                        setSelectedTxRow(row);
-                        txPopover.onOpen(event);
-                      }}
-                    >
-                      <Iconify icon="eva:more-vertical-fill" />
-                    </IconButton>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               ))}
@@ -624,28 +664,28 @@ export function ClusterValidatorTable({
         {selectedTxRow?.generate_txid && (
           <MenuItem>
             <Link href={`${config.links.etherTxLink(selectedTxRow.generate_txid)}`} target="_blank">
-              Generate Tx
+              View Generation Transaction
             </Link>
           </MenuItem>
         )}
         {selectedTxRow?.register_txid && (
           <MenuItem>
             <Link href={`${config.links.etherTxLink(selectedTxRow.register_txid)}`} target="_blank">
-              Register Tx
+              View Registration Transaction
             </Link>
           </MenuItem>
         )}
         {selectedTxRow?.deposit_txid && (
           <MenuItem>
             <Link href={`${config.links.etherTxLink(selectedTxRow.deposit_txid)}`} target="_blank">
-              Deposit Tx
+              View Deposit Transaction
             </Link>
           </MenuItem>
         )}
         {selectedTxRow?.exit_txid && (
           <MenuItem>
             <Link href={`${config.links.etherTxLink(selectedTxRow.exit_txid)}`} target="_blank">
-              Exit Tx
+              View Exit Transaction
             </Link>
           </MenuItem>
         )}

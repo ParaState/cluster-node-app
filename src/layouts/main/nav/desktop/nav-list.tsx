@@ -23,7 +23,6 @@ export default function NavList({ data, sx }: NavListProps & { sx?: object }) {
     if (openMenu) {
       handleCloseMenu();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleOpenMenu = useCallback(() => {

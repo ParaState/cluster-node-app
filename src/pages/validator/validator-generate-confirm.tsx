@@ -68,7 +68,6 @@ export default function ValidatorGenerateConfirmPage() {
 
   useEffect(() => {
     getFee();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isApproveLoading = useBoolean();
@@ -90,7 +89,6 @@ export default function ValidatorGenerateConfirmPage() {
   useEffect(() => {
     setActiveStep(0);
     isApproved.onFalse();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onApproveClick = async () => {

@@ -25,7 +25,6 @@ export const OperatorTypeFilter = ({ setFilterBy }: Props) => {
       filterMap.fromDao = 1;
     }
     setFilterBy(filterMap);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verifySelected, daoSelected]);
 
   useEffect(() => {

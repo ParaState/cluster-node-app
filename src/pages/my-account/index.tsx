@@ -1,11 +1,13 @@
-import { useState } from 'react';
 import { useAccount } from 'wagmi';
+import React, { useState } from 'react';
 
 import { Grid, Container, Typography } from '@mui/material';
 
 import { useClusterValidator } from '@/hooks/api';
 
 import { defaultPagination, IRequestCommonPagination } from '@/types';
+
+import FabWithGuide from '@/components/FabWithGuide';
 
 import { ClusterValidatorTable } from '@/sections/my-account';
 
@@ -61,6 +63,8 @@ export default function MyAccountPage() {
           />
         </Grid>
       </Grid>
+
+      <FabWithGuide />
     </Container>
   );
 }

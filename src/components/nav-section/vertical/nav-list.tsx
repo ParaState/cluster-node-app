@@ -19,7 +19,6 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
     if (!active) {
       handleCloseMenu();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleToggleMenu = useCallback(() => {

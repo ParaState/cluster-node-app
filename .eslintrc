@@ -23,6 +23,7 @@
     },
   },
   "rules": {
+    "react-hooks/exhaustive-deps": 0,
     "arrow-body-style": 0,
     "import/no-extraneous-dependencies": 0,
     "no-alert": 0,
