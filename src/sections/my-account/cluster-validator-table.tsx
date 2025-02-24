@@ -19,6 +19,7 @@ import {
   TableBody,
   TableCell,
   FormGroup,
+  TableHead,
   CardHeader,
   IconButton,
   Typography,
@@ -380,109 +381,118 @@ export function ClusterValidatorTable({
       <TableContainer sx={{ overflow: 'unset' }}>
         <Scrollbar sx={{ maxHeight: 800 }}>
           <Table stickyHeader>
-            <TableRow>
-              {/* {!checkPathnameStatus(IResponseValidatorStatusEnum.all) && ( */}
-              <StyledTableCell padding="checkbox">
-                <Checkbox
-                  indeterminate={
-                    !!selectedRow.length && selectedRow.length < (filteredData?.length || 0)
-                  }
-                  checked={!!filteredData?.length && selectedRow.length === filteredData?.length}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    if (event.target.checked) {
-                      setSelectedRow(filteredData || []);
-                    } else {
-                      setSelectedRow([]);
+            <TableHead
+              sx={{
+                backgroundColor: 'background.default',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+              }}
+            >
+              <TableRow>
+                {/* {!checkPathnameStatus(IResponseValidatorStatusEnum.all) && ( */}
+                <StyledTableCell padding="checkbox">
+                  <Checkbox
+                    indeterminate={
+                      !!selectedRow.length && selectedRow.length < (filteredData?.length || 0)
                     }
-                  }}
-                />
-              </StyledTableCell>
-              {/* )} */}
+                    checked={!!filteredData?.length && selectedRow.length === filteredData?.length}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      if (event.target.checked) {
+                        setSelectedRow(filteredData || []);
+                      } else {
+                        setSelectedRow([]);
+                      }
+                    }}
+                  />
+                </StyledTableCell>
+                {/* )} */}
 
-              <StyledTableCell align="left">
-                <Typography variant="caption">Public Key</Typography>
-              </StyledTableCell>
+                <StyledTableCell align="left">
+                  <Typography variant="caption">Public Key</Typography>
+                </StyledTableCell>
 
-              {/* <StyledTableCell align="left">
+                {/* <StyledTableCell align="left">
                 <Typography variant="caption">Owner</Typography>
               </StyledTableCell> */}
 
-              <StyledTableCell
-                align="center"
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': {
-                    color: () => theme.palette.primary.main,
-                  },
-                }}
-              >
-                {status === IResponseValidatorStatusEnum.all ? (
-                  <Tooltip
-                    slotProps={{
-                      tooltip: {
-                        sx: {
-                          color: '#514E6A',
-                          backgroundColor: '#ffff',
-                          boxShadow: theme.customShadows.dropdown,
-                          p: theme.spacing(1),
+                <StyledTableCell
+                  align="center"
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      color: () => theme.palette.primary.main,
+                    },
+                  }}
+                >
+                  {status === IResponseValidatorStatusEnum.all ? (
+                    <Tooltip
+                      slotProps={{
+                        tooltip: {
+                          sx: {
+                            color: '#514E6A',
+                            backgroundColor: '#ffff',
+                            boxShadow: theme.customShadows.dropdown,
+                            p: theme.spacing(1),
+                          },
                         },
-                      },
-                    }}
-                    title={
-                      <Stack spacing={1}>
-                        {Object.values(IResponseValidatorStatusEnum).map((validatorStatus) => (
-                          <MenuItem
-                            key={validatorStatus}
-                            onClick={() => {
-                              setValidatorFilter({ status: validatorStatus });
-                              // filterPopover.onClose();
-                            }}
-                          >
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  checked={validatorFilter.status === validatorStatus}
-                                  onChange={() => {
-                                    setValidatorFilter({ status: validatorStatus });
-                                    // filterPopover.onClose();
-                                  }}
-                                />
-                              }
-                              label={validatorStatus}
-                            />
-                          </MenuItem>
-                        ))}
-                      </Stack>
-                    }
-                  >
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="center"
-                      spacing={0.5}
+                      }}
+                      title={
+                        <Stack spacing={1}>
+                          {Object.values(IResponseValidatorStatusEnum).map((validatorStatus) => (
+                            <MenuItem
+                              key={validatorStatus}
+                              onClick={() => {
+                                setValidatorFilter({ status: validatorStatus });
+                                // filterPopover.onClose();
+                              }}
+                            >
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={validatorFilter.status === validatorStatus}
+                                    onChange={() => {
+                                      setValidatorFilter({ status: validatorStatus });
+                                      // filterPopover.onClose();
+                                    }}
+                                  />
+                                }
+                                label={validatorStatus}
+                              />
+                            </MenuItem>
+                          ))}
+                        </Stack>
+                      }
                     >
-                      <Typography variant="caption">Status</Typography>
-                      <Iconify
-                        icon={
-                          validatorFilter.status !== IResponseValidatorStatusEnum.all
-                            ? 'iconoir:filter-solid'
-                            : 'iconoir:filter'
-                        }
-                        width={16}
-                      />
-                    </Stack>
-                  </Tooltip>
-                ) : (
-                  <Typography variant="caption">Status</Typography>
-                )}
-              </StyledTableCell>
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="center"
+                        spacing={0.5}
+                      >
+                        <Typography variant="caption">Status</Typography>
+                        <Iconify
+                          icon={
+                            validatorFilter.status !== IResponseValidatorStatusEnum.all
+                              ? 'iconoir:filter-solid'
+                              : 'iconoir:filter'
+                          }
+                          width={16}
+                        />
+                      </Stack>
+                    </Tooltip>
+                  ) : (
+                    <Typography variant="caption">Status</Typography>
+                  )}
+                </StyledTableCell>
 
-              <StyledTableCell align="center">Operators</StyledTableCell>
+                <StyledTableCell align="center">Operators</StyledTableCell>
 
-              <StyledTableCell align="center">Created At</StyledTableCell>
+                <StyledTableCell align="center">Created At</StyledTableCell>
 
-              <StyledTableCell align="right">Action</StyledTableCell>
-            </TableRow>
+                <StyledTableCell align="right">Action</StyledTableCell>
+              </TableRow>
+            </TableHead>
 
             <TableBody>
               {clusterValidatorQuery.isLoading && <SimpleTableSkeleton skeletonCounter={10} />}
