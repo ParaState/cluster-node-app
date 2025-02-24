@@ -1,13 +1,13 @@
-import { useWeb3Modal, useWeb3ModalTheme } from '@web3modal/wagmi/react';
+import { useAppKit, useAppKitTheme } from '@reown/appkit/react';
 
 import { useTheme } from '@mui/material/styles';
 
 export function useOpenWallet() {
   const theme = useTheme();
 
-  const { open } = useWeb3Modal();
+  const { open } = useAppKit();
 
-  const { setThemeMode } = useWeb3ModalTheme();
+  const { setThemeMode } = useAppKitTheme();
 
   const openWallet = () => {
     setThemeMode(theme.palette.mode);
