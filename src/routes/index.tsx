@@ -44,6 +44,10 @@ function WalletAndInitiatorBoundGuard({ children }: { children: React.ReactNode 
 export default function Router() {
   return useRoutes([
     {
+      path: config.routes.home,
+      element: <Navigate to={config.routes.clusterValidator.home} replace />,
+    },
+    {
       path: config.routes.clusterValidator.home,
       element: (
         <MainLayout>
