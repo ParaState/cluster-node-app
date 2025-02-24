@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 
-import { Stack, Portal, Popover, useTheme, MenuItem, Typography } from '@mui/material';
+import { Stack, Portal, Popover, MenuItem, Typography } from '@mui/material';
 
 import { useRouter, usePathname } from '@/routes/hooks';
 
@@ -9,8 +9,6 @@ import { NavItem } from './nav-item';
 import { NavListProps } from '../types';
 
 export default function NavList({ data, sx }: NavListProps & { sx?: object }) {
-  const theme = useTheme();
-
   const pathname = usePathname();
 
   const router = useRouter();

@@ -223,6 +223,12 @@ export function ClusterValidatorTable({
             txid: '',
           }))
         );
+
+        enqueueSnackbar(
+          `Validator status updated successfully. ${canExitValidators.length} validators are already deposited.`
+        );
+
+        await clusterValidatorQuery.refetch();
       }
 
       if (isExitedValidators.length > 0) {
@@ -233,6 +239,13 @@ export function ClusterValidatorTable({
             txid: '',
           }))
         );
+
+        await clusterValidatorQuery.refetch();
+      }
+
+      if (canDepositValidators.length <= 0) {
+        enqueueSnackbar('No validators available for deposit', { variant: 'info' });
+        return;
       }
 
       setSelectedValidator(canDepositValidators);
@@ -265,6 +278,16 @@ export function ClusterValidatorTable({
             txid: '',
           }))
         );
+        enqueueSnackbar(
+          `Validator status updated successfully. ${registered.length} validators are already registered.`
+        );
+
+        await clusterValidatorQuery.refetch();
+      }
+
+      if (notRegistered.length <= 0) {
+        enqueueSnackbar('No validators available for registration', { variant: 'info' });
+        return;
       }
 
       setSelectedValidator(notRegistered);
