@@ -132,7 +132,7 @@ const FabWithGuide = () => {
             total={data.length}
             onNext={carousel.onNext}
             onPrev={carousel.onPrev}
-            sx={{ bottom: 30 }}
+            sx={{ bottom: 130 }}
           />
         </DialogContent>
 

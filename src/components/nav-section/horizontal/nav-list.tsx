@@ -101,7 +101,7 @@ export default function NavList({ data, depth, slotProps }: NavListProps) {
 
 function NavSubList({ data, depth, slotProps }: NavSubListProps) {
   return (
-    <Stack spacing={0.5}>
+    <Stack spacing={0.5} sx={{ position: 'relative' }}>
       {data.map((list) => (
         <NavList key={list.title} data={list} depth={depth + 1} slotProps={slotProps} />
       ))}
