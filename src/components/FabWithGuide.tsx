@@ -107,7 +107,7 @@ const FabWithGuide = () => {
                   component="img"
                   alt={item.title}
                   src={item.coverUrl}
-                  height={680}
+                  height={480}
                   width={1}
                   sx={{
                     objectFit: 'contain',
@@ -132,7 +132,7 @@ const FabWithGuide = () => {
             total={data.length}
             onNext={carousel.onNext}
             onPrev={carousel.onPrev}
-            sx={{ bottom: 0 }}
+            sx={{ bottom: 30 }}
           />
         </DialogContent>
 

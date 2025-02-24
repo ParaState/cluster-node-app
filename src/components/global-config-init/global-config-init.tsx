@@ -55,7 +55,6 @@ export const GlobalConfigInit = () => {
   });
 
   useEffect(() => {
-    console.log('🚀GlobalConfigInit:', operatorFeeResult.data);
     if (operatorFeeResult.data) {
       setOperatorFeeWithNetworkFee(operatorFeeResult.data);
     }
