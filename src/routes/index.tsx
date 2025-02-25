@@ -2,11 +2,9 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import { config } from '@/config';
-import NewPage from '@/pages/newpage';
 import SetupPage from '@/pages/setup';
 import MainLayout from '@/layouts/main';
 import CompactLayout from '@/layouts/compact';
-import DashboardLayout from '@/layouts/dashboard';
 import ValidatorPollingTxPage from '@/pages/validator/validator-polling-tx';
 import LidoCSMRegistrationPage from '@/pages/validator/lido-csm-registration';
 import ValidatorGenerateConfirmPage from '@/pages/validator/validator-generate-confirm';
@@ -97,18 +95,6 @@ export default function Router() {
         },
       ],
     },
-    {
-      path: '/testpage',
-      element: (
-        <DashboardLayout>
-          <Suspense fallback={<LoadingScreen />}>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
-      ),
-      children: [{ element: <NewPage />, index: true }],
-    },
-
     {
       path: config.routes.validator.home,
       element: (

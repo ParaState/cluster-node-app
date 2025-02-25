@@ -8,6 +8,7 @@ import { useRouter } from '@/routes/hooks';
 import { useIsAccountRegisteredOperator } from '@/hooks/contract';
 
 import { config } from '@/config';
+import { primaryDark } from '@/theme/palette';
 import { useSelectedOperators } from '@/stores';
 
 import Iconify from '@/components/iconify';
@@ -38,8 +39,19 @@ export default function ValidatorHomePage() {
         <Grid container spacing={2} py={4} justifyContent="center">
           <Grid item xs={12} md={4}>
             <CommonCard
-              title="Participate in the Lido on Ethereum protocol as Node Operators."
-              type="validator"
+              title={
+                <>
+                  {/* <Typography variant="caption" color="white" fontSize={18} fontWeight={700}>
+                    Recommended:{' '}
+                  </Typography> */}
+                  <Typography variant="body1" color="white" fontSize={18} fontWeight={600}>
+                    Participate in the Lido on Ethereum protocol as Node Operators.
+                  </Typography>
+                </>
+              }
+              sx={{
+                backgroundColor: 'primary.main',
+              }}
             >
               <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
                 <CardButton
@@ -75,7 +87,9 @@ export default function ValidatorHomePage() {
           <Grid item xs={12} md={4}>
             <CommonCard
               title="Any validator can run on the SafeStake network: create a new validator."
-              type="validator"
+              sx={{
+                backgroundColor: primaryDark.main,
+              }}
             >
               <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
                 <CardButton
@@ -87,22 +101,6 @@ export default function ValidatorHomePage() {
               </Stack>
             </CommonCard>
           </Grid>
-
-          {false && (
-            <Grid item xs={12} md={4}>
-              <CommonCard title="Become to Initiator" type="validator">
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <CardButton text="Become" width={210} />
-                  <Iconify width={42} height={42} icon="fluent-mdl2:add-to" color="white" />
-                </Stack>
-              </CommonCard>
-            </Grid>
-          )}
         </Grid>
       </Container>
     </>

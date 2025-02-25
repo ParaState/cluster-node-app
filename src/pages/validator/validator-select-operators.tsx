@@ -356,6 +356,7 @@ export default function ValidatorSelectorOperatorsPage() {
                     </StyledTableCell>
 
                     <StyledTableCell align="center">Version</StyledTableCell>
+                    <StyledTableCell align="center">Location</StyledTableCell>
                     <StyledTableCell padding="checkbox"> </StyledTableCell>
                   </TableRow>
                 </TableHead>
@@ -421,6 +422,9 @@ export default function ValidatorSelectorOperatorsPage() {
                           <TableCell align="center">{row.id}</TableCell>
                           <TableCell align="center">{row.validator_count}</TableCell>
                           <TableCell align="center">{formatVersion(row.last_version)}</TableCell>
+                          <TableCell align="center">
+                            {row.operator_detail?.location || '-'}
+                          </TableCell>
                           <TableCell align="center">
                             <IconButton
                               onClick={(e) => {
