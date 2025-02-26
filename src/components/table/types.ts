@@ -1,5 +1,3 @@
-import { TreeProps } from 'react-organizational-chart';
-
 import { Theme, SxProps } from '@mui/material/styles';
 
 export type TableProps = {
@@ -56,15 +54,6 @@ export type ListProps = {
 export type SubListProps = {
   data: ItemProps[];
   depth: number;
-
-  sx?: SxProps<Theme>;
-};
-
-export type OrganizationalChartProps = Partial<TreeProps> & {
-  data: {
-    root: rootProps;
-    children: ItemProps[];
-  };
 
   sx?: SxProps<Theme>;
 };
