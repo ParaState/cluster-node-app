@@ -44,8 +44,14 @@ export const parseVersion = (v: string) => {
   };
 };
 
+export const versionUnknown = 'unknown';
+
+export const isVersionUnknown = (v: string) => {
+  return v === versionUnknown;
+};
+
 export const formatVersion = (v: string) => {
-  if (isNil(v)) return 'unkown';
+  if (isNil(v)) return versionUnknown;
   // const { rootVersion, majorVersion, minorVersion } = parseVersion(v);
   const { majorVersion, minorVersion } = parseVersion(v);
 

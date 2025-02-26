@@ -1,6 +1,7 @@
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
+import { config } from '@/config';
 import { IResponseClusterNodeValidatorItem } from '@/types';
 
 export const clusterPubkeyAtom = atomWithStorage('clusterPubkey', '');
@@ -22,7 +23,22 @@ export const useSelectedValidator = () => {
     setSelectedValidator([]);
   };
 
-  return { selectedValidator, setSelectedValidator, resetSelectedValidator };
+  const isLidoCSMWithdrawalAddress = () => {
+    const depositData = selectedValidator.map((item) => JSON.parse(item.deposit_data));
+    const lidoCSMWithdrawalAddress = depositData.every((item) =>
+      (item.withdrawal_credentials as string).includes(
+        config.contractAddress.lidoWithdrawalAddress.slice(2).toLowerCase()
+      )
+    );
+    return lidoCSMWithdrawalAddress;
+  };
+
+  return {
+    selectedValidator,
+    setSelectedValidator,
+    resetSelectedValidator,
+    isLidoCSMWithdrawalAddress,
+  };
 };
 
 export const nodeOperatorIdAtom = atomWithStorage('nodeOperatorId', '');

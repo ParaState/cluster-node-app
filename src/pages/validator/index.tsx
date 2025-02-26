@@ -9,7 +9,7 @@ import { useIsAccountRegisteredOperator } from '@/hooks/contract';
 
 import { config } from '@/config';
 import { primaryDark } from '@/theme/palette';
-import { useSelectedOperators } from '@/stores';
+import { useSelectedOperators, useSelectedValidator } from '@/stores';
 
 import Iconify from '@/components/iconify';
 import { CardButton, CommonCard, CommonBack } from '@/components/common';
@@ -19,6 +19,8 @@ export default function ValidatorHomePage() {
   const router = useRouter();
 
   const { resetAll } = useSelectedOperators();
+
+  const { isLidoCSMWithdrawalAddress } = useSelectedValidator();
 
   return (
     <>
@@ -84,23 +86,30 @@ export default function ValidatorHomePage() {
             </CommonCard>
           </Grid>
 
-          <Grid item xs={12} md={4}>
-            <CommonCard
-              title="Any validator can run on the SafeStake network: create a new validator."
-              sx={{
-                backgroundColor: primaryDark.main,
-              }}
-            >
-              <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
-                <CardButton
-                  text="Using Launchpad"
-                  width={210}
-                  onClick={() => router.push(config.routes.validator.create)}
-                />
-                <Iconify width={42} height={42} icon="fluent-mdl2:add-to" color="white" />
-              </Stack>
-            </CommonCard>
-          </Grid>
+          {!isLidoCSMWithdrawalAddress() && (
+            <Grid item xs={12} md={4}>
+              <CommonCard
+                title="Any validator can run on the SafeStake network: create a new validator."
+                sx={{
+                  backgroundColor: primaryDark.main,
+                }}
+              >
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <CardButton
+                    text="Using Launchpad"
+                    width={210}
+                    onClick={() => router.push(config.routes.validator.create)}
+                  />
+                  <Iconify width={42} height={42} icon="fluent-mdl2:add-to" color="white" />
+                </Stack>
+              </CommonCard>
+            </Grid>
+          )}
         </Grid>
       </Container>
     </>

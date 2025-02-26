@@ -38,7 +38,7 @@ import { useRouter } from '@/routes/hooks';
 
 import { useOperatorList } from '@/hooks/api';
 
-import { parseVersion, formatVersion } from '@/utils/format';
+import { parseVersion, formatVersion, isVersionUnknown } from '@/utils/format';
 
 import { config } from '@/config';
 import { useBoolean } from '@/hooks';
@@ -371,7 +371,7 @@ export default function ValidatorSelectorOperatorsPage() {
                           onClick={(e) => {
                             const version = formatVersion(row.last_version);
 
-                            if (version === 'unkown') {
+                            if (isVersionUnknown(version)) {
                               enqueueSnackbar(
                                 'Operator has unkown version, please try another operator',
                                 { variant: 'error' }
