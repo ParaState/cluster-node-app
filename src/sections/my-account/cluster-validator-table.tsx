@@ -74,6 +74,8 @@ export function ClusterValidatorTable({
   address,
 }: Props) {
   const { status = IResponseValidatorStatusEnum.all } = useParams();
+
+  const [exitDialogOpen, setExitDialogOpen] = useState(false);
   // console.log('🚀 ~ status:', status);
 
   // const pathname = usePathname();
@@ -150,6 +152,12 @@ export function ClusterValidatorTable({
   const handleExitValidator = async (validators: IResponseClusterNodeValidatorItem[]) => {
     try {
       exitLoading.onTrue();
+
+      // TODO: NEED TO CHECK IF THE VALIDATORS ARE EXITED
+      // const results = await services.beaconcha.getValidatorsByGroup([
+      //   ...selectedRow.map((v) => v.pubkey),
+      //   // '0xa8fd06ccf9158357109e07272855bf7e988eede6de3751544228b3188d0a223d2a31f4d289a43a6a5fc3781af1c9a5fc',
+      // ]);
 
       const epochResponse = await services.beaconcha.getLatestEpoch();
       const activeEpoch = epochResponse.data.epoch;
@@ -362,7 +370,7 @@ export function ClusterValidatorTable({
                   return;
                 }
 
-                handleExitValidator(selectedRow);
+                setExitDialogOpen(true);
               }}
             >
               Exit Validator
@@ -806,6 +814,49 @@ export function ClusterValidatorTable({
           <Button onClick={() => handleApplyFilter(validatorFilter)} variant="contained">
             Apply
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={exitDialogOpen}
+        onClose={() => setExitDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Typography variant="h6">Confirm Exit Validators</Typography>
+            <IconButton
+              disabled={exitLoading.value}
+              aria-label="close"
+              onClick={() => setExitDialogOpen(false)}
+            >
+              <Iconify icon="eva:close-fill" color={theme.palette.common.black} />
+            </IconButton>
+          </Stack>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Are you sure you want to exit {selectedRow.length} validator
+            {selectedRow.length !== 1 ? 's' : ''}?
+          </Typography>
+          <Typography variant="body2" color="error.main">
+            This action cannot be undone. Your validators will be removed from the network and your
+            staked ETH will be returned to your withdrawal address.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setExitDialogOpen(false)} disabled={exitLoading.value}>
+            Cancel
+          </Button>
+          <LoadingButton
+            onClick={() => handleExitValidator(selectedRow)}
+            variant="contained"
+            color="error"
+            loading={exitLoading.value}
+          >
+            Confirm Exit
+          </LoadingButton>
         </DialogActions>
       </Dialog>
     </Card>
