@@ -388,9 +388,9 @@ export default function ValidatorClusterConfirmPage() {
 
       <Stack spacing={3} sx={{ maxWidth: 700, mx: 'auto', mb: 4 }}>
         <Typography variant="h2" textAlign="center">
-          Confirm
+          Run
           <Typography display="inline" variant="inherit" color="primary.main" px={1}>
-            Operators(Beta)
+            Validators
           </Typography>
         </Typography>
 
