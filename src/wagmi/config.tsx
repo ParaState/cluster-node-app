@@ -1,4 +1,4 @@
-import { holesky, mainnet } from '@reown/appkit/networks';
+import { hoodi, mainnet } from '@reown/appkit/networks';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
 import { config } from '@/config';
@@ -14,11 +14,10 @@ export const appkitMetadata = {
   icons: ['https://www.safestake.xyz/assets/logo-single.svg'],
 };
 
-export const wagmiNetworks = config.networkId === mainnet.id ? [mainnet] : [holesky];
+export const wagmiNetworks = config.networkId === mainnet.id ? [mainnet] : [hoodi];
 
 // Create wagmiConfig
 export const wagmiAdapter = new WagmiAdapter({
   networks: wagmiNetworks, // required
-  // chains: [mainnet, holesky], // required
   projectId: config.projectId, // required
 });

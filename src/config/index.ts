@@ -6,11 +6,13 @@ const networkId = +import.meta.env.VITE_NETWORK_ID;
 const launchpadLinkMap = {
   1: 'https://launchpad.ethereum.org/en/',
   17000: 'https://holesky.launchpad.ethereum.org/en/',
+  560048: 'https://hoodi.launchpad.ethereum.org/en/',
 };
 
 const etherScanLinkMap = {
   1: 'https://etherscan.io',
   17000: 'https://holesky.etherscan.io',
+  560048: 'https://hoodi.etherscan.io',
 };
 
 const etherScanLink = etherScanLinkMap[networkId]!;
@@ -32,8 +34,6 @@ export const config = {
     token: import.meta.env.VITE_TOKEN_CONTRACT_ADDRESS,
     network: import.meta.env.VITE_NETWORK_CONTRACT_ADDRESS,
     registry: import.meta.env.VITE_REGISTRY_CONTRACT_ADDRESS,
-    swapDVT: import.meta.env.VITE_SWAP_DVT_CONTRACT_ADDRESS,
-    oldToken: import.meta.env.VITE_OLD_TOKEN_CONTRACT_ADDRESS,
     operatorConfig: import.meta.env.VITE_OPERATOR_CONFIG_CONTRACT_ADDRESS,
     clusterNode: import.meta.env.VITE_CLUSTER_NODE_CONTRACT_ADDRESS,
     csmModule: import.meta.env.VITE_CSM_MODULE_CONTRACT_ADDRESS,

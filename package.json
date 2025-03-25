@@ -72,9 +72,9 @@
     "stylis-plugin-rtl": "^2.1.1",
     "survey-core": "^1.12.5",
     "survey-react-ui": "^1.12.5",
-    "viem": "~2.10.11",
+    "viem": "^2.23.14",
     "vite-plugin-node-polyfills": "^0.21.0",
-    "wagmi": "^2.13.4",
+    "wagmi": "^2.14.15",
     "zod": "3.21.4"
   },
   "devDependencies": {

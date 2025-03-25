@@ -23,11 +23,6 @@ export const registryContract = {
   address: config.contractAddress.registry,
 } as const;
 
-export const oldErc20Contract = {
-  abi: erc20Abi,
-  address: config.contractAddress.oldToken,
-} as const;
-
 export const operatorConfigContract = {
   abi: SafeStakeOperatorConfigAbi,
   address: config.contractAddress.operatorConfig,

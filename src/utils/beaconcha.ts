@@ -1,11 +1,11 @@
 import { config } from '@/config';
 
-// TODO use statis links
 export const NETWORKS = {
   MAINNET: 1,
   ROPSTEN: 3,
   GOERLI: 5,
   HOLESKY: 17000,
+  HOODI: 560048,
 };
 
 /**
@@ -23,6 +23,8 @@ export const getBaseBeaconchaUrl = () => {
       return 'https://ropsten.beaconcha.in';
     case NETWORKS.HOLESKY:
       return 'https://holesky.beaconcha.in';
+    case NETWORKS.HOODI:
+      return 'https://hoodi.beaconcha.in';
     default:
       return 'https://beaconcha.in';
   }
@@ -38,6 +40,8 @@ export const getEtherScanUrl = () => {
       return 'https://ropsten.etherscan.io';
     case NETWORKS.HOLESKY:
       return 'https://holesky.etherscan.io';
+    case NETWORKS.HOODI:
+      return 'https://hoodi.etherscan.io';
     default:
       return 'https://etherscan.io';
   }

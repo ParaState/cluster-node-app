@@ -19,7 +19,6 @@ import { formatAddress } from '@/utils/format';
 import { bgBlur } from '@/theme/css';
 import { useOpenWallet } from '@/hooks';
 
-import Logo from '@/components/logo';
 import SvgColor from '@/components/svg-color';
 import { useSettingsContext } from '@/components/settings';
 
@@ -67,22 +66,6 @@ export default function Header() {
         }}
       >
         <Container maxWidth="xl" sx={{ height: 1, display: 'flex', alignItems: 'center' }}>
-          {/* <Badge
-            sx={{
-              [`& .${badgeClasses.badge}`]: {
-                // top: 8,
-                right: -16,
-              },
-            }}
-            badgeContent={
-              <Link href="/" rel="noopener" underline="none" sx={{ ml: 1 }}>
-                <Label color="info" sx={{ textTransform: 'unset', height: 22, px: 0.5 }}>
-                  Holesky
-                </Label>
-              </Link>
-            }
-          > */}
-          <Logo />
           {/* </Badge> */}
 
           <Box sx={{ flexGrow: 1 }} />
