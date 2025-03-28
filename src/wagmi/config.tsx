@@ -1,3 +1,4 @@
+import { http } from 'viem';
 import { hoodi, mainnet } from '@reown/appkit/networks';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
@@ -14,7 +15,15 @@ export const appkitMetadata = {
   icons: ['https://www.safestake.xyz/assets/logo-single.svg'],
 };
 
-export const wagmiNetworks = config.networkId === mainnet.id ? [mainnet] : [hoodi];
+const hoodiWithRpc = {
+  ...hoodi,
+  rpcUrls: {
+    default: { http: ['https://0xrpc.io/hoodi'] },
+  },
+  transport: http('https://0xrpc.io/hoodi'),
+};
+
+export const wagmiNetworks = config.networkId === mainnet.id ? [mainnet] : [hoodiWithRpc];
 
 // Create wagmiConfig
 export const wagmiAdapter = new WagmiAdapter({
