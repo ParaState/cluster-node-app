@@ -3,8 +3,8 @@ import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useState, useEffect } from 'react';
-import { formatEther, isAddressEqual } from 'viem';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { formatEther, isAddressEqual, TransactionReceipt } from 'viem';
 
 import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
@@ -12,6 +12,7 @@ import {
   Box,
   Card,
   Step,
+  Button,
   Stepper,
   Collapse,
   Container,
@@ -27,6 +28,7 @@ import { useRouter } from '@/routes/hooks';
 import { useBoolean } from '@/hooks/use-boolean';
 import {
   useGetNodeOperator,
+  useAddNodeOperatorETH,
   useAddValidatorKeysETH,
   useGetRequiredBondForNextKeys,
 } from '@/hooks/contract';
@@ -53,7 +55,7 @@ const batchSize = 25;
 
 export default function LidoCSMRegistrationPage() {
   const { address } = useAccount();
-
+  // const client = usePublicClient();
   const router = useRouter();
 
   const { nodeOperatorId, setNodeOperatorId } = useNodeOperatorId();
@@ -81,8 +83,9 @@ export default function LidoCSMRegistrationPage() {
   const [successIndex, setSuccessIndex] = useState<number[]>([]);
   const [bondValues, setBondValues] = useState<bigint[]>([]);
 
-  const { getRequiredBondForNextKeys } = useGetRequiredBondForNextKeys();
+  const { getRequiredBondForNextKeys, getBondAmountByKeysCount } = useGetRequiredBondForNextKeys();
   const { addValidatorKeysETH } = useAddValidatorKeysETH();
+  const { addNodeOperatorETH, decodeNodeOperatorAddedEvent } = useAddNodeOperatorETH();
 
   const [publicKeyOpens, setPublicKeyOpens] = useState<boolean[]>(
     clusterNodeValidatorsGrouped.map(() => false)
@@ -124,17 +127,103 @@ export default function LidoCSMRegistrationPage() {
     setActiveStep(0);
   }, []);
 
+  // const onTestClick = async (index: number) => {
+  //   // const receipt = await client?.waitForTransactionReceipt({
+  //   //   hash: '0xc802ace7434e7bd5dde725318e602184f17848dc64f27675455ef4209fa80662',
+  //   // });
+
+  //   // console.log('🚀 ~ onTestClick ~ receipt:', receipt);
+
+  //   // const nodeOperatorAddedEvent = decodeNodeOperatorAddedEvent(receipt);
+  //   // console.log('🚀 ~ onTestClick ~ nodeOperatorAddedEvent:', nodeOperatorAddedEvent);
+  //   setRunningValidatorIndex(index);
+
+  //   const currentGroupValidators = clusterNodeValidatorsGrouped[index];
+
+  //   const bondValue = await getBondAmountByKeysCount(currentGroupValidators.length);
+
+  //   setBondValueByIndex(index, bondValue);
+
+  //   const depositData: IResponseValidatorDepositData[] = currentGroupValidators.map((v) =>
+  //     JSON.parse(v.deposit_data)
+  //   );
+
+  //   const keysCount = depositData.length;
+  //   const publicKeys = `0x${depositData.map((deposit) => deposit.pubkey).join('')}`;
+  //   const signatures = `0x${depositData.map((deposit) => deposit.signature).join('')}`;
+
+  //   const receipt = await addNodeOperatorETH(keysCount, publicKeys, signatures, bondValue);
+
+  //   const nodeOperatorAddedEvent = decodeNodeOperatorAddedEvent(receipt);
+  //   console.log('🚀 ~ onTestClick ~ nodeOperatorAddedEvent:', nodeOperatorAddedEvent);
+
+  //   if (nodeOperatorAddedEvent?.nodeOperatorId) {
+  //     setNodeOperatorId(nodeOperatorAddedEvent?.nodeOperatorId.toString());
+  //   }
+  // };
+
+  // const onRunValidatorClick = async (index: number) => {
+  //   setRunningValidatorIndex(index);
+
+  //   try {
+  //     const currentGroupValidators = clusterNodeValidatorsGrouped[index];
+  //     console.log('🚀 ~ onRunValidatorClick ~ currentGroupValidators:', currentGroupValidators);
+
+  //     const bondValue = await getRequiredBondForNextKeys(
+  //       +nodeOperatorId,
+  //       currentGroupValidators.length
+  //     );
+  //     setBondValueByIndex(index, bondValue);
+
+  //     const depositData: IResponseValidatorDepositData[] = currentGroupValidators.map((v) =>
+  //       JSON.parse(v.deposit_data)
+  //     );
+
+  //     const keysCount = depositData.length;
+  //     const publicKeys = `0x${depositData.map((deposit) => deposit.pubkey).join('')}`;
+  //     const signatures = `0x${depositData.map((deposit) => deposit.signature).join('')}`;
+
+  //     const receipt = await addValidatorKeysETH(
+  //       +nodeOperatorId,
+  //       keysCount,
+  //       publicKeys,
+  //       signatures,
+  //       bondValue
+  //     );
+
+  //     const body = currentGroupValidators.map((v) => ({
+  //       pubkey: v.pubkey,
+  //       action: IRequestValidatorActionEnum.deposit,
+  //       txid: receipt!.transactionHash,
+  //     }));
+
+  //     await services.clusterNode.updateValidatorStatus(body);
+  //     setSuccessIndex((prev) => [...prev, index]);
+  //   } catch (error) {
+  //     console.log('🚀 ~ onRunValidatorClick ~ error:', error);
+  //     enqueueSnackbar(error?.details || error?.message, { variant: 'error' });
+  //   } finally {
+  //     setRunningValidatorIndex(null);
+  //   }
+  // };
+
   const onRunValidatorClick = async (index: number) => {
     setRunningValidatorIndex(index);
 
     try {
       const currentGroupValidators = clusterNodeValidatorsGrouped[index];
-      console.log('🚀 ~ onRunValidatorClick ~ currentGroupValidators:', currentGroupValidators);
 
-      const bondValue = await getRequiredBondForNextKeys(
-        +nodeOperatorId,
-        currentGroupValidators.length
-      );
+      let bondValue = 0n;
+
+      if (!nodeOperatorId) {
+        bondValue = await getBondAmountByKeysCount(currentGroupValidators.length);
+      } else {
+        bondValue = await getRequiredBondForNextKeys(
+          +nodeOperatorId,
+          currentGroupValidators.length
+        );
+      }
+
       setBondValueByIndex(index, bondValue);
 
       const depositData: IResponseValidatorDepositData[] = currentGroupValidators.map((v) =>
@@ -145,13 +234,26 @@ export default function LidoCSMRegistrationPage() {
       const publicKeys = `0x${depositData.map((deposit) => deposit.pubkey).join('')}`;
       const signatures = `0x${depositData.map((deposit) => deposit.signature).join('')}`;
 
-      const receipt = await addValidatorKeysETH(
-        +nodeOperatorId,
-        keysCount,
-        publicKeys,
-        signatures,
-        bondValue
-      );
+      let receipt: TransactionReceipt | undefined;
+
+      if (!nodeOperatorId) {
+        receipt = await addNodeOperatorETH(keysCount, publicKeys, signatures, bondValue);
+
+        const nodeOperatorAddedEvent = decodeNodeOperatorAddedEvent(receipt);
+        console.log('🚀 ~ onTestClick ~ nodeOperatorAddedEvent:', nodeOperatorAddedEvent);
+
+        if (nodeOperatorAddedEvent?.nodeOperatorId) {
+          setNodeOperatorId(nodeOperatorAddedEvent?.nodeOperatorId.toString());
+        }
+      } else {
+        receipt = await addValidatorKeysETH(
+          +nodeOperatorId,
+          keysCount,
+          publicKeys,
+          signatures,
+          bondValue
+        );
+      }
 
       const body = currentGroupValidators.map((v) => ({
         pubkey: v.pubkey,
@@ -197,7 +299,7 @@ export default function LidoCSMRegistrationPage() {
 
   const steps = [
     {
-      label: `Enter Your Node Operator Id`,
+      label: `Select Or Create Your Node Operator`,
       render: () => {
         return (
           <Stack direction="column" alignItems="start" flexGrow={1}>
@@ -216,16 +318,28 @@ export default function LidoCSMRegistrationPage() {
                 />
               </Box>
 
-              <LoadingButton
-                fullWidth
-                color="primary"
-                size="large"
-                type="submit"
-                variant="soft"
-                loading={checkNodeOperatorLoading.value}
-              >
-                Next
-              </LoadingButton>
+              <Stack direction="row" width={1} spacing={2}>
+                <LoadingButton
+                  fullWidth
+                  color="primary"
+                  size="large"
+                  type="submit"
+                  variant="soft"
+                  sx={{ width: 100 }}
+                  loading={checkNodeOperatorLoading.value}
+                >
+                  Next
+                </LoadingButton>
+
+                <Button
+                  onClick={() => {
+                    handleNext();
+                  }}
+                  variant="outlined"
+                >
+                  Skip To Submit Validators
+                </Button>
+              </Stack>
             </FormProvider>
           </Stack>
         );

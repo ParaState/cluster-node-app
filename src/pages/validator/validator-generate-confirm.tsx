@@ -96,7 +96,7 @@ export default function ValidatorGenerateConfirmPage() {
     try {
       const approveResult = await approveAllowance(currentFee);
 
-      if (!approveResult.isTokenEnough) {
+      if (!approveResult.isTokenEnough || !approveResult.isBalanceEnough) {
         enqueueSnackbar('Insufficient balance', { variant: 'error' });
         return;
       }

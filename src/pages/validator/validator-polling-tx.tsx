@@ -81,7 +81,7 @@ export default function ValidatorPollingTxPage() {
               </Typography>
             </Stack>
           ) : (
-            <Stack alignItems="center" spacing={2}>
+            <Stack alignItems="center" spacing={3}>
               <CheckCircleIcon color="success" sx={{ fontSize: 60 }} />
               <Typography variant="h6" color="success.main">
                 All validators generated successfully!

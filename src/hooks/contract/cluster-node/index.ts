@@ -93,6 +93,10 @@ export const useClusterNode = () => {
       hash,
     });
 
+    if (!receipt || receipt.status === 'reverted') {
+      throw new Error('Transaction failed: generateDepositData transaction was reverted');
+    }
+
     return receipt;
   };
 

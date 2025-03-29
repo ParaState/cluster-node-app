@@ -2,10 +2,14 @@ import { forwardRef } from 'react';
 
 import Link from '@mui/material/Link';
 import Box, { BoxProps } from '@mui/material/Box';
+import { Badge, badgeClasses } from '@mui/material';
 
 import { RouterLink } from '@/routes/components';
 
 import { config } from '@/config';
+import { wagmiNetworks } from '@/wagmi/config';
+
+import Label from '@/components/label';
 
 export interface LogoProps extends BoxProps {
   disabledLink?: boolean;
@@ -13,39 +17,6 @@ export interface LogoProps extends BoxProps {
 
 const Logo = forwardRef<HTMLDivElement, LogoProps>(
   ({ disabledLink = false, sx, ...other }, ref) => {
-    // const theme = useTheme();
-
-    // const PRIMARY_LIGHT = theme.palette.primary.light;
-
-    // const PRIMARY_MAIN = theme.palette.primary.main;
-
-    // const PRIMARY_DARK = theme.palette.primary.dark;
-
-    //   sx={{
-    //     // width: 192,
-    //     height: {
-    //       md: 40,
-    //       xs: 32,
-    //     },
-    //     // width: {
-    //     //   md: 74,
-    //     //   xs: 60,
-    //     // },
-    //     display: 'inline-flex',
-    //     ...sx,
-    //   }}
-    //   {...other}
-    // >
-    //   <svg
-    //     viewBox="0 0 524 280"
-    //     fill="none"
-    //     height="32"
-    //     width="60"
-    //     // style={{
-    //     //   height: '100%',
-    //     //   width: '100%',
-    //     // }}
-
     const logo = (
       <Box
         ref={ref}
@@ -104,3 +75,24 @@ const Logo = forwardRef<HTMLDivElement, LogoProps>(
 );
 
 export default Logo;
+
+export const BadgeLogo = () => {
+  return (
+    <Badge
+      sx={{
+        [`& .${badgeClasses.badge}`]: {
+          right: -16,
+        },
+      }}
+      badgeContent={
+        <Link href="/" rel="noopener" underline="none" sx={{ ml: 1 }}>
+          <Label color="info" sx={{ textTransform: 'unset', height: 22, px: 0.5 }}>
+            {wagmiNetworks[0] && wagmiNetworks[0].name}
+          </Label>
+        </Link>
+      }
+    >
+      <Logo />
+    </Badge>
+  );
+};

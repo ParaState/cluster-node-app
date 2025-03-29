@@ -86,6 +86,20 @@ export default ({ mode }) => {
     },
     preview: {
       port: 8088,
+      proxy: {
+        '/api': {
+          target: target,
+          secure: false,
+          changeOrigin: true,
+          // pathRewrite: { '^/api': '' },
+        },
+        '/server': {
+          target: target,
+          secure: false,
+          changeOrigin: true,
+          // pathRewrite: { '^/api': '' },
+        },
+      },
     },
   });
 };

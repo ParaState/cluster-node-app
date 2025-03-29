@@ -20,6 +20,7 @@ import { bgBlur } from '@/theme/css';
 import { useOpenWallet } from '@/hooks';
 
 import SvgColor from '@/components/svg-color';
+import { BadgeLogo } from '@/components/logo/logo';
 import { useSettingsContext } from '@/components/settings';
 
 import NavMobile from './nav/mobile';
@@ -66,7 +67,7 @@ export default function Header() {
         }}
       >
         <Container maxWidth="xl" sx={{ height: 1, display: 'flex', alignItems: 'center' }}>
-          {/* </Badge> */}
+          <BadgeLogo />
 
           <Box sx={{ flexGrow: 1 }} />
 

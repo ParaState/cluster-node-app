@@ -77,13 +77,7 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
   const client = usePublicClient();
 
   const approveAllowance = useCallback(
-    async (
-      amount: bigint
-    ): Promise<{
-      success: boolean;
-      allowance: bigint;
-      isTokenEnough: boolean;
-    }> => {
+    async (amount: bigint) => {
       console.group(`approveAllowance`);
       console.log('user tokenBalance:', balance.toString());
       console.log('need amount:', amount.toString());
@@ -92,9 +86,12 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
       console.log('allowance address:', approveAddress);
       console.groupEnd();
 
+      const isBalanceEnough = balance >= amount;
+
       if (allowance >= amount) {
         return {
           isTokenEnough: true,
+          isBalanceEnough,
           success: true,
           allowance,
         };
@@ -105,8 +102,6 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
         functionName: 'approve',
         args: [approveAddress as `0x${string}`, amount],
       });
-
-      console.log(hash);
 
       const result = await client?.waitForTransactionReceipt({
         hash,
@@ -121,11 +116,11 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
 
       return {
         isTokenEnough,
+        isBalanceEnough,
         success: true,
         allowance: newAllowance?.result || 0n,
       };
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [allowance, writeContractAsync, client]
   );
 

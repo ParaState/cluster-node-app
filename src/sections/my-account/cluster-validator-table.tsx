@@ -203,6 +203,10 @@ export function ClusterValidatorTable({
         return;
       }
 
+      // TODO: REMOVE
+      // setSelectedValidator(selectedRow);
+      // router.push(config.routes.validator.home);
+
       const results = await services.beaconcha.getValidatorsByGroup([
         ...selectedRow.map((v) => v.pubkey),
         // '0xa8fd06ccf9158357109e07272855bf7e988eede6de3751544228b3188d0a223d2a31f4d289a43a6a5fc3781af1c9a5fc',

@@ -17,7 +17,18 @@ export const useGetRequiredBondForNextKeys = () => {
     return result as bigint;
   };
 
+  const getBondAmountByKeysCount = async (keysCount: number) => {
+    const result = await client?.readContract({
+      ...csmAccountingContract,
+      functionName: 'getBondAmountByKeysCount',
+      args: [keysCount, 0],
+    });
+
+    return result as bigint;
+  };
+
   return {
     getRequiredBondForNextKeys,
+    getBondAmountByKeysCount,
   };
 };
