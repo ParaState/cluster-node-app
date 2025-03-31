@@ -10,9 +10,7 @@ import {
   Box,
   Card,
   Step,
-  styled,
   Button,
-  Divider,
   Stepper,
   StepLabel,
   Typography,
@@ -29,71 +27,69 @@ import { useBoolean, useStepper } from '@/hooks';
 import { HEADER } from '@/layouts/config-layout';
 import { IResponseInitiatorStatus, IResponseInitiatorStatusEnum } from '@/types';
 
-import Iconify from '@/components/iconify';
+// const CircleBox = styled(Box)(({ theme }) => ({
+//   width: 24,
+//   height: 24,
+//   display: 'flex',
+//   alignItems: 'center',
+//   justifyContent: 'center',
+//   borderRadius: '50%',
+//   backgroundColor: theme.palette.primary.main,
+//   color: 'white',
+// }));
 
-const CircleBox = styled(Box)(({ theme }) => ({
-  width: 24,
-  height: 24,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: '50%',
-  backgroundColor: theme.palette.primary.main,
-  color: 'white',
-}));
+// const yesIcon = <Iconify color="#21D7B5" textAlign="center" icon="healthicons:yes" />;
 
-const yesIcon = <Iconify color="#21D7B5" textAlign="center" icon="healthicons:yes" />;
-
-const SetupItem = ({
-  title,
-  description,
-  checked,
-  onClick,
-  index,
-  divider = true,
-  buttonText = 'check',
-  loading = false,
-  disabled = false,
-}: {
-  loading?: boolean;
-  index: string;
-  title: string;
-  description?: React.ReactNode;
-  checked: boolean;
-  onClick: () => void;
-  divider?: boolean;
-  buttonText?: string;
-  disabled?: boolean;
-}) => {
-  return (
-    <>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
-        <Stack direction="row" spacing={2}>
-          <CircleBox>{index}</CircleBox>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography variant="body1">{title}</Typography>
-            {checked && yesIcon}
-          </Stack>
-        </Stack>
-        <LoadingButton
-          loading={loading}
-          variant="contained"
-          size="small"
-          onClick={onClick}
-          sx={{
-            textTransform: 'capitalize',
-            minWidth: 80,
-          }}
-          disabled={disabled}
-        >
-          {buttonText}
-        </LoadingButton>
-      </Stack>
-      {description}
-      {divider && <Divider />}
-    </>
-  );
-};
+// const SetupItem = ({
+//   title,
+//   description,
+//   checked,
+//   onClick,
+//   index,
+//   divider = true,
+//   buttonText = 'check',
+//   loading = false,
+//   disabled = false,
+// }: {
+//   loading?: boolean;
+//   index: string;
+//   title: string;
+//   description?: React.ReactNode;
+//   checked: boolean;
+//   onClick: () => void;
+//   divider?: boolean;
+//   buttonText?: string;
+//   disabled?: boolean;
+// }) => {
+//   return (
+//     <>
+//       <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+//         <Stack direction="row" spacing={2}>
+//           <CircleBox>{index}</CircleBox>
+//           <Stack direction="row" alignItems="center" spacing={1}>
+//             <Typography variant="body1">{title}</Typography>
+//             {checked && yesIcon}
+//           </Stack>
+//         </Stack>
+//         <LoadingButton
+//           loading={loading}
+//           variant="contained"
+//           size="small"
+//           onClick={onClick}
+//           sx={{
+//             textTransform: 'capitalize',
+//             minWidth: 80,
+//           }}
+//           disabled={disabled}
+//         >
+//           {buttonText}
+//         </LoadingButton>
+//       </Stack>
+//       {description}
+//       {divider && <Divider />}
+//     </>
+//   );
+// };
 
 export default function SetUpView() {
   const router = useRouter();
@@ -145,7 +141,7 @@ export default function SetUpView() {
     }
   };
 
-  const fetchClusterNode = async () => {
+  const fetchClusterNode = async (goNext: boolean = true) => {
     try {
       serviceCheckLoading.onTrue();
 
@@ -154,7 +150,9 @@ export default function SetUpView() {
       const node = await getClusterNode(result?.cluster_pubkey!);
       setClusterNode(node);
 
-      stepper.handleNext();
+      if (goNext) {
+        stepper.handleNext();
+      }
     } catch (error) {
       if (error?.data?.code === 1001) {
         enqueueSnackbar(
@@ -193,6 +191,7 @@ export default function SetUpView() {
 
       if (!initiatorStatus?.owner) {
         await bindInitiatorOwner();
+        return;
       }
 
       await fetchClusterNode();
@@ -218,7 +217,7 @@ export default function SetUpView() {
           variant: 'warning',
         }
       );
-      await fetchClusterNode();
+      await fetchClusterNode(false);
       return;
     }
 
@@ -362,7 +361,7 @@ export default function SetUpView() {
                   <LoadingButton
                     variant="contained"
                     onClick={() => {
-                      router.push(config.routes.validator.selectOperators);
+                      goToSelectOperators();
                     }}
                   >
                     Finish
@@ -376,7 +375,7 @@ export default function SetUpView() {
             </Step>
           </Stepper>
 
-          {false && (
+          {/* {false && (
             <Stack direction="column" spacing={2}>
               <SetupItem
                 index="1"
@@ -415,7 +414,7 @@ export default function SetUpView() {
                 divider={false}
               />
             </Stack>
-          )}
+          )} */}
         </Card>
       </Box>
     </Container>

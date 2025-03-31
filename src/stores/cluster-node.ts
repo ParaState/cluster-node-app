@@ -41,10 +41,14 @@ export const useSelectedValidator = () => {
   };
 };
 
-export const nodeOperatorIdAtom = atomWithStorage('nodeOperatorId', '');
+export const nodeOperatorIdAtom = atomWithStorage<number | undefined>(
+  'nodeOperatorId',
+  localStorage.getItem('nodeOperatorId') ? +localStorage.getItem('nodeOperatorId')! : undefined
+);
 
 export const useNodeOperatorId = () => {
   const [nodeOperatorId, setNodeOperatorId] = useAtom(nodeOperatorIdAtom);
+
   return { nodeOperatorId, setNodeOperatorId };
 };
 

@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 
 import services from '@/services';
 import { defaultPagination } from '@/types';
@@ -36,4 +36,23 @@ export function useOperatorList(filter: any, sort: any, searchInput: string) {
   return {
     operatorQuery,
   };
+}
+
+export function useOperatorLidoCSMList(managerAddress: string) {
+  return useQuery({
+    queryKey: ['operatorLidoCSMList', managerAddress],
+    queryFn: () =>
+      services.clusterNode.fetchOperatorLidoCSM({
+        pag: {
+          offset: 0,
+          limit: 30,
+        },
+        filter: {
+          manager_address: managerAddress,
+        },
+        sort: {
+          operator_id: -1,
+        },
+      }),
+  });
 }

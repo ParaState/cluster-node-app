@@ -12,20 +12,26 @@ import {
   Box,
   Card,
   Step,
+  Radio,
   Button,
   Stepper,
   Collapse,
+  Skeleton,
   Container,
   StepLabel,
   Typography,
   CardHeader,
   IconButton,
+  RadioGroup,
   StepContent,
+  FormControl,
+  FormControlLabel,
 } from '@mui/material';
 
 import { useRouter } from '@/routes/hooks';
 
 import { useBoolean } from '@/hooks/use-boolean';
+import { useOperatorLidoCSMList } from '@/hooks/api/operator/use-operator-list';
 import {
   useGetNodeOperator,
   useAddNodeOperatorETH,
@@ -39,8 +45,8 @@ import { useNodeOperatorId, useSelectedValidator } from '@/stores';
 
 import Iconify from '@/components/iconify';
 import { CommonBack } from '@/components/common';
+import FormProvider from '@/components/hook-form';
 import { ValidatorBeachonLink } from '@/components/validator';
-import FormProvider, { RHFTextField } from '@/components/hook-form';
 
 import {
   IRequestValidatorActionEnum,
@@ -62,6 +68,10 @@ export default function LidoCSMRegistrationPage() {
 
   const { selectedValidator } = useSelectedValidator();
 
+  const { data: operatorLidoCSMList, isLoading: operatorLidoCSMLoading } = useOperatorLidoCSMList(
+    address!
+  );
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -71,7 +81,7 @@ export default function LidoCSMRegistrationPage() {
     if (nodeOperatorId) {
       form.setValue('nodeOperatorId', +nodeOperatorId);
     }
-  }, [nodeOperatorId]);
+  }, []);
 
   const { handleSubmit } = form;
 
@@ -243,7 +253,7 @@ export default function LidoCSMRegistrationPage() {
         console.log('🚀 ~ onTestClick ~ nodeOperatorAddedEvent:', nodeOperatorAddedEvent);
 
         if (nodeOperatorAddedEvent?.nodeOperatorId) {
-          setNodeOperatorId(nodeOperatorAddedEvent?.nodeOperatorId.toString());
+          setNodeOperatorId(nodeOperatorAddedEvent?.nodeOperatorId);
         }
       } else {
         receipt = await addValidatorKeysETH(
@@ -274,7 +284,7 @@ export default function LidoCSMRegistrationPage() {
   const onSubmit = handleSubmit(async (data) => {
     checkNodeOperatorLoading.onTrue();
 
-    setNodeOperatorId(data.nodeOperatorId.toString());
+    setNodeOperatorId(data.nodeOperatorId);
 
     try {
       const result = await getNodeOperator(data.nodeOperatorId);
@@ -305,17 +315,29 @@ export default function LidoCSMRegistrationPage() {
           <Stack direction="column" alignItems="start" flexGrow={1}>
             <FormProvider methods={form} onSubmit={onSubmit}>
               <Box sx={{ width: 1, mb: 2 }}>
-                {/* <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Please enter the Node Operator Id.
-                </Typography> */}
-
-                <RHFTextField
-                  fullWidth
-                  name="nodeOperatorId"
-                  type="number"
-                  size="medium"
-                  placeholder="Node Operator Id"
-                />
+                {operatorLidoCSMLoading ? (
+                  <Skeleton variant="rectangular" height={36} />
+                ) : (
+                  <FormControl>
+                    <RadioGroup
+                      row
+                      defaultValue={form.getValues('nodeOperatorId')}
+                      onChange={(e) => {
+                        setNodeOperatorId(+e.target.value);
+                        form.setValue('nodeOperatorId', +e.target.value);
+                      }}
+                    >
+                      {operatorLidoCSMList?.rows.map((item) => (
+                        <FormControlLabel
+                          key={item.operator_id}
+                          value={item.operator_id}
+                          control={<Radio />}
+                          label={`Node Operator #${item.operator_id.toString()}`}
+                        />
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
+                )}
               </Box>
 
               <Stack direction="row" width={1} spacing={2}>
@@ -327,17 +349,19 @@ export default function LidoCSMRegistrationPage() {
                   variant="soft"
                   sx={{ width: 100 }}
                   loading={checkNodeOperatorLoading.value}
+                  disabled={operatorLidoCSMLoading || !form.getValues('nodeOperatorId')}
                 >
                   Next
                 </LoadingButton>
 
                 <Button
                   onClick={() => {
+                    console.log('🚀 ~ handleNext ~ form.getValues():', form.getValues());
                     handleNext();
                   }}
                   variant="outlined"
                 >
-                  Skip To Submit Validators
+                  Skip To Create Node Operator
                 </Button>
               </Stack>
             </FormProvider>

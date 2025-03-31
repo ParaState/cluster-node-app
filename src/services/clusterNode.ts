@@ -5,6 +5,7 @@ import {
   IResponseInitiatorStatus,
   IRequestValidatorActionEnum,
   IResponseValidatorStatusEnum,
+  IResponseOperatorLidoCSMList,
   IResponseClusterNodeValidatorItem,
 } from '@/types';
 
@@ -15,6 +16,17 @@ export async function fetchOperators(body: any): Promise<IResponseOperators> {
     return data.data;
   } catch (error: any) {
     console.error(`Error in getOperators: ${error}`);
+    throw error;
+  }
+}
+
+export async function fetchOperatorLidoCSM(body: any): Promise<IResponseOperatorLidoCSMList> {
+  try {
+    const { data } = await axiosInstance.post(`/server/operator/query_lido_csm`, body);
+
+    return data.data;
+  } catch (error: any) {
+    console.error(`Error in fetchOperatorLidoCSM: ${error}`);
     throw error;
   }
 }
@@ -64,15 +76,4 @@ export async function updateValidatorStatus(
   const { data } = await axiosInstance.post(`/server/validator/update`, body);
 
   return data.data;
-}
-
-export async function fetchLidoCSM(body: any) {
-  try {
-    const { data } = await axiosInstance.post(`/server/lidocsms/query`, body);
-
-    return data.data;
-  } catch (error: any) {
-    console.error(`Error in fetchLidoCSM: ${error}`);
-    throw error;
-  }
 }

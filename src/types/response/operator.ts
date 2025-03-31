@@ -60,6 +60,14 @@ export interface IResponseOperator {
   };
 }
 
+export interface IResponseOperatorLidoCSM {
+  manager_address: string;
+  operator_id: number;
+  reward_address: string;
+}
+export interface IResponseOperatorLidoCSMList
+  extends IResponseCommonList<IResponseOperatorLidoCSM[]> {}
+
 export enum OperatorTypeDescEnum {
   nomal = 'Normal',
   verified = 'Verified',
