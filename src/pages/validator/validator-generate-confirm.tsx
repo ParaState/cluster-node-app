@@ -6,9 +6,7 @@ import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Card,
-  Link,
   Step,
-  Alert,
   Stepper,
   Container,
   StepLabel,
@@ -123,7 +121,7 @@ export default function ValidatorGenerateConfirmPage() {
       router.push(config.routes.validator.getValidatorPollingTx(receipt?.transactionHash));
     } catch (error) {
       console.error(error);
-      enqueueSnackbar(error?.shortMessage || 'Failed to generate validators', { variant: 'error' });
+      enqueueSnackbar(error?.message || 'Failed to generate validators', { variant: 'error' });
     } finally {
       generateLoading.onFalse();
     }
@@ -135,7 +133,7 @@ export default function ValidatorGenerateConfirmPage() {
 
   const steps = [
     {
-      label: `Approve DVT`,
+      label: `Approve ${tokenInfo.symbol}`,
       render: () => {
         return (
           <Stack direction="column" alignItems="start" className="step1" flexGrow={1}>
@@ -161,28 +159,6 @@ export default function ValidatorGenerateConfirmPage() {
               </Typography>
             </Stack>
 
-            {balance <= 0 && (
-              <Box py={2}>
-                <Alert severity="info" variant="outlined">
-                  <Typography fontSize={18}>
-                    Need more DVT? Go to{' '}
-                    <Typography
-                      color="primary.main"
-                      component={Link}
-                      underline="always"
-                      href={config.links.uniswapLink}
-                      target="_blank"
-                      fontWeight={600}
-                    >
-                      Uniswap
-                    </Typography>{' '}
-                    to gain more DVT.
-                  </Typography>
-                </Alert>
-              </Box>
-            )}
-
-            {/* <Stack direction="row" alignItems="center" justifyContent="center" width={1}> */}
             <Stack direction="row" width={1}>
               <LoadingButton
                 sx={{ width: 300 }}

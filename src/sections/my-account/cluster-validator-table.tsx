@@ -121,7 +121,7 @@ export function ClusterValidatorTable({
 
   useEffect(() => {
     resetSelectedValidator();
-  }, []);
+  }, [status]);
 
   useEffect(() => {
     // console.log('🚀 ~ useEffect ~ status:', status);

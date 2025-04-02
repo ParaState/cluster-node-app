@@ -77,11 +77,13 @@ export const useClusterNode = () => {
     depositAmount: bigint,
     withdrawAddress: `0x${string}`
   ) => {
-    console.log(pubkey);
-    console.log(validatorCount);
-    console.log(operatorIds);
-    console.log(depositAmount);
-    console.log(withdrawAddress);
+    console.group('generateDepositData');
+    console.log(`pubkey`, pubkey);
+    console.log(`validatorCount`, validatorCount);
+    console.log(`operatorIds`, operatorIds);
+    console.log(`depositAmount`, depositAmount);
+    console.log(`withdrawAddress`, withdrawAddress);
+    console.groupEnd();
 
     const hash = await writeContractAsync({
       ...clusterNodeContract,
