@@ -19,7 +19,6 @@ import { useRouter } from '@/routes/hooks';
 import { useBoolean } from '@/hooks/use-boolean';
 import {
   useClusterNode,
-  useTokenBalance,
   ClusterNodeActionFee,
   useTokenApprovalWithAddress,
 } from '@/hooks/contract';
@@ -72,7 +71,7 @@ export default function ValidatorGenerateConfirmPage() {
   const isApproved = useBoolean(false);
   const approveButtonText = isApproved.value ? 'Approved' : `Approve ${tokenInfo.symbol}`;
 
-  const { balance } = useTokenBalance();
+  // const { balance } = useTokenBalance();
 
   const [activeStep, setActiveStep] = useState(0);
 

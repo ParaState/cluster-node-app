@@ -23,7 +23,7 @@ import {
 import { useRouter } from '@/routes/hooks';
 
 import { useBoolean } from '@/hooks/use-boolean';
-import { useTokenBalance, useRegisterValidator } from '@/hooks/contract';
+import { useRegisterValidator } from '@/hooks/contract';
 import { useTokenApproval } from '@/hooks/contract/token/use-token-approval';
 
 import { formatEtherFixed } from '@/utils/format';
@@ -70,7 +70,7 @@ export default function ValidatorClusterConfirmPage() {
   const [runningValidatorIndex, setRunningValidatorIndex] = useState<number | null>(null);
   const { approveAllowance } = useTokenApproval();
 
-  const { balance } = useTokenBalance();
+  // const { balance } = useTokenBalance();
 
   const currentFee = getSubscriptionFeeFeeByFeeMode(currentFeeMode, selectedValidator.length);
 
