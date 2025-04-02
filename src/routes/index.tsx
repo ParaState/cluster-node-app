@@ -19,7 +19,6 @@ const Page404 = lazy(() => import('@/pages/404'));
 const MyAccountPage = lazy(() => import('@/pages/my-account'));
 
 const ValidatorPage = lazy(() => import('@/pages/validator'));
-const ValidatorEmailPage = lazy(() => import('@/pages/validator/validator-email'));
 const ValidatorCreatePage = lazy(() => import('@/pages/validator/validator-create'));
 
 const ValidatorSelectOperatorsPage = lazy(
@@ -106,7 +105,6 @@ export default function Router() {
       ),
       children: [
         { element: <ValidatorPage />, index: true },
-        { path: config.routes.validator.email, element: <ValidatorEmailPage /> },
         { path: config.routes.validator.create, element: <ValidatorCreatePage /> },
         { path: config.routes.validator.depositValidator, element: <ValidatorCreatePage /> },
 

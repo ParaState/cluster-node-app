@@ -1,6 +1,4 @@
 import * as info from './info';
-import * as user from './user';
-import * as claim from './claim';
 import * as operator from './operator';
 import * as validator from './validator';
 import * as beaconcha from './beaconcha';
@@ -11,8 +9,6 @@ const services = {
   operator,
   validator,
   info,
-  claim,
-  user,
   beaconcha,
 };
 
