@@ -23,16 +23,16 @@ import {
   useTokenApprovalWithAddress,
 } from '@/hooks/contract';
 
-import { formatEtherFixed } from '@/utils/format';
+import { formatEtherWithIntl } from '@/utils/format';
 
 import { config } from '@/config';
 import services from '@/services';
 import { useGenerateValidatorInfo } from '@/stores';
 
+import { CommonBack } from '@/components/common';
 import { enqueueSnackbar } from '@/components/snackbar';
 import { LoadingScreen } from '@/components/loading-screen';
 import { useGlobalConfig } from '@/components/global-config-init';
-import { CommonBack, ImportWalletToken } from '@/components/common';
 
 export default function ValidatorGenerateConfirmPage() {
   const router = useRouter();
@@ -43,11 +43,11 @@ export default function ValidatorGenerateConfirmPage() {
 
   const { generateDepositData } = useClusterNode();
 
-  const { approveAllowance } = useTokenApprovalWithAddress(config.contractAddress.clusterNode);
-
   const { getActionFee } = useClusterNode();
 
-  const { tokenInfo } = useGlobalConfig();
+  const { clusterNodeFeeTokenInfo } = useGlobalConfig();
+
+  const { approveAllowance } = useTokenApprovalWithAddress(clusterNodeFeeTokenInfo.address);
 
   const [currentFee, setCurrentFee] = useState(0n);
 
@@ -69,7 +69,9 @@ export default function ValidatorGenerateConfirmPage() {
 
   const isApproveLoading = useBoolean();
   const isApproved = useBoolean(false);
-  const approveButtonText = isApproved.value ? 'Approved' : `Approve ${tokenInfo.symbol}`;
+  const approveButtonText = isApproved.value
+    ? 'Approved'
+    : `Approve ${clusterNodeFeeTokenInfo.symbol}`;
 
   // const { balance } = useTokenBalance();
 
@@ -126,13 +128,13 @@ export default function ValidatorGenerateConfirmPage() {
     }
   };
 
-  if (loading.value) {
+  if (loading.value || !clusterNodeFeeTokenInfo.address) {
     return <LoadingScreen />;
   }
 
   const steps = [
     {
-      label: `Approve ${tokenInfo.symbol}`,
+      label: `Approve ${clusterNodeFeeTokenInfo.symbol}`,
       render: () => {
         return (
           <Stack direction="column" alignItems="start" className="step1" flexGrow={1}>
@@ -141,9 +143,7 @@ export default function ValidatorGenerateConfirmPage() {
             </Typography>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" width={1}>
-              <Typography variant="body1">
-                Total fee <ImportWalletToken />
-              </Typography>
+              <Typography variant="body1">Total fee</Typography>
             </Stack>
 
             <Stack
@@ -154,7 +154,7 @@ export default function ValidatorGenerateConfirmPage() {
               width={1}
             >
               <Typography variant="body1" color="text.primary">
-                ≈ {formatEtherFixed(currentFee)}
+                ≈ {formatEtherWithIntl(currentFee)}
               </Typography>
             </Stack>
 

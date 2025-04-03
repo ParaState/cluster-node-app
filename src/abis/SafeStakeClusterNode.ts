@@ -133,6 +133,19 @@ const SafeStakeClusterNodeAbi = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: '_DVT',
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'enum SafeStakeClusterNode.Action',
@@ -374,6 +387,19 @@ const SafeStakeClusterNodeAbi = [
   {
     inputs: [
       {
+        internalType: 'contract IERC20',
+        name: 'token',
+        type: 'address',
+      },
+    ],
+    name: 'modifyFeeToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'bytes',
         name: 'clusterNodePublicKey',
         type: 'bytes',
@@ -436,6 +462,19 @@ const SafeStakeClusterNodeAbi = [
     name: 'transferOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'version',
+    outputs: [
+      {
+        internalType: 'uint32',
+        name: '',
+        type: 'uint32',
+      },
+    ],
+    stateMutability: 'pure',
     type: 'function',
   },
 ] as const;

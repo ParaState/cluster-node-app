@@ -126,24 +126,36 @@ export const useTokenBalanceWithAddress = (tokenAddress: string) => {
     contracts: [
       {
         ...erc20Contract,
+        address: tokenAddress as `0x${string}`,
         functionName: 'allowance',
         args: [address!, tokenAddress as `0x${string}`],
       },
 
       {
         ...erc20Contract,
+        address: tokenAddress as `0x${string}`,
         functionName: 'balanceOf',
         args: [address!],
       },
+      {
+        ...erc20Contract,
+        address: tokenAddress as `0x${string}`,
+        functionName: 'symbol',
+      },
     ],
+    query: {
+      enabled: !!tokenAddress && !!address,
+    },
   });
 
-  const [allowance, balance] = data || [];
+  const [allowance, balance, symbol] = data || [];
+  // console.log('🚀 ~ useTokenBalanceWithAddress ~ symbol:', balance, symbol);
 
   return {
     isTokenBalanceLoading,
     balance: balance?.result || 0n,
     allowance: allowance?.result || 0n,
+    symbol: symbol?.result || '',
     refetch,
   };
 };

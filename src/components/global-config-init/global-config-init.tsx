@@ -5,7 +5,7 @@ import { useReadContract, useAccountEffect, useReadContracts } from 'wagmi';
 import { config } from '@/config';
 import { CurrentFeeMode } from '@/types';
 import { useSelectedOperators } from '@/stores';
-import { erc20Contract, networkContract } from '@/config/contract';
+import { erc20Contract, networkContract, clusterNodeContract } from '@/config/contract';
 
 const operatorFeeWithNetworkFeeAtom = atom(0n);
 
@@ -21,10 +21,19 @@ const tokenInfoAtom = atom({
   decimals: 18,
 });
 
+const clusterNodeFeeTokenInfoAtom = atom({
+  symbol: '',
+  name: '',
+  decimals: 18,
+  address: '',
+});
+
 export const GlobalConfigInit = () => {
   const [, setOperatorFeeWithNetworkFee] = useAtom(operatorFeeWithNetworkFeeAtom);
 
   const [, setTokenInfo] = useAtom(tokenInfoAtom);
+
+  const [, setClusterNodeFeeTokenInfo] = useAtom(clusterNodeFeeTokenInfoAtom);
 
   const operatorFeeResult = useReadContract({
     ...networkContract,
@@ -54,6 +63,36 @@ export const GlobalConfigInit = () => {
     ],
   });
 
+  const readClusterNodeFeeTokenAddress = useReadContract({
+    ...clusterNodeContract,
+    functionName: '_DVT',
+  });
+
+  const clusterNodeFeeTokenResult = useReadContracts({
+    contracts: readClusterNodeFeeTokenAddress.data
+      ? [
+          {
+            abi: erc20Contract.abi,
+            address: readClusterNodeFeeTokenAddress.data,
+            functionName: 'symbol',
+          },
+          {
+            abi: erc20Contract.abi,
+            address: readClusterNodeFeeTokenAddress.data,
+            functionName: 'name',
+          },
+          {
+            abi: erc20Contract.abi,
+            address: readClusterNodeFeeTokenAddress.data,
+            functionName: 'decimals',
+          },
+        ]
+      : [],
+    query: {
+      enabled: !!readClusterNodeFeeTokenAddress.data,
+    },
+  });
+
   useEffect(() => {
     if (operatorFeeResult.data) {
       setOperatorFeeWithNetworkFee(operatorFeeResult.data);
@@ -65,7 +104,28 @@ export const GlobalConfigInit = () => {
       const [symbol, name, decimals] = tokenResult.data;
       setTokenInfo({ symbol: symbol.result!, name: name.result!, decimals: decimals.result! });
     }
-  }, [tokenResult.data]);
+  }, [tokenResult.data, setTokenInfo]);
+
+  useEffect(() => {
+    if (
+      readClusterNodeFeeTokenAddress.data &&
+      clusterNodeFeeTokenResult.isSuccess &&
+      clusterNodeFeeTokenResult.data
+    ) {
+      const [symbol, name, decimals] = clusterNodeFeeTokenResult.data;
+
+      setClusterNodeFeeTokenInfo({
+        symbol: symbol?.result!,
+        name: name?.result!,
+        decimals: decimals?.result!,
+        address: readClusterNodeFeeTokenAddress.data,
+      });
+    }
+  }, [
+    readClusterNodeFeeTokenAddress.data,
+    clusterNodeFeeTokenResult.data,
+    setClusterNodeFeeTokenInfo,
+  ]);
 
   useAccountEffect({
     onConnect(data) {
@@ -80,6 +140,7 @@ export const GlobalConfigInit = () => {
 export const useGlobalConfig = () => {
   const [operatorFeeWithNetworkFee] = useAtom(operatorFeeWithNetworkFeeAtom);
   const [tokenInfo] = useAtom(tokenInfoAtom);
+  const [clusterNodeFeeTokenInfo] = useAtom(clusterNodeFeeTokenInfoAtom);
   const { currentCommitteeSize } = useSelectedOperators();
 
   const subscriptionFeeFeeByBlocks = useCallback(
@@ -130,5 +191,6 @@ export const useGlobalConfig = () => {
     getSubscriptionFeeFeeByFeeMode,
     getSubscriptionFeeFeeByBlocks,
     tokenInfo,
+    clusterNodeFeeTokenInfo,
   };
 };

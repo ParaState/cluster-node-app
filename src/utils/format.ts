@@ -8,7 +8,6 @@ export const formatAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-6)}`;
 };
 
-/// walletStore.fromWei
 export const formatEtherFixed = (wei: string | bigint | number, fixed = 2) => {
   if (!wei) return '0';
   if (typeof wei === 'bigint') {
@@ -16,6 +15,16 @@ export const formatEtherFixed = (wei: string | bigint | number, fixed = 2) => {
   }
   const value = BigInt(+wei);
   return (+formatEther(value)).toFixed(fixed);
+};
+
+export const formatEtherWithIntl = (wei: string | bigint | number, toFixed = 9) => {
+  if (!wei) return '0';
+
+  const value = typeof wei === 'bigint' ? wei : BigInt(+wei);
+
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: toFixed,
+  }).format(+formatEther(value));
 };
 
 export const formatPerformance = (value: bigint, fixed = 4) => {

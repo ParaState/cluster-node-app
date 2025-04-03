@@ -70,7 +70,7 @@ export const useTokenApproval = () => {
 };
 
 export const useTokenApprovalWithAddress = (approveAddress: string) => {
-  const { allowance, balance, refetch } = useTokenBalanceWithAddress(approveAddress);
+  const { allowance, balance, symbol, refetch } = useTokenBalanceWithAddress(approveAddress);
 
   const { writeContractAsync } = useWriteContract();
 
@@ -78,8 +78,8 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
 
   const approveAllowance = useCallback(
     async (amount: bigint) => {
-      console.group(`approveAllowance`);
-      console.log('user tokenBalance:', balance.toString());
+      console.group(`approveAllowance ${symbol} ${approveAddress}`);
+      console.log(`user ${symbol} tokenBalance:`, balance.toString());
       console.log('need amount:', amount.toString());
       console.log('current allowance:', allowance.toString());
       console.log('need approve', allowance < amount);
@@ -99,6 +99,7 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
 
       const hash = await writeContractAsync({
         ...erc20Contract,
+        address: approveAddress as `0x${string}`,
         functionName: 'approve',
         args: [approveAddress as `0x${string}`, amount],
       });
