@@ -83,7 +83,7 @@ export function ClusterValidatorTable({
 
   // const [currentPathname, setCurrentPathname] = useState(pathname);
 
-  const { generateExitData } = useClusterNode();
+  const { generateExitData, getClusterNode } = useClusterNode();
 
   const router = useRouter();
 
@@ -162,8 +162,21 @@ export function ClusterValidatorTable({
       const epochResponse = await services.beaconcha.getLatestEpoch();
       const activeEpoch = epochResponse.data.epoch;
 
-      const clusterPublicKey = validators[0].pubkey;
+      const clusterPublicKey = validators[0].cluster_pubkey;
+      const clusterNode = await getClusterNode(clusterPublicKey);
       const validatorPubKeys = validators.map((v) => v.pubkey);
+
+      if (!clusterNode || !clusterNode.active) {
+        enqueueSnackbar('Cluster node is not active', { variant: 'error' });
+        return;
+      }
+
+      console.group('generateExitData');
+      console.log('clusterPublicKey', clusterPublicKey);
+      console.log('validatorPubKeys', validatorPubKeys);
+      console.log('activeEpoch', activeEpoch);
+      console.log('clusterNode', clusterNode);
+      console.groupEnd();
 
       const receipt = await generateExitData(clusterPublicKey, validatorPubKeys, activeEpoch);
 
@@ -174,7 +187,9 @@ export function ClusterValidatorTable({
       }));
 
       await services.clusterNode.updateValidatorStatus(body);
-      enqueueSnackbar('Exit validator successfully');
+      enqueueSnackbar('Exit validator successfully, the validators status will be updated soon.');
+      setExitDialogOpen(false);
+      await clusterValidatorQuery.refetch();
     } catch (error) {
       console.error('error', error);
       enqueueSnackbar(error?.details || error?.message, { variant: 'error' });

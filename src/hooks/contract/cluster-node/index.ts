@@ -24,7 +24,7 @@ export const useClusterNode = () => {
     const result = await client?.readContract({
       ...clusterNodeContract,
       functionName: 'getClusterNode',
-      args: [pubkey as any],
+      args: [pubkey as `0x${string}`],
     });
 
     const isRegistered = !isAddressZero(result?.[0]);
@@ -102,15 +102,11 @@ export const useClusterNode = () => {
     return receipt;
   };
 
-  const generateExitData = async (
-    clusterNodePublicKey: string,
-    validatorPubKeys: string[],
-    activeEpoch: number
-  ) => {
+  const generateExitData = async (clusterNodePublicKey, validatorPubKeys, activeEpoch: number) => {
     const hash = await writeContractAsync({
       ...clusterNodeContract,
       functionName: 'generateExitData',
-      args: [clusterNodePublicKey as any, validatorPubKeys as any, BigInt(activeEpoch)],
+      args: [clusterNodePublicKey, validatorPubKeys, BigInt(activeEpoch)],
     });
 
     const receipt = await client?.waitForTransactionReceipt({
