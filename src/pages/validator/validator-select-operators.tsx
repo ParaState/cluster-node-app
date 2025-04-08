@@ -187,39 +187,6 @@ export default function ValidatorSelectorOperatorsPage() {
     });
 
     router.push(config.routes.validator.validatorGenerateConfirm);
-
-    // return; //
-
-    // try {
-    //   generateLoading.onTrue();
-
-    //   const result = await services.clusterNode.getInitiatorStatus();
-
-    //   const fee = await getActionFee(ClusterNodeActionFee.GENERATE_DEPOSIT_DATA);
-
-    //   const approveResult = await approveAllowance(fee! * BigInt(validatorCount));
-
-    //   if (!approveResult.isTokenEnough) {
-    //     enqueueSnackbar('Insufficient balance', { variant: 'error' });
-    //     return;
-    //   }
-
-    //   console.log('🚀 ~ onSubmit ~ operatorIds:', operatorIds);
-
-    //   const receipt = await generateDepositData(
-    //     result.cluster_pubkey,
-    //     validatorCount,
-    //     // TODO: uncomment
-    //     // [12, 14, 15, 16],
-    //     operatorIds,
-    //     parseEther('32'),
-    //     withdrawalAddress as `0x${string}`
-    //   );
-
-    //   router.push(config.routes.validator.getConfirm(receipt?.transactionHash));
-    // } finally {
-    //   generateLoading.onFalse();
-    // }
   });
 
   const withdrawalAddress = form.watch('withdrawalAddress');

@@ -67,70 +67,17 @@ export const useTokenBalanceForAddress = (address: any) => {
   };
 };
 
-// const balanceAtom = atom(0n);
-
-// export const useTokenInfo = () => {
-//   const { address } = useAccount();
-//   const client = usePublicClient();
-
-//   // if (!address) return { isTokenBalanceLoading: true };
-
-//   // const { data, isLoading: isTokenInfoLoading } = useReadContract({
-//   //   contracts: [
-//   //     {
-//   //       ...erc20Contract,
-//   //       functionName: 'balanceOf',
-//   //       args: [address!],
-//   //     },
-//   //     {
-//   //       ...erc20Contract,
-//   //       functionName: 'name',
-//   //     },
-//   //   ],
-//   // });
-
-//   useEffect(() => {
-//     if (!address) return;
-
-//     const fetchData = async () => {
-//       const result = await client?.readContract({
-//         ...erc20Contract,
-//         functionName: 'balanceOf',
-//         args: [address!],
-//       });
-
-//       // Process the result here
-//     };
-
-//     fetchData();
-//   }, [address, client]);
-
-//   // if (!address) return { isTokenInfoLoading: true };
-
-//   return {
-//     isTokenInfoLoading,
-//     symbol: data?.[0].result,
-//     balance: data?.[1].result,
-//     name: data?.[2].result,
-//   };
-// };
-
-export const useTokenBalanceWithAddress = (tokenAddress: string) => {
+export const useTokenBalanceWithAddress = (tokenAddress: string, spender: string) => {
   const { address } = useAccount();
 
-  const {
-    data,
-    isLoading: isTokenBalanceLoading,
-    refetch,
-  } = useReadContracts({
+  const { data, isLoading, refetch } = useReadContracts({
     contracts: [
       {
         ...erc20Contract,
         address: tokenAddress as `0x${string}`,
         functionName: 'allowance',
-        args: [address!, tokenAddress as `0x${string}`],
+        args: [address!, spender as `0x${string}`],
       },
-
       {
         ...erc20Contract,
         address: tokenAddress as `0x${string}`,
@@ -144,7 +91,7 @@ export const useTokenBalanceWithAddress = (tokenAddress: string) => {
       },
     ],
     query: {
-      enabled: !!tokenAddress && !!address,
+      enabled: !!tokenAddress && !!address && !!spender,
     },
   });
 
@@ -152,7 +99,7 @@ export const useTokenBalanceWithAddress = (tokenAddress: string) => {
   // console.log('🚀 ~ useTokenBalanceWithAddress ~ symbol:', balance, symbol);
 
   return {
-    isTokenBalanceLoading,
+    isLoading,
     balance: balance?.result || 0n,
     allowance: allowance?.result || 0n,
     symbol: symbol?.result || '',

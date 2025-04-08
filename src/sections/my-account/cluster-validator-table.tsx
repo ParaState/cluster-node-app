@@ -324,6 +324,10 @@ export function ClusterValidatorTable({
     }
   };
 
+  // const syncValidatorStatus = async () => {
+  //   console.log('🚀 ~ syncValidatorStatus ~ validator:', selectedTxRow);
+  // };
+
   return (
     <Card>
       <CardHeader
@@ -721,31 +725,56 @@ export function ClusterValidatorTable({
       </Dialog>
 
       <CustomPopover open={txPopover.open} onClose={txPopover.onClose}>
+        {/* <MenuItem>
+          <Link
+            onClick={() => {
+              syncValidatorStatus();
+            }}
+          >
+            Sync Validator Status
+          </Link>
+        </MenuItem> */}
         {selectedTxRow?.generate_txid && (
           <MenuItem>
-            <Link href={`${config.links.etherTxLink(selectedTxRow.generate_txid)}`} target="_blank">
-              View Generation Transaction
+            <Link
+              color="inherit"
+              href={`${config.links.etherTxLink(selectedTxRow.generate_txid)}`}
+              target="_blank"
+            >
+              View Generation Tx
             </Link>
           </MenuItem>
         )}
         {selectedTxRow?.register_txid && (
           <MenuItem>
-            <Link href={`${config.links.etherTxLink(selectedTxRow.register_txid)}`} target="_blank">
-              View Registration Transaction
+            <Link
+              color="inherit"
+              href={`${config.links.etherTxLink(selectedTxRow.register_txid)}`}
+              target="_blank"
+            >
+              View Registration Tx
             </Link>
           </MenuItem>
         )}
         {selectedTxRow?.deposit_txid && (
           <MenuItem>
-            <Link href={`${config.links.etherTxLink(selectedTxRow.deposit_txid)}`} target="_blank">
-              View Deposit Transaction
+            <Link
+              color="inherit"
+              href={`${config.links.etherTxLink(selectedTxRow.deposit_txid)}`}
+              target="_blank"
+            >
+              View Deposit Tx
             </Link>
           </MenuItem>
         )}
         {selectedTxRow?.exit_txid && (
           <MenuItem>
-            <Link href={`${config.links.etherTxLink(selectedTxRow.exit_txid)}`} target="_blank">
-              View Exit Transaction
+            <Link
+              color="inherit"
+              href={`${config.links.etherTxLink(selectedTxRow.exit_txid)}`}
+              target="_blank"
+            >
+              View Exit Tx
             </Link>
           </MenuItem>
         )}

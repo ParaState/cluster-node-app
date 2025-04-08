@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { usePublicClient, useWriteContract } from 'wagmi';
 
 import { useTokenBalance, useTokenBalanceWithAddress } from '@/hooks/contract';
@@ -13,77 +12,77 @@ export const useTokenApproval = () => {
 
   const client = usePublicClient();
 
-  const approveAllowance = useCallback(
-    async (
-      amount: bigint
-    ): Promise<{
-      success: boolean;
-      allowance: bigint;
-      isTokenEnough: boolean;
-    }> => {
-      console.group('approveAllowance');
-      console.log('user tokenBalance:', balance.toString());
-      console.log('need amount:', amount.toString());
-      console.log('current allowance:', allowance.toString());
-      console.log('need approve', allowance < amount);
-      console.log('allowance address:', config.contractAddress.network);
-      console.groupEnd();
+  const approveAllowance = async (
+    amount: bigint
+  ): Promise<{
+    success: boolean;
+    allowance: bigint;
+    isTokenEnough: boolean;
+  }> => {
+    console.group('approveAllowance');
+    console.log('user tokenBalance:', balance.toString());
+    console.log('need amount:', amount.toString());
+    console.log('current allowance:', allowance.toString());
+    console.log('need approve', allowance < amount);
+    console.log('allowance address:', config.contractAddress.network);
+    console.groupEnd();
 
-      if (allowance >= amount) {
-        return {
-          isTokenEnough: true,
-          success: true,
-          allowance,
-        };
-      }
-
-      const hash = await writeContractAsync({
-        ...erc20Contract,
-        functionName: 'approve',
-        args: [config.contractAddress.network, amount],
-      });
-
-      console.log(hash);
-
-      const reuslt = await client?.waitForTransactionReceipt({
-        hash,
-      });
-
-      console.log(reuslt);
-
-      const { data } = await refetch();
-      const [newAllowance] = data || [];
-
-      const isTokenEnough = newAllowance?.result ? newAllowance.result >= amount : false;
-
+    if (allowance >= amount) {
       return {
-        isTokenEnough,
+        isTokenEnough: true,
         success: true,
-        allowance: newAllowance?.result || 0n,
+        allowance,
       };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [allowance, writeContractAsync, client]
-  );
+    }
+
+    const hash = await writeContractAsync({
+      ...erc20Contract,
+      functionName: 'approve',
+      args: [config.contractAddress.network, amount],
+    });
+
+    console.log(hash);
+
+    const reuslt = await client?.waitForTransactionReceipt({
+      hash,
+    });
+
+    console.log(reuslt);
+
+    const { data } = await refetch();
+    const [newAllowance] = data || [];
+
+    const isTokenEnough = newAllowance?.result ? newAllowance.result >= amount : false;
+
+    return {
+      isTokenEnough,
+      success: true,
+      allowance: newAllowance?.result || 0n,
+    };
+  };
 
   return { approveAllowance };
 };
 
-export const useTokenApprovalWithAddress = (approveAddress: string) => {
-  const { allowance, balance, symbol, refetch } = useTokenBalanceWithAddress(approveAddress);
+export const useTokenApprovalWithAddress = (tokenAddress: string, spender: string) => {
+  const { allowance, balance, symbol, refetch, isLoading } = useTokenBalanceWithAddress(
+    tokenAddress,
+    spender
+  );
 
   const { writeContractAsync } = useWriteContract();
 
   const client = usePublicClient();
 
-  const approveAllowance = useCallback(
-    async (amount: bigint) => {
-      console.group(`approveAllowance ${symbol} ${approveAddress}`);
+  const approveToken = async (amount: bigint) => {
+    try {
+      console.group(`useTokenApprovalWithAddress approveToken ${symbol} ${tokenAddress}`);
       console.log(`user ${symbol} tokenBalance:`, balance.toString());
       console.log('need amount:', amount.toString());
       console.log('current allowance:', allowance.toString());
       console.log('need approve', allowance < amount);
-      console.log('allowance address:', approveAddress);
+      console.log('token address:', tokenAddress);
+      console.log('spender address:', spender);
       console.groupEnd();
 
       const isBalanceEnough = balance >= amount;
@@ -98,17 +97,24 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
       }
 
       const hash = await writeContractAsync({
-        ...erc20Contract,
-        address: approveAddress as `0x${string}`,
+        abi: erc20Contract.abi,
+        address: tokenAddress as `0x${string}`,
         functionName: 'approve',
-        args: [approveAddress as `0x${string}`, amount],
+        args: [spender as `0x${string}`, amount],
       });
 
-      const result = await client?.waitForTransactionReceipt({
+      // if (!hash) {
+      //   throw new Error('Transaction failed to be sent');
+      // }
+
+      // const result = await client?.waitForTransactionReceipt({
+      await client?.waitForTransactionReceipt({
         hash,
       });
 
-      console.log(result);
+      // if (!result || result.status === 'reverted') {
+      //   throw new Error('Transaction reverted');
+      // }
 
       const { data } = await refetch();
       const [newAllowance] = data || [];
@@ -121,9 +127,17 @@ export const useTokenApprovalWithAddress = (approveAddress: string) => {
         success: true,
         allowance: newAllowance?.result || 0n,
       };
-    },
-    [allowance, writeContractAsync, client]
-  );
+    } catch (error) {
+      console.error('Token approval failed:', error);
+      return {
+        isTokenEnough: false,
+        isBalanceEnough: balance >= amount,
+        success: false,
+        allowance,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      };
+    }
+  };
 
-  return { approveAllowance };
+  return { approveToken, isLoading };
 };

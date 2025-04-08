@@ -47,7 +47,10 @@ export default function ValidatorGenerateConfirmPage() {
 
   const { clusterNodeFeeTokenInfo } = useGlobalConfig();
 
-  const { approveAllowance } = useTokenApprovalWithAddress(clusterNodeFeeTokenInfo.address);
+  const { approveToken, isLoading: isTokenLoading } = useTokenApprovalWithAddress(
+    clusterNodeFeeTokenInfo.address,
+    config.contractAddress.clusterNode
+  );
 
   const [currentFee, setCurrentFee] = useState(0n);
 
@@ -93,7 +96,7 @@ export default function ValidatorGenerateConfirmPage() {
   const onApproveClick = async () => {
     isApproveLoading.onTrue();
     try {
-      const approveResult = await approveAllowance(currentFee);
+      const approveResult = await approveToken(currentFee);
 
       if (!approveResult.isTokenEnough || !approveResult.isBalanceEnough) {
         enqueueSnackbar('Insufficient balance', { variant: 'error' });
@@ -128,7 +131,7 @@ export default function ValidatorGenerateConfirmPage() {
     }
   };
 
-  if (loading.value || !clusterNodeFeeTokenInfo.address) {
+  if (loading.value || !clusterNodeFeeTokenInfo.address || isTokenLoading) {
     return <LoadingScreen />;
   }
 
