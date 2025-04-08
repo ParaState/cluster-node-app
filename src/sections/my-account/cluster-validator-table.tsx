@@ -633,22 +633,20 @@ export function ClusterValidatorTable({
                           <Iconify icon="mdi:eye" color={theme.palette.grey[600]} />
                         </IconButton>
                       </Tooltip>
-                      {row.status === IResponseValidatorStatusEnum.deposited && (
-                        <Tooltip title="View Validator on Beaconcha" placement="top">
-                          <IconButton
-                            target="_blank"
-                            href={`${getBaseBeaconchaUrl()}/validator/${row.pubkey}`}
-                          >
-                            <Iconify
-                              width={26}
-                              icon="mingcute:radar-2-line"
-                              className="caption"
-                              color={theme.palette.grey[700]}
-                              sx={{ mt: 0.5 }}
-                            />
-                          </IconButton>
-                        </Tooltip>
-                      )}
+                      <Tooltip title="View Validator on Beaconcha" placement="top">
+                        <IconButton
+                          target="_blank"
+                          href={`${getBaseBeaconchaUrl()}/validator/${row.pubkey}`}
+                        >
+                          <Iconify
+                            width={26}
+                            icon="mingcute:radar-2-line"
+                            className="caption"
+                            color={theme.palette.grey[700]}
+                            sx={{ mt: 0.5 }}
+                          />
+                        </IconButton>
+                      </Tooltip>
 
                       <IconButton
                         color="inherit"
