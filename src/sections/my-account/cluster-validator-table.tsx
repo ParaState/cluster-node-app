@@ -121,6 +121,7 @@ export function ClusterValidatorTable({
 
   useEffect(() => {
     resetSelectedValidator();
+    setSelectedRow([]);
   }, [status]);
 
   useEffect(() => {
@@ -189,6 +190,7 @@ export function ClusterValidatorTable({
       await services.clusterNode.updateValidatorStatus(body);
       enqueueSnackbar('Exit validator successfully, the validators status will be updated soon.');
       setExitDialogOpen(false);
+      setSelectedRow([]);
       await clusterValidatorQuery.refetch();
     } catch (error) {
       console.error('error', error);
