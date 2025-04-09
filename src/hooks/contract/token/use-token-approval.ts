@@ -5,6 +5,8 @@ import { useTokenBalance, useTokenBalanceWithAddress } from '@/hooks/contract';
 import { config } from '@/config';
 import { erc20Contract } from '@/config/contract';
 
+const APPROVE_GAS = 80_000n;
+
 export const useTokenApproval = () => {
   const { allowance, balance, refetch } = useTokenBalance();
 
@@ -39,6 +41,7 @@ export const useTokenApproval = () => {
       ...erc20Contract,
       functionName: 'approve',
       args: [config.contractAddress.network, amount],
+      gas: APPROVE_GAS,
     });
 
     console.log(hash);
@@ -101,6 +104,7 @@ export const useTokenApprovalWithAddress = (tokenAddress: string, spender: strin
         address: tokenAddress as `0x${string}`,
         functionName: 'approve',
         args: [spender as `0x${string}`, amount],
+        gas: APPROVE_GAS,
       });
 
       // if (!hash) {
