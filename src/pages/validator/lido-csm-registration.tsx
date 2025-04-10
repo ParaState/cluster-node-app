@@ -356,7 +356,7 @@ export default function LidoCSMRegistrationPage() {
 
                 <Button
                   onClick={() => {
-                    console.log('🚀 ~ handleNext ~ form.getValues():', form.getValues());
+                    setNodeOperatorId(undefined);
                     handleNext();
                   }}
                   variant="outlined"

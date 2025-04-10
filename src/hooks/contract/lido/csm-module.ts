@@ -138,7 +138,7 @@ export const useAddNodeOperatorETH = () => {
         };
 
         return {
-          nodeOperatorId: args.nodeOperatorId,
+          nodeOperatorId: Number(args.nodeOperatorId),
           managerAddress: args.managerAddress,
           rewardAddress: args.rewardAddress,
         };
