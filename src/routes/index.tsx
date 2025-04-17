@@ -5,6 +5,7 @@ import { config } from '@/config';
 import SetupPage from '@/pages/setup';
 import MainLayout from '@/layouts/main';
 import CompactLayout from '@/layouts/compact';
+import ValidatorSyncPage from '@/pages/validator/validator-sync';
 import ValidatorPollingTxPage from '@/pages/validator/validator-polling-tx';
 import LidoCSMRegistrationPage from '@/pages/validator/lido-csm-registration';
 import ValidatorGenerateConfirmPage from '@/pages/validator/validator-generate-confirm';
@@ -137,6 +138,14 @@ export default function Router() {
           element: (
             <WalletAndInitiatorBoundGuard>
               <ValidatorClusterConfirmPage />
+            </WalletAndInitiatorBoundGuard>
+          ),
+        },
+        {
+          path: config.routes.validator.sync,
+          element: (
+            <WalletAndInitiatorBoundGuard>
+              <ValidatorSyncPage />
             </WalletAndInitiatorBoundGuard>
           ),
         },

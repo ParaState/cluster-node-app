@@ -153,23 +153,16 @@ export const useRegisterValidator = () => {
   };
 
   const filterValidatorIsRegistered = async (validators: IResponseClusterNodeValidatorItem[]) => {
-    // const registeredMap = new Map<string, IResponseClusterNodeValidatorItem>();
-    // const notRegisteredMap = new Map<string, IResponseClusterNodeValidatorItem>();
     const map = new Map<string, boolean>();
 
     for (const validator of validators) {
       const result = await getValidatorData(validator.pubkey);
       if (result && result[4]) {
-        // registeredMap.set(validator.pubkey, validator);
         map.set(validator.pubkey, true);
       } else {
-        // notRegisteredMap.set(validator.pubkey, validator);
         map.set(validator.pubkey, false);
       }
     }
-
-    // const registered = validators.filter((validator) => registeredMap.has(validator.pubkey));
-    // const notRegistered = validators.filter((validator) => notRegisteredMap.has(validator.pubkey));
 
     const registered = validators.filter((validator) => map.get(validator.pubkey));
     const notRegistered = validators.filter((validator) => !map.get(validator.pubkey));

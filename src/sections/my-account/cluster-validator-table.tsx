@@ -56,7 +56,9 @@ import { useSnackbar } from '@/components/snackbar';
 import { TableNoData, StyledTableCell } from '@/components/table';
 import { ValidatorSetFeeReceiptBox } from '@/components/validator';
 import CustomPopover, { usePopover } from '@/components/custom-popover';
-import SimpleTableSkeleton from '@/components/table/simple-table-skeleton'; // 引入对号图标
+import SimpleTableSkeleton from '@/components/table/simple-table-skeleton';
+
+import { SetStatusGroup } from '@/sections/my-account/set-status-group';
 
 type Props = {
   clusterValidatorQuery: UseQueryResult<IResponseClusterNodeValidatorItem[], Error>;
@@ -304,7 +306,7 @@ export function ClusterValidatorTable({
           registered.map((v) => ({
             pubkey: v.pubkey,
             action: IRequestValidatorActionEnum.register,
-            txid: '',
+            txid: v.register_txid || '',
           }))
         );
         enqueueSnackbar(
@@ -326,10 +328,6 @@ export function ClusterValidatorTable({
     }
   };
 
-  // const syncValidatorStatus = async () => {
-  //   console.log('🚀 ~ syncValidatorStatus ~ validator:', selectedTxRow);
-  // };
-
   return (
     <Card>
       <CardHeader
@@ -342,6 +340,24 @@ export function ClusterValidatorTable({
         //   </IconButton>
         // }
       />
+      <SetStatusGroup clusterValidatorQuery={clusterValidatorQuery} selectedRow={selectedRow} />
+      {checkPathnameStatus(IResponseValidatorStatusEnum.all) && (
+        <Stack direction="row" px={2} pt={2} pb={1} spacing={1}>
+          <LoadingButton
+            component="span"
+            variant="soft"
+            color="inherit"
+            disabled={selectedRow.length === 0}
+            onClick={() => {
+              setSelectedValidator(selectedRow);
+              router.push(config.routes.validator.sync);
+            }}
+            loading={runValidatorLoading.value}
+          >
+            Sync Validator Status
+          </LoadingButton>
+        </Stack>
+      )}
       {!checkPathnameStatus(IResponseValidatorStatusEnum.all) && (
         <Stack direction="row" px={2} pt={2} pb={1} spacing={1}>
           {checkPathnameStatus(IResponseValidatorStatusEnum.ready) && (
@@ -725,15 +741,6 @@ export function ClusterValidatorTable({
       </Dialog>
 
       <CustomPopover open={txPopover.open} onClose={txPopover.onClose}>
-        {/* <MenuItem>
-          <Link
-            onClick={() => {
-              syncValidatorStatus();
-            }}
-          >
-            Sync Validator Status
-          </Link>
-        </MenuItem> */}
         {selectedTxRow?.generate_txid && (
           <MenuItem>
             <Link

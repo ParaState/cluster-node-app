@@ -170,34 +170,6 @@ export default function ValidatorClusterConfirmPage() {
   };
 
   const steps = [
-    // {
-    //   label: 'Check Validator Registration',
-    //   render: () => {
-    //     return (
-    //       <Stack direction="column" alignItems="start" className="step1" flexGrow={1}>
-    //         <Typography variant="body1" mb={2}>
-    //           Checking if validators are registered to network contract
-    //         </Typography>
-
-    //         <Stack direction="row" width={1}>
-    //           <LoadingButton
-    //             sx={{ width: 300 }}
-    //             color="primary"
-    //             size="large"
-    //             type="submit"
-    //             variant="soft"
-    //             loading={isCheckValidatorRegisteredLoading.value}
-    //             onClick={() => {
-    //               handleCheckValidatorRegistered();
-    //             }}
-    //           >
-    //             Check Validators
-    //           </LoadingButton>
-    //         </Stack>
-    //       </Stack>
-    //     );
-    //   },
-    // },
     {
       label: `Approve ${tokenInfo.symbol}`,
       render: () => {

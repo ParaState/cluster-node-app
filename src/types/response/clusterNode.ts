@@ -20,6 +20,7 @@ export enum IResponseValidatorStatusEnum {
 }
 
 export enum IRequestValidatorActionEnum {
+  ready = 'ready',
   register = 'register',
   deposit = 'deposit',
   exit = 'exit',

@@ -68,6 +68,7 @@ export const config = {
       selectOperators: '/validator/select-operators',
       depositValidator: '/validator/deposit',
       success: '/validator/success',
+      sync: '/validator/sync',
       slashingWarning: '/validator/slashing-warning',
       validatorRegistrationNetwork: '/validator/registration-network',
       validatorExit: '/validator/exit',
