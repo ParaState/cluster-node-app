@@ -340,7 +340,9 @@ export function ClusterValidatorTable({
         //   </IconButton>
         // }
       />
-      <SetStatusGroup clusterValidatorQuery={clusterValidatorQuery} selectedRow={selectedRow} />
+      {localStorage.getItem('set-status-debug-mode') === 'true' && (
+        <SetStatusGroup clusterValidatorQuery={clusterValidatorQuery} selectedRow={selectedRow} />
+      )}
       {checkPathnameStatus(IResponseValidatorStatusEnum.all) && (
         <Stack direction="row" px={2} pt={2} pb={1} spacing={1}>
           <LoadingButton

@@ -49,9 +49,9 @@ export default function ValidatorSyncPage() {
         await delay(1000);
       }
 
-      if (notRegistered.length <= 0) {
+      if (notRegistered.length > 0) {
         await services.clusterNode.updateValidatorStatus(
-          registered.map((v) => ({
+          notRegistered.map((v) => ({
             pubkey: v.pubkey,
             action: IRequestValidatorActionEnum.ready,
             txid: v.generate_txid || '',
