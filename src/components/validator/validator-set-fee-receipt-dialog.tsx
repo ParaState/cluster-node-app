@@ -94,6 +94,14 @@ export const ValidatorSetFeeReceiptDialog = ({ dialogOpen, onClose }: Props) => 
 
     try {
       // await batchSetFeeReceiptAddress(pubkeys, formValue.address);
+      // Check if the address is the same as the current fee recipient address
+      if (formValue.address === getFeeRecipientAddressQuery.data) {
+        enqueueSnackbar('Fee recipient address is already set to this address', {
+          variant: 'info',
+        });
+        onClose();
+        return;
+      }
       await setFeeRecipientAddress(formValue.address);
       // await setFeeReceiptAddress(pubkeys[0], formValue.address);
       await getFeeRecipientAddressQuery.refetch();

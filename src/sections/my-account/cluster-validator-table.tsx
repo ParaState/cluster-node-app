@@ -430,7 +430,7 @@ export function ClusterValidatorTable({
         </Stack>
       )}
 
-      <ValidatorSetFeeReceiptBox address={address} />
+      <ValidatorSetFeeReceiptBox address={address} sx={{ p: 2 }} />
 
       {/* <CustomPopover open={popover.open} onClose={popover.onClose}>
         <MenuItem

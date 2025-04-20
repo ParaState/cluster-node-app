@@ -1,4 +1,4 @@
-import { Box, Stack, Tooltip, Skeleton, IconButton, Typography } from '@mui/material';
+import { Box, Stack, Tooltip, SxProps, Skeleton, IconButton, Typography } from '@mui/material';
 
 import { useBoolean } from '@/hooks/use-boolean';
 import { useFeeReceiptAddress } from '@/hooks/contract/operator';
@@ -10,15 +10,16 @@ import { ValidatorSetFeeReceiptDialog } from '@/components/validator/validator-s
 
 type Props = {
   address: string;
+  sx?: SxProps;
 };
 
-export const ValidatorSetFeeReceiptBox = ({ address }: Props) => {
+export const ValidatorSetFeeReceiptBox = ({ address, sx }: Props) => {
   const { getFeeRecipientAddressQuery } = useFeeReceiptAddress(address!);
   const { value: feeReceiptDialogOpen, ...setFeeReceiptDialogOpen } = useBoolean(false);
 
   return (
     <>
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ ...sx }}>
         {getFeeRecipientAddressQuery.isLoading ? (
           <Skeleton variant="rectangular" width="100%" height={22} />
         ) : (
