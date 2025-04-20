@@ -19,11 +19,11 @@ export const ValidatorSetFeeReceiptBox = ({ address, sx }: Props) => {
 
   return (
     <>
-      <Box sx={{ ...sx }}>
+      <Box sx={{ ...sx, pt: 1, pb: 2 }}>
         {getFeeRecipientAddressQuery.isLoading ? (
           <Skeleton variant="rectangular" width="100%" height={22} />
         ) : (
-          <Stack direction="row" alignItems="center">
+          <Stack direction="row" alignItems="center" height={18}>
             <Typography variant="body2" color="text.secondary">
               Fee Recipient Address: &nbsp;
             </Typography>

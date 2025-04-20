@@ -201,11 +201,9 @@ export default function ValidatorClusterConfirmPage() {
               <StepContent>
                 <ValidatorSetFeeReceiptBox address={address!} />
                 <Stack direction="row" width={1}>
-                  <Box sx={{ mt: 2 }}>
-                    <Button variant="contained" onClick={handleNext}>
-                      Continue
-                    </Button>
-                  </Box>
+                  <Button variant="contained" onClick={handleNext}>
+                    Continue
+                  </Button>
                 </Stack>
               </StepContent>
             </Step>
