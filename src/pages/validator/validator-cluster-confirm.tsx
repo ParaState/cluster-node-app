@@ -26,7 +26,7 @@ import { useBoolean } from '@/hooks/use-boolean';
 import { useRegisterValidator } from '@/hooks/contract';
 import { useTokenApproval } from '@/hooks/contract/token/use-token-approval';
 
-import { formatEtherFixed } from '@/utils/format';
+import { formatEtherWithIntl } from '@/utils/format';
 
 import { config } from '@/config';
 import services from '@/services';
@@ -253,7 +253,7 @@ export default function ValidatorClusterConfirmPage() {
                     width={1}
                   >
                     <Typography variant="body1" color="text.primary">
-                      ≈ {formatEtherFixed(currentFee)}
+                      ≈ {formatEtherWithIntl(currentFee)}
                     </Typography>
                     <Typography variant="body1">
                       {tokenInfo.symbol}/per {currentFeeMode}

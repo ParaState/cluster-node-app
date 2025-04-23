@@ -65,8 +65,8 @@ export const useRegisterValidator = () => {
       return {
         ...networkContract,
         functionName: 'batchRegisterValidator',
-        account: address,
         args: [
+          address!,
           validatorPublicKeys,
           validatorOperatorIds[0],
           validatorSharedKeys,
@@ -80,8 +80,8 @@ export const useRegisterValidator = () => {
     return {
       ...networkContract,
       functionName: 'registerValidator',
-      account: address,
       args: [
+        address!,
         validatorPublicKeys[0],
         validatorOperatorIds[0],
         validatorSharedKeys[0],
