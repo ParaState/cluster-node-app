@@ -37,10 +37,12 @@ import {
 import { useRouter } from '@/routes/hooks';
 
 import { useOperatorList } from '@/hooks/api';
+import { useClusterNode } from '@/hooks/contract';
 
 import { parseVersion, formatVersion, isVersionUnknown } from '@/utils/format';
 
 import { config } from '@/config';
+import services from '@/services';
 import { useBoolean } from '@/hooks';
 import { SortTypeEnum } from '@/types';
 import { useSelectedOperators, useGenerateValidatorInfo } from '@/stores';
@@ -63,6 +65,7 @@ const formSchema = z.object({
 
 export default function ValidatorSelectorOperatorsPage() {
   const router = useRouter();
+  const { getClusterNode } = useClusterNode();
 
   const theme = useTheme();
   const { address } = useAccount();
@@ -86,7 +89,10 @@ export default function ValidatorSelectorOperatorsPage() {
     mode: 'onChange',
   });
 
-  const { handleSubmit } = form;
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
 
   const { setGenerateValidator } = useGenerateValidatorInfo();
 
@@ -177,6 +183,14 @@ export default function ValidatorSelectorOperatorsPage() {
     //   );
     //   return;
     // }
+    const result = await services.clusterNode.getInitiatorStatus();
+    const clusterNode = await getClusterNode(result.cluster_pubkey);
+    if (!clusterNode.isRegistered) {
+      enqueueSnackbar('Cluster node is not registered, please go to setup page to register', {
+        variant: 'error',
+      });
+      return;
+    }
 
     const { validatorCount, withdrawalAddress } = data;
     const operatorIds = selectedOperators.map((op) => op.id).sort((a, b) => a - b);
@@ -593,7 +607,7 @@ export default function ValidatorSelectorOperatorsPage() {
                     size="large"
                     type="submit"
                     variant="soft"
-                    loading={generateLoading.value}
+                    loading={generateLoading.value || isSubmitting}
                     disabled={!isSelectedEnoughOperators || !must2verifiedOperators}
                   >
                     Next
