@@ -575,6 +575,11 @@ const SafeStakeNetworkV4Abi = [
   {
     inputs: [
       {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
         internalType: 'bytes[]',
         name: 'publicKeys',
         type: 'bytes[]',
@@ -795,6 +800,11 @@ const SafeStakeNetworkV4Abi = [
   {
     inputs: [
       {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
         internalType: 'string',
         name: 'name',
         type: 'string',
@@ -818,6 +828,11 @@ const SafeStakeNetworkV4Abi = [
   },
   {
     inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
       {
         internalType: 'bytes',
         name: 'publicKey',

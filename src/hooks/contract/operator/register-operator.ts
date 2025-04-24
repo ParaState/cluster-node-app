@@ -14,8 +14,7 @@ export const useRegisterOperator = () => {
     const hash = await writeContractAsync({
       ...networkContract,
       functionName: 'registerOperator',
-      args: [name, pk],
-      account: address!,
+      args: [address!, name, pk],
     });
 
     const receipt = await client?.waitForTransactionReceipt({
@@ -38,8 +37,7 @@ export const useRegisterOperator = () => {
     const gasAmount = await client?.estimateContractGas({
       ...networkContract,
       functionName: 'registerOperator',
-      account: address!,
-      args: [name, pk],
+      args: [address!, name, pk],
     });
     console.log('===', gasAmount);
 

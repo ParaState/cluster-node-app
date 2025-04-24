@@ -1,6 +1,10 @@
+import { z } from 'zod';
+import { isAddress } from 'viem';
+import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useState, useEffect } from 'react';
 import { useAccount, useWatchAsset } from 'wagmi';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import Stack from '@mui/material/Stack';
 import { LoadingButton } from '@mui/lab';
@@ -23,34 +27,66 @@ import {
 import { useRouter } from '@/routes/hooks';
 
 import { useBoolean } from '@/hooks/use-boolean';
-import { useRegisterValidator } from '@/hooks/contract';
 import { useTokenApproval } from '@/hooks/contract/token/use-token-approval';
+import { useFeeReceiptAddress, useRegisterValidator } from '@/hooks/contract';
 
-import { formatEtherFixed } from '@/utils/format';
+import { formatEtherWithIntl } from '@/utils/format';
 
 import { config } from '@/config';
 import services from '@/services';
+import { isAddressZero } from '@/utils';
 import { useSelectedValidator } from '@/stores';
 import { CurrentFeeMode, IRequestValidatorActionEnum } from '@/types';
 
 import Iconify from '@/components/iconify';
 import { CommonBack } from '@/components/common';
 import { useGlobalConfig } from '@/components/global-config-init';
-import {
-  ValidatorBeachonLink,
-  ValidatorFeeToggleButton,
-  ValidatorSetFeeReceiptBox,
-} from '@/components/validator';
+import FormProvider, { RHFTextField } from '@/components/hook-form';
+import { ValidatorBeachonLink, ValidatorFeeToggleButton } from '@/components/validator';
 
 const batchSize = 20;
 
+const schema = z.object({
+  address: z.string().refine((value) => isAddress(value), {
+    message: 'Address is invalid.',
+  }),
+});
+
+type FormSchema = z.infer<typeof schema>;
+
 export default function ValidatorClusterConfirmPage() {
   const { address } = useAccount();
+  const { setFeeRecipientAddress, getFeeRecipientAddressQuery } = useFeeReceiptAddress(address!);
+  const { selectedValidator, isLidoCSMWithdrawalAddress } = useSelectedValidator();
+
+  const defaultValues = {
+    address: getFeeRecipientAddressQuery.data || address,
+  };
+
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(schema),
+    defaultValues,
+    mode: 'onChange',
+  });
+
+  useEffect(() => {
+    if (getFeeRecipientAddressQuery.data) {
+      if (isLidoCSMWithdrawalAddress()) {
+        form.setValue('address', config.contractAddress.lidoFeeRecipient);
+      } else {
+        form.setValue(
+          'address',
+          isAddressZero(getFeeRecipientAddressQuery.data)
+            ? address!
+            : getFeeRecipientAddressQuery.data!
+        );
+      }
+    }
+  }, [getFeeRecipientAddressQuery.data]);
+
   const router = useRouter();
 
   const { watchAsset } = useWatchAsset();
-
-  const { selectedValidator } = useSelectedValidator();
 
   const clusterNodeValidatorsGrouped = Array.from(
     { length: Math.ceil(selectedValidator.length / batchSize) },
@@ -104,7 +140,6 @@ export default function ValidatorClusterConfirmPage() {
   };
 
   useEffect(() => {
-    setActiveStep(0);
     isApproved.onFalse();
   }, [currentFeeMode]);
 
@@ -126,7 +161,7 @@ export default function ValidatorClusterConfirmPage() {
     try {
       const result = await approveAllowance(currentFee);
       if (result.isTokenEnough) {
-        setActiveStep(1);
+        handleNext();
         isApproved.onTrue();
       } else {
         enqueueSnackbar('Insufficient balance', { variant: 'error' });
@@ -174,6 +209,25 @@ export default function ValidatorClusterConfirmPage() {
     }
   };
 
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
+
+  const onSubmit = handleSubmit(async (formValue) => {
+    try {
+      if (formValue.address === getFeeRecipientAddressQuery.data) {
+        handleNext();
+        return;
+      }
+      await setFeeRecipientAddress(formValue.address);
+      await getFeeRecipientAddressQuery.refetch();
+      handleNext();
+    } catch (error) {
+      enqueueSnackbar(error.details || error.message, { variant: 'error' });
+    }
+  });
+
   return (
     <Container maxWidth="md">
       <CommonBack />
@@ -199,12 +253,36 @@ export default function ValidatorClusterConfirmPage() {
                 </Typography>
               </StepLabel>
               <StepContent>
-                <ValidatorSetFeeReceiptBox address={address!} />
-                <Stack direction="row" width={1}>
-                  <Button variant="contained" onClick={handleNext}>
-                    Continue
-                  </Button>
+                <Stack direction="row" alignItems="center">
+                  <Link
+                    sx={{ cursor: 'pointer' }}
+                    variant="body2"
+                    underline="always"
+                    onClick={() => {
+                      form.setValue('address', config.contractAddress.lidoFeeRecipient);
+                    }}
+                  >
+                    Fill Lido CSM fee recipient address
+                  </Link>
                 </Stack>
+                <FormProvider methods={form} onSubmit={onSubmit}>
+                  <RHFTextField
+                    name="address"
+                    type="text"
+                    fullWidth
+                    sx={{ my: 1 }}
+                    placeholder="Enter fee recipient address"
+                  />
+                  <Stack direction="row" width={1}>
+                    <LoadingButton
+                      variant="contained"
+                      type="submit"
+                      loading={getFeeRecipientAddressQuery.isLoading || isSubmitting}
+                    >
+                      Continue
+                    </LoadingButton>
+                  </Stack>
+                </FormProvider>
               </StepContent>
             </Step>
 
@@ -253,7 +331,7 @@ export default function ValidatorClusterConfirmPage() {
                     width={1}
                   >
                     <Typography variant="body1" color="text.primary">
-                      ≈ {formatEtherFixed(currentFee)}
+                      ≈ {formatEtherWithIntl(currentFee)}
                     </Typography>
                     <Typography variant="body1">
                       {tokenInfo.symbol}/per {currentFeeMode}
@@ -278,16 +356,6 @@ export default function ValidatorClusterConfirmPage() {
                     </LoadingButton>
                   </Stack>
                 </Stack>
-                {false && (
-                  <Box sx={{ mt: 3 }}>
-                    <Button variant="contained" onClick={handleNext}>
-                      Continue
-                    </Button>
-                    <Button disabled onClick={handleBack}>
-                      Back
-                    </Button>
-                  </Box>
-                )}
               </StepContent>
             </Step>
             <Step>

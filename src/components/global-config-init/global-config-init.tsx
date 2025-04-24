@@ -39,11 +39,11 @@ export const GlobalConfigInit = () => {
     ...networkContract,
     functionName: 'operatorFee',
     args: [true],
-    query: {
-      refetchInterval: 3_000,
-      // enabled: false,
-      // staleTime: 1_000,
-    },
+  });
+
+  const readFeeTokenAddress = useReadContract({
+    ...networkContract,
+    functionName: '_token',
   });
 
   const tokenResult = useReadContracts({
@@ -61,6 +61,9 @@ export const GlobalConfigInit = () => {
         functionName: 'decimals',
       },
     ],
+    query: {
+      enabled: !!readFeeTokenAddress.data,
+    },
   });
 
   const readClusterNodeFeeTokenAddress = useReadContract({
