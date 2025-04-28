@@ -1,0 +1,31 @@
+version: '3'
+services:
+  # cluster_node_app_mainnet:
+  #   image: parastate/dvf-clusternode-app-mainnet:main
+  #   build:
+  #     context: .
+  #     args:
+  #       - CLUSTER_NODE_URL=${CLUSTER_NODE_URL}
+  #       - ENVIRONMENT=mainnet
+  #   ports:
+  #     - '${PORT:-8088}:80'
+  #   restart: always
+  #   container_name: cluster-node-app-mainnet
+  #   environment:
+  #     - CLUSTER_NODE_URL=${CLUSTER_NODE_URL}
+  #     - ENVIRONMENT=mainnet
+
+  cluster_node_app_hoodi:
+    image: parastate/dvf-clusternode-app-hoodi:main
+    build:
+      context: .
+      args:
+        - CLUSTER_NODE_URL=${CLUSTER_NODE_URL}
+        - ENVIRONMENT=hoodi
+    ports:
+      - '${PORT:-8088}:80'
+    restart: always
+    container_name: cluster-node-app-hoodi
+    environment:
+      - CLUSTER_NODE_URL=${CLUSTER_NODE_URL}
+      - ENVIRONMENT=hoodi

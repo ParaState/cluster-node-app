@@ -181,4 +181,4 @@ export const navConfig = [
   },
 ];
 
-// console.log(config);
+console.log(config);
