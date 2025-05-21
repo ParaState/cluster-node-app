@@ -140,7 +140,7 @@ export default function ValidatorGenerateConfirmPage() {
     return <LoadingScreen />;
   }
 
-  console.log(clusterNodeFeeTokenInfo);
+  // console.log(clusterNodeFeeTokenInfo);
 
   const steps = [
     {

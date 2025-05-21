@@ -94,6 +94,7 @@ export const useClusterNode = () => {
     console.log(`operatorIds`, operatorIds);
     console.log(`depositAmount`, depositAmount);
     console.log(`withdrawAddress`, withdrawAddress);
+    console.log(`currentFee`, currentFee);
     console.groupEnd();
 
     const hash = await writeContractAsync({
