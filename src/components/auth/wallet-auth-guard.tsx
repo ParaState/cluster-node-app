@@ -20,6 +20,13 @@ const WalletAuthGuard = ({ children }: Props) => {
 
   const loading = useBoolean();
 
+  // useEffect(() => {
+  //   console.log('Account changed to:', address);
+  //   if (address) {
+  //     console.log('Account changed to:', address);
+  //   }
+  // }, [address]);
+
   const handleSignMessage = async () => {
     try {
       loading.onTrue();
@@ -38,7 +45,7 @@ const WalletAuthGuard = ({ children }: Props) => {
     );
   }
 
-  if (!isVerifiedSignature()) {
+  if (!isVerifiedSignature(address)) {
     return (
       <CenterContainer>
         <Stack spacing={2} alignItems="center">

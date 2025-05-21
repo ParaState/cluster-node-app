@@ -38,3 +38,11 @@ export const addPrefix0x = (str: string) => {
 export const isAddressZero = (address?: string) => {
   return address?.toLowerCase() === zeroAddress.toLowerCase();
 };
+
+export const nativeTokenInfo = {
+  symbol: 'ETH',
+  name: 'Ethereum',
+  decimals: 18,
+  address: '',
+  isNativeToken: true,
+};

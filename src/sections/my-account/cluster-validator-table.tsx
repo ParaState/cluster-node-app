@@ -298,8 +298,8 @@ export function ClusterValidatorTable({
 
       console.log(selectedRow);
       const { registered, notRegistered } = await filterValidatorIsRegistered(selectedRow);
-      console.log('🚀 ~ handleRunValidator ~ registered:', registered);
-      console.log('🚀 ~ handleRunValidator ~ notRegistered:', notRegistered);
+      // console.log('🚀 ~ handleRunValidator ~ registered:', registered);
+      // console.log('🚀 ~ handleRunValidator ~ notRegistered:', notRegistered);
 
       if (registered.length > 0) {
         await services.clusterNode.updateValidatorStatus(

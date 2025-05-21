@@ -1,7 +1,9 @@
-import { useAccount, useReadContracts } from 'wagmi';
+import { useAccount, useBalance, useReadContracts } from 'wagmi';
 
 import { config } from '@/config';
 import { erc20Contract } from '@/config/contract';
+
+import { useGlobalConfig } from '@/components/global-config-init';
 
 export const useTokenBalance = () => {
   const { address } = useAccount();
@@ -37,6 +39,8 @@ export const useTokenBalance = () => {
 };
 
 export const useTokenBalanceForAddress = (address: any) => {
+  const { tokenInfo } = useGlobalConfig();
+
   const {
     data,
     isLoading: isTokenBalanceLoading,
@@ -45,23 +49,36 @@ export const useTokenBalanceForAddress = (address: any) => {
     contracts: [
       {
         ...erc20Contract,
+        address: tokenInfo.address,
         functionName: 'allowance',
         args: [address!, config.contractAddress.network],
       },
-
       {
         ...erc20Contract,
+        address: tokenInfo.address,
         functionName: 'balanceOf',
         args: [address!],
       },
     ],
+    query: {
+      enabled: tokenInfo.address && address && !tokenInfo.isNativeToken,
+    },
   });
 
   const [allowance, balance] = data || [];
+  // console.log("🚀 ~ useTokenBalanceForAddress ~ data:", data)
+
+  const { data: nativeBalance, isLoading: isNativeBalanceLoading } = useBalance({
+    address: address as `0x${string}`,
+    query: {
+      enabled: tokenInfo.isNativeToken,
+    },
+  });
+  // console.log('🚀 ~ useTokenBalanceForAddress ~ nativeBalance:', nativeBalance);
 
   return {
-    isTokenBalanceLoading,
-    balance: balance?.result || 0n,
+    isTokenBalanceLoading: tokenInfo.isNativeToken ? isNativeBalanceLoading : isTokenBalanceLoading,
+    balance: tokenInfo.isNativeToken ? nativeBalance?.value || 0n : balance?.result || 0n,
     allowance: allowance?.result || 0n,
     refetch,
   };

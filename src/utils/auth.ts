@@ -18,14 +18,14 @@ export const getSignatureHeader = () => {
   };
 };
 
-export const isVerifiedSignature = () => {
+export const isVerifiedSignature = (address: string) => {
   const {
     'v-deadline': deadline,
     'v-signature': signature,
     'v-owner': owner,
   } = getSignatureHeader();
 
-  if (!deadline || !signature || !owner) {
+  if (!deadline || !signature || !owner || owner !== address) {
     return false;
   }
 

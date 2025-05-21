@@ -11,9 +11,9 @@ import LidoCSMRegistrationPage from '@/pages/validator/lido-csm-registration';
 import ValidatorGenerateConfirmPage from '@/pages/validator/validator-generate-confirm';
 
 import { FixedHeader } from '@/components/common';
+import { TokenInfoGuard } from '@/components/auth';
 import { LoadingScreen } from '@/components/loading-screen';
 import WalletAuthGuard from '@/components/auth/wallet-auth-guard';
-import InitiatorBoundGuard from '@/components/auth/initiator-bound-guard';
 
 const Page404 = lazy(() => import('@/pages/404'));
 
@@ -34,7 +34,8 @@ const ValidatorClusterConfirmPage = lazy(
 function WalletAndInitiatorBoundGuard({ children }: { children: React.ReactNode }) {
   return (
     <WalletAuthGuard>
-      <InitiatorBoundGuard>{children}</InitiatorBoundGuard>
+      {/* <ClusterBoundGuard>{children}</ClusterBoundGuard> */}
+      {children}
     </WalletAuthGuard>
   );
 }
@@ -59,7 +60,9 @@ export default function Router() {
           element: (
             <WalletAndInitiatorBoundGuard>
               <FixedHeader />
-              <MyAccountPage />
+              <TokenInfoGuard>
+                <MyAccountPage />
+              </TokenInfoGuard>
             </WalletAndInitiatorBoundGuard>
           ),
           index: true,
@@ -69,7 +72,9 @@ export default function Router() {
           element: (
             <WalletAndInitiatorBoundGuard>
               <FixedHeader />
-              <MyAccountPage />
+              <TokenInfoGuard>
+                <MyAccountPage />
+              </TokenInfoGuard>
             </WalletAndInitiatorBoundGuard>
           ),
         },
@@ -121,7 +126,9 @@ export default function Router() {
           path: config.routes.validator.validatorGenerateConfirm,
           element: (
             <WalletAndInitiatorBoundGuard>
-              <ValidatorGenerateConfirmPage />
+              <TokenInfoGuard>
+                <ValidatorGenerateConfirmPage />
+              </TokenInfoGuard>
             </WalletAndInitiatorBoundGuard>
           ),
         },

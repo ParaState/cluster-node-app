@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { isAddress } from 'viem';
+import { useAccount } from 'wagmi';
 import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useState, useEffect } from 'react';
-import { useAccount, useWatchAsset } from 'wagmi';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Stack from '@mui/material/Stack';
@@ -30,8 +30,6 @@ import { useBoolean } from '@/hooks/use-boolean';
 import { useTokenApproval } from '@/hooks/contract/token/use-token-approval';
 import { useFeeReceiptAddress, useRegisterValidator } from '@/hooks/contract';
 
-import { formatEtherWithIntl } from '@/utils/format';
-
 import { config } from '@/config';
 import services from '@/services';
 import { isAddressZero } from '@/utils';
@@ -42,7 +40,12 @@ import Iconify from '@/components/iconify';
 import { CommonBack } from '@/components/common';
 import { useGlobalConfig } from '@/components/global-config-init';
 import FormProvider, { RHFTextField } from '@/components/hook-form';
-import { ValidatorBeachonLink, ValidatorFeeToggleButton } from '@/components/validator';
+import {
+  NeedMoreDvtLink,
+  ValidatorBeachonLink,
+  ValidatorSubscriptionFee,
+  ValidatorTotalFeeToggleButton,
+} from '@/components/validator';
 
 const batchSize = 20;
 
@@ -85,8 +88,6 @@ export default function ValidatorClusterConfirmPage() {
   }, [getFeeRecipientAddressQuery.data]);
 
   const router = useRouter();
-
-  const { watchAsset } = useWatchAsset();
 
   const clusterNodeValidatorsGrouped = Array.from(
     { length: Math.ceil(selectedValidator.length / batchSize) },
@@ -143,19 +144,6 @@ export default function ValidatorClusterConfirmPage() {
     isApproved.onFalse();
   }, [currentFeeMode]);
 
-  const importTokenToWallet = () => {
-    const options = {
-      address: config.contractAddress.token,
-      decimals: tokenInfo.decimals,
-      name: tokenInfo.name,
-      symbol: tokenInfo.symbol,
-    };
-    watchAsset({
-      type: 'ERC20',
-      options,
-    });
-  };
-
   const onApproveClick = async () => {
     isApproveLoading.onTrue();
     try {
@@ -177,12 +165,12 @@ export default function ValidatorClusterConfirmPage() {
     const currentGroupValidators = clusterNodeValidatorsGrouped[index];
 
     const validator = currentGroupValidators.filter((v) => v.deposit_data);
-    console.log('🚀 ~ onRunValidatorClick ~ validator:', validator);
+    // console.log('🚀 ~ onRunValidatorClick ~ validator:', validator);
 
     // setRunningValidatorIndex(index);
 
     const estimationError = await registerClusterNodeValidatorEstimation(validator, currentFee);
-    console.log('🚀 ~ onRunValidatorClick ~ estimationError:', estimationError);
+    // console.log('🚀 ~ onRunValidatorClick ~ estimationError:', estimationError);
     if (estimationError) {
       enqueueSnackbar(estimationError?.details || estimationError?.message, {
         variant: 'error',
@@ -289,7 +277,9 @@ export default function ValidatorClusterConfirmPage() {
             <Step>
               <StepLabel>
                 <Typography variant="h6" fontSize={20}>
-                  {`Approve ${tokenInfo.symbol}`}
+                  {tokenInfo.isNativeToken
+                    ? 'Confirm Subscription Fee'
+                    : `Approve ${tokenInfo.symbol}`}
                 </Typography>
               </StepLabel>
               <StepContent>
@@ -298,45 +288,18 @@ export default function ValidatorClusterConfirmPage() {
                     Total Validators: {selectedValidator.length}
                   </Typography>
 
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    width={1}
-                  >
-                    <Typography variant="body1">
-                      Total fee{' '}
-                      <Link
-                        underline="always"
-                        display="inline"
-                        onClick={importTokenToWallet}
-                        sx={{ cursor: 'pointer' }}
-                      >
-                        (Import {tokenInfo.symbol} Token)
-                      </Link>
-                    </Typography>
+                  <ValidatorTotalFeeToggleButton
+                    onChange={(v) => {
+                      setCurrentFeeMode(v);
+                    }}
+                  />
 
-                    <ValidatorFeeToggleButton
-                      onChange={(v) => {
-                        setCurrentFeeMode(v);
-                      }}
-                    />
-                  </Stack>
+                  <ValidatorSubscriptionFee
+                    currentFeeMode={currentFeeMode}
+                    currentFee={currentFee}
+                  />
 
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    mb={4}
-                    width={1}
-                  >
-                    <Typography variant="body1" color="text.primary">
-                      ≈ {formatEtherWithIntl(currentFee)}
-                    </Typography>
-                    <Typography variant="body1">
-                      {tokenInfo.symbol}/per {currentFeeMode}
-                    </Typography>
-                  </Stack>
+                  <NeedMoreDvtLink />
 
                   <Stack direction="row" width={1}>
                     <LoadingButton
@@ -348,11 +311,16 @@ export default function ValidatorClusterConfirmPage() {
                       loading={isApproveLoading.value}
                       disableRipple
                       onClick={() => {
+                        if (tokenInfo.isNativeToken) {
+                          setActiveStep(1);
+                          return;
+                        }
+
                         if (isApproved.value) return;
                         onApproveClick();
                       }}
                     >
-                      {approveButtonText}
+                      {tokenInfo.isNativeToken ? 'Next' : approveButtonText}
                     </LoadingButton>
                   </Stack>
                 </Stack>
@@ -414,8 +382,12 @@ export default function ValidatorClusterConfirmPage() {
                                   runningValidatorIndex !== null || successIndex.includes(index)
                                 }
                                 onClick={() => {
-                                  if (!isApproved.value) return;
+                                  if (tokenInfo.isNativeToken) {
+                                    onRunValidatorClick(index);
+                                    return;
+                                  }
 
+                                  if (!isApproved.value) return;
                                   onRunValidatorClick(index);
                                 }}
                               >

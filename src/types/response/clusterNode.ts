@@ -2,6 +2,7 @@ export interface IResponseInitiatorStatus {
   cluster_pubkey: `0x${string}`;
   created_at: number;
   owner?: `0x${string}`;
+  owner_pubkey?: `0x${string}`;
   status: string;
   updated_at: number;
 }

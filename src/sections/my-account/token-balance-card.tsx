@@ -2,7 +2,7 @@ import { Box, Card, Stack, Skeleton, Typography } from '@mui/material';
 
 import { useTokenBalanceForAddress } from '@/hooks/contract';
 
-import { formatEtherFixed } from '@/utils/format';
+import { formatEtherWithIntl } from '@/utils/format';
 
 import { useGlobalConfig } from '@/components/global-config-init';
 
@@ -26,7 +26,7 @@ export function TokenBalanceCard({ hideAction, address }: Props) {
         ) : (
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             <Typography variant="h3" sx={{ fontSize: 40 }}>
-              {formatEtherFixed(tokenBalance.balance!)}
+              {formatEtherWithIntl(tokenBalance.balance!, 4)}
               <Typography variant="body2" component="span" sx={{ fontSize: 20 }}>
                 &nbsp;{tokenInfo.symbol}
               </Typography>

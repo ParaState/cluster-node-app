@@ -42,6 +42,18 @@ const SafeStakeClusterNodeAbi = [
       },
       {
         indexed: false,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'bytes',
+        name: 'ownerPubkey',
+        type: 'bytes',
+      },
+      {
+        indexed: false,
         internalType: 'uint256',
         name: 'validatorCount',
         type: 'uint256',
@@ -76,6 +88,12 @@ const SafeStakeClusterNodeAbi = [
         internalType: 'bytes',
         name: 'clusterNodePublicKey',
         type: 'bytes',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
       },
       {
         indexed: false,
@@ -133,19 +151,6 @@ const SafeStakeClusterNodeAbi = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: '_DVT',
-    outputs: [
-      {
-        internalType: 'contract IERC20',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'enum SafeStakeClusterNode.Action',
@@ -194,6 +199,38 @@ const SafeStakeClusterNodeAbi = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: '_token',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes',
+        name: '_b',
+        type: 'bytes',
+      },
+    ],
+    name: 'bytesToAddress',
+    outputs: [
+      {
+        internalType: 'address',
+        name: 'addr',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'bytes32',
@@ -230,6 +267,16 @@ const SafeStakeClusterNodeAbi = [
       {
         internalType: 'bytes',
         name: 'clusterNodePublicKey',
+        type: 'bytes',
+      },
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+      {
+        internalType: 'bytes',
+        name: 'ownerPubkey',
         type: 'bytes',
       },
       {
@@ -369,8 +416,8 @@ const SafeStakeClusterNodeAbi = [
   {
     inputs: [
       {
-        internalType: 'contract IERC20',
-        name: 'dvt',
+        internalType: 'address',
+        name: 'token',
         type: 'address',
       },
       {
@@ -387,7 +434,7 @@ const SafeStakeClusterNodeAbi = [
   {
     inputs: [
       {
-        internalType: 'contract IERC20',
+        internalType: 'address',
         name: 'token',
         type: 'address',
       },
@@ -476,6 +523,10 @@ const SafeStakeClusterNodeAbi = [
     ],
     stateMutability: 'pure',
     type: 'function',
+  },
+  {
+    stateMutability: 'payable',
+    type: 'receive',
   },
 ] as const;
 

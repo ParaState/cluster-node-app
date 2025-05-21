@@ -3,6 +3,8 @@ import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 import { networkContract } from '@/config/contract';
 import { IResponseClusterNodeValidatorItem } from '@/types';
 
+import { useGlobalConfig } from '@/components/global-config-init';
+
 const errorMap = {
   A1: 'Validator already exists',
 
@@ -11,16 +13,20 @@ const errorMap = {
 
   E2: 'You have already registered operator, you cannot register validator',
 
+  E4: 'Some operators are not active',
+
   E5: 'The current account has reached the upper limit of validators allowed',
+
+  D0: 'Insufficient balance',
 };
 
 export const useRegisterValidator = () => {
   const { writeContractAsync } = useWriteContract();
   const client = usePublicClient();
-  // const { currentCommitteeSize } = useSelectedOperators();
-  // const { getSubscriptionFeeFeeByFeeMode } = useGlobalConfig();
 
   const { address } = useAccount();
+
+  const { tokenInfo } = useGlobalConfig();
 
   const prepareClusterNodeContractConfig = (
     validators: IResponseClusterNodeValidatorItem[],
@@ -62,7 +68,7 @@ export const useRegisterValidator = () => {
     if (isBatch) {
       const eachAmount = paySubscriptionFee / BigInt(validators.length);
 
-      return {
+      const contractParams = {
         ...networkContract,
         functionName: 'batchRegisterValidator',
         args: [
@@ -75,9 +81,18 @@ export const useRegisterValidator = () => {
           eachAmount,
         ],
       };
+
+      if (tokenInfo.isNativeToken) {
+        return {
+          ...contractParams,
+          value: paySubscriptionFee,
+        };
+      }
+
+      return contractParams;
     }
 
-    return {
+    const contractParams = {
       ...networkContract,
       functionName: 'registerValidator',
       args: [
@@ -89,6 +104,15 @@ export const useRegisterValidator = () => {
         paySubscriptionFee,
       ],
     };
+
+    if (tokenInfo.isNativeToken) {
+      return {
+        ...contractParams,
+        value: paySubscriptionFee,
+      };
+    }
+
+    return contractParams;
   };
 
   const registerClusterNodeValidator = async (

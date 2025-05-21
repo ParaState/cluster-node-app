@@ -3,6 +3,8 @@ import { usePublicClient, useWriteContract } from 'wagmi';
 import { isAddressZero } from '@/utils';
 import { clusterNodeContract } from '@/config/contract';
 
+import { useGlobalConfig } from '@/components/global-config-init';
+
 export enum ClusterNodeActionFee {
   GENERATE_KEYS = 0,
   GENERATE_DEPOSIT_DATA = 1,
@@ -11,6 +13,7 @@ export enum ClusterNodeActionFee {
 
 export const useClusterNode = () => {
   const { writeContractAsync } = useWriteContract();
+  const { clusterNodeFeeTokenInfo } = useGlobalConfig();
 
   const client = usePublicClient();
 
@@ -51,6 +54,10 @@ export const useClusterNode = () => {
       hash,
     });
 
+    if (!receipt || receipt.status === 'reverted') {
+      throw new Error('Transaction failed: registerClusterNode transaction was reverted');
+    }
+
     return receipt;
   };
 
@@ -72,6 +79,8 @@ export const useClusterNode = () => {
 
   const generateDepositData = async (
     pubkey: string,
+    owner: string,
+    ownerPubkey: string,
     validatorCount: number,
     operatorIds: number[],
     depositAmount: bigint,
@@ -79,6 +88,7 @@ export const useClusterNode = () => {
   ) => {
     console.group('generateDepositData');
     console.log(`pubkey`, pubkey);
+    console.log(`owner`, owner);
     console.log(`validatorCount`, validatorCount);
     console.log(`operatorIds`, operatorIds);
     console.log(`depositAmount`, depositAmount);
@@ -88,7 +98,16 @@ export const useClusterNode = () => {
     const hash = await writeContractAsync({
       ...clusterNodeContract,
       functionName: 'generateDepositData',
-      args: [pubkey as any, BigInt(validatorCount), operatorIds, depositAmount, withdrawAddress],
+      args: [
+        pubkey as `0x${string}`,
+        owner as `0x${string}`,
+        ownerPubkey as `0x${string}`,
+        BigInt(validatorCount),
+        operatorIds,
+        depositAmount,
+        withdrawAddress,
+      ],
+      ...clusterNodeFeeTokenInfo,
     });
 
     const receipt = await client?.waitForTransactionReceipt({

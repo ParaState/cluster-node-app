@@ -32,10 +32,12 @@ import { useGenerateValidatorInfo } from '@/stores';
 import { CommonBack } from '@/components/common';
 import { enqueueSnackbar } from '@/components/snackbar';
 import { LoadingScreen } from '@/components/loading-screen';
-import { useGlobalConfig } from '@/components/global-config-init';
+import { useOwnerInfo, useGlobalConfig } from '@/components/global-config-init';
 
 export default function ValidatorGenerateConfirmPage() {
   const router = useRouter();
+
+  const { ownerInfo } = useOwnerInfo();
 
   const generateLoading = useBoolean();
 
@@ -116,6 +118,8 @@ export default function ValidatorGenerateConfirmPage() {
 
       const receipt = await generateDepositData(
         result.cluster_pubkey,
+        ownerInfo.owner,
+        ownerInfo.pubkey,
         generateValidatorInfo.validatorCount,
         generateValidatorInfo.operatorIds,
         parseEther('32'),
@@ -135,9 +139,13 @@ export default function ValidatorGenerateConfirmPage() {
     return <LoadingScreen />;
   }
 
+  console.log(clusterNodeFeeTokenInfo);
+
   const steps = [
     {
-      label: `Approve ${clusterNodeFeeTokenInfo.symbol}`,
+      label: clusterNodeFeeTokenInfo.isNativeToken
+        ? 'Confirm Subscription Fee'
+        : `Approve ${clusterNodeFeeTokenInfo.symbol}`,
       render: () => {
         return (
           <Stack direction="column" alignItems="start" className="step1" flexGrow={1}>
@@ -171,11 +179,16 @@ export default function ValidatorGenerateConfirmPage() {
                 loading={isApproveLoading.value}
                 disableRipple
                 onClick={() => {
+                  if (clusterNodeFeeTokenInfo.isNativeToken) {
+                    setActiveStep(1);
+                    return;
+                  }
+
                   if (isApproved.value) return;
                   onApproveClick();
                 }}
               >
-                {approveButtonText}
+                {clusterNodeFeeTokenInfo.isNativeToken ? 'Next' : approveButtonText}
               </LoadingButton>
             </Stack>
           </Stack>

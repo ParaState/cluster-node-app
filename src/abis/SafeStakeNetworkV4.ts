@@ -487,7 +487,7 @@ const SafeStakeNetworkV4Abi = [
     name: '_token',
     outputs: [
       {
-        internalType: 'contract IERC20',
+        internalType: 'address',
         name: '',
         type: 'address',
       },
@@ -612,7 +612,7 @@ const SafeStakeNetworkV4Abi = [
     ],
     name: 'batchRegisterValidator',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'payable',
     type: 'function',
   },
   {
@@ -648,7 +648,7 @@ const SafeStakeNetworkV4Abi = [
     ],
     name: 'deposit',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'payable',
     type: 'function',
   },
   {
@@ -758,7 +758,7 @@ const SafeStakeNetworkV4Abi = [
         type: 'address',
       },
       {
-        internalType: 'contract IERC20',
+        internalType: 'address',
         name: 'token_',
         type: 'address',
       },
@@ -861,7 +861,7 @@ const SafeStakeNetworkV4Abi = [
     ],
     name: 'registerValidator',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'payable',
     type: 'function',
   },
   {
@@ -907,7 +907,7 @@ const SafeStakeNetworkV4Abi = [
     ],
     name: 'replaceValidator',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'payable',
     type: 'function',
   },
   {
@@ -1045,7 +1045,7 @@ const SafeStakeNetworkV4Abi = [
   {
     inputs: [
       {
-        internalType: 'contract IERC20',
+        internalType: 'address',
         name: 'token',
         type: 'address',
       },
@@ -1093,6 +1093,10 @@ const SafeStakeNetworkV4Abi = [
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
+  },
+  {
+    stateMutability: 'payable',
+    type: 'receive',
   },
 ] as const;
 

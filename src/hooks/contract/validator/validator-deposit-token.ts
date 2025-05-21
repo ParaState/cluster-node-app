@@ -2,7 +2,10 @@ import { usePublicClient, useWriteContract } from 'wagmi';
 
 import { networkContract } from '@/config/contract';
 
+import { useGlobalConfig } from '@/components/global-config-init';
+
 export const useValidatorDeposit = () => {
+  const { tokenInfo } = useGlobalConfig();
   // const { account } = useAccount();
   const { writeContractAsync } = useWriteContract();
 
@@ -19,6 +22,7 @@ export const useValidatorDeposit = () => {
       ...networkContract,
       functionName: 'deposit',
       args: [publicKeys, eachList, total] as any,
+      ...(tokenInfo.isNativeToken ? { value: total } : {}),
     });
 
     await client?.waitForTransactionReceipt({

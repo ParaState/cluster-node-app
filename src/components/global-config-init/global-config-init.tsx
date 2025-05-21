@@ -1,10 +1,12 @@
 import { atom, useAtom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { useMemo, useEffect, useCallback } from 'react';
-import { useReadContract, useAccountEffect, useReadContracts } from 'wagmi';
+import { useReadContract, useReadContracts } from 'wagmi';
 
 import { config } from '@/config';
 import { CurrentFeeMode } from '@/types';
 import { useSelectedOperators } from '@/stores';
+import { isAddressZero, nativeTokenInfo } from '@/utils';
 import { erc20Contract, networkContract, clusterNodeContract } from '@/config/contract';
 
 const operatorFeeWithNetworkFeeAtom = atom(0n);
@@ -19,13 +21,21 @@ const tokenInfoAtom = atom({
   symbol: '',
   name: '',
   decimals: 18,
+  address: '' as `0x${string}`,
+  isNativeToken: false,
 });
 
 const clusterNodeFeeTokenInfoAtom = atom({
   symbol: '',
   name: '',
   decimals: 18,
-  address: '',
+  address: '' as `0x${string}`,
+  isNativeToken: false,
+});
+
+const ownerInfoAtom = atomWithStorage('ownerInfo', {
+  owner: '' as `0x${string}`,
+  pubkey: '',
 });
 
 export const GlobalConfigInit = () => {
@@ -68,8 +78,15 @@ export const GlobalConfigInit = () => {
 
   const readClusterNodeFeeTokenAddress = useReadContract({
     ...clusterNodeContract,
-    functionName: '_DVT',
+    functionName: '_token',
   });
+
+  console.log(
+    '🚀 ~ GlobalConfigInit ~ readClusterNodeFeeTokenAddress:',
+    readClusterNodeFeeTokenAddress.data,
+    readFeeTokenAddress.data,
+    !!readFeeTokenAddress.data
+  );
 
   const clusterNodeFeeTokenResult = useReadContracts({
     contracts: readClusterNodeFeeTokenAddress.data
@@ -103,11 +120,25 @@ export const GlobalConfigInit = () => {
   }, [operatorFeeResult.data, setOperatorFeeWithNetworkFee]);
 
   useEffect(() => {
-    if (tokenResult.isSuccess && tokenResult.data) {
+    if (readFeeTokenAddress.data && tokenResult.isSuccess && tokenResult.data) {
+      if (isAddressZero(readFeeTokenAddress.data)) {
+        setTokenInfo({
+          ...nativeTokenInfo,
+          address: readFeeTokenAddress.data,
+        });
+        return;
+      }
+
       const [symbol, name, decimals] = tokenResult.data;
-      setTokenInfo({ symbol: symbol.result!, name: name.result!, decimals: decimals.result! });
+      setTokenInfo({
+        symbol: symbol.result!,
+        name: name.result!,
+        decimals: decimals.result!,
+        address: readFeeTokenAddress.data,
+        isNativeToken: false,
+      });
     }
-  }, [tokenResult.data, setTokenInfo]);
+  }, [tokenResult.data, tokenResult.isSuccess, readFeeTokenAddress.data, setTokenInfo]);
 
   useEffect(() => {
     if (
@@ -115,6 +146,14 @@ export const GlobalConfigInit = () => {
       clusterNodeFeeTokenResult.isSuccess &&
       clusterNodeFeeTokenResult.data
     ) {
+      if (isAddressZero(readClusterNodeFeeTokenAddress.data)) {
+        setClusterNodeFeeTokenInfo({
+          ...nativeTokenInfo,
+          address: readClusterNodeFeeTokenAddress.data,
+        });
+        return;
+      }
+
       const [symbol, name, decimals] = clusterNodeFeeTokenResult.data;
 
       setClusterNodeFeeTokenInfo({
@@ -122,20 +161,31 @@ export const GlobalConfigInit = () => {
         name: name?.result!,
         decimals: decimals?.result!,
         address: readClusterNodeFeeTokenAddress.data,
+        isNativeToken: false,
       });
     }
   }, [
     readClusterNodeFeeTokenAddress.data,
+    clusterNodeFeeTokenResult.isSuccess,
     clusterNodeFeeTokenResult.data,
     setClusterNodeFeeTokenInfo,
   ]);
 
-  useAccountEffect({
-    onConnect(data) {
-      // console.log('🚀 ~ onConnect ~ data:', data);
-    },
-    onDisconnect() {},
-  });
+  // useEffect(() => {
+  //   const handleConnectorUpdate = ({ account, chain }) => {
+  //     if (account) {
+  //       console.log('new account', account);
+  //     } else if (chain) {
+  //       console.log('new chain', chain);
+  //     }
+  //   };
+
+  //   if (activeConnector) {
+  //     activeConnector.onAccountsChanged(handleConnectorUpdate);
+  //   }
+
+  //   return () => activeConnector?.off('change', handleConnectorUpdate);
+  // }, [activeConnector]);
 
   return null;
 };
@@ -195,5 +245,22 @@ export const useGlobalConfig = () => {
     getSubscriptionFeeFeeByBlocks,
     tokenInfo,
     clusterNodeFeeTokenInfo,
+  };
+};
+
+export const useOwnerInfo = () => {
+  const [ownerInfo, setOwnerInfo] = useAtom(ownerInfoAtom);
+
+  const resetOwnerInfo = useCallback(() => {
+    setOwnerInfo({
+      owner: '' as `0x${string}`,
+      pubkey: '',
+    });
+  }, [setOwnerInfo]);
+
+  return {
+    ownerInfo,
+    setOwnerInfo,
+    resetOwnerInfo,
   };
 };
