@@ -84,7 +84,8 @@ export const useClusterNode = () => {
     validatorCount: number,
     operatorIds: number[],
     depositAmount: bigint,
-    withdrawAddress: `0x${string}`
+    withdrawAddress: `0x${string}`,
+    currentFee: bigint
   ) => {
     console.group('generateDepositData');
     console.log(`pubkey`, pubkey);
@@ -107,7 +108,11 @@ export const useClusterNode = () => {
         depositAmount,
         withdrawAddress,
       ],
-      ...clusterNodeFeeTokenInfo,
+      ...(clusterNodeFeeTokenInfo.isNativeToken
+        ? {
+            value: currentFee,
+          }
+        : {}),
     });
 
     const receipt = await client?.waitForTransactionReceipt({

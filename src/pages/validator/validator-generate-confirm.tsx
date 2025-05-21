@@ -123,7 +123,8 @@ export default function ValidatorGenerateConfirmPage() {
         generateValidatorInfo.validatorCount,
         generateValidatorInfo.operatorIds,
         parseEther('32'),
-        generateValidatorInfo.withdrawalAddress as `0x${string}`
+        generateValidatorInfo.withdrawalAddress as `0x${string}`,
+        currentFee
       );
 
       router.push(config.routes.validator.getValidatorPollingTx(receipt?.transactionHash));
