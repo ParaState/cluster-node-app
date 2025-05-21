@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AxiosError } from 'axios';
+import { useAccount } from 'wagmi';
 import { useSnackbar } from 'notistack';
 
 import Stack from '@mui/material/Stack';
@@ -24,7 +25,7 @@ import services from '@/services';
 import { config } from '@/config';
 import { useBoolean, useStepper } from '@/hooks';
 import { HEADER } from '@/layouts/config-layout';
-import { IResponseInitiatorStatus } from '@/types';
+import { IResponseInitiatorStatus, IResponseInitiatorStatusEnum } from '@/types';
 
 // const CircleBox = styled(Box)(({ theme }) => ({
 //   width: 24,
@@ -94,6 +95,8 @@ export default function SetUpView() {
   const router = useRouter();
 
   const serviceCheckLoading = useBoolean();
+
+  const { address } = useAccount();
 
   const registerClusterNodeLoading = useBoolean();
 
@@ -186,10 +189,10 @@ export default function SetUpView() {
         await registerClusterNode(pubkey!);
       }
 
-      // if (!initiatorStatus?.owner) {
-      //   await bindInitiatorOwner();
-      //   return;
-      // }
+      if (!initiatorStatus?.owner) {
+        await bindInitiatorOwner();
+        return;
+      }
 
       await fetchClusterNode();
     } catch (error) {
@@ -199,33 +202,33 @@ export default function SetUpView() {
     }
   };
 
-  // const bindInitiatorOwner = async () => {
-  //   if (initiatorStatus?.owner) {
-  //     enqueueSnackbar(`Initiator already have owner, address: ${initiatorStatus?.owner}`, {
-  //       variant: 'warning',
-  //     });
-  //     return;
-  //   }
+  const bindInitiatorOwner = async () => {
+    // if (initiatorStatus?.owner) {
+    //   enqueueSnackbar(`Initiator already have owner, address: ${initiatorStatus?.owner}`, {
+    //     variant: 'warning',
+    //   });
+    //   return;
+    // }
 
-  //   if (initiatorStatus?.status !== 'Ready') {
-  //     enqueueSnackbar(
-  //       `Please wait for initiator status to be ready, status: ${initiatorStatus?.status}`,
-  //       {
-  //         variant: 'warning',
-  //       }
-  //     );
-  //     await fetchClusterNode(false);
-  //     return;
-  //   }
+    if (initiatorStatus?.status !== IResponseInitiatorStatusEnum.ready) {
+      enqueueSnackbar(
+        `Please wait for initiator status to be ready, status: ${initiatorStatus?.status}`,
+        {
+          variant: 'warning',
+        }
+      );
+      await fetchClusterNode(false);
+      return;
+    }
 
-  //   try {
-  //     await services.clusterNode.bindInitiatorOwner(address!);
-  //     enqueueSnackbar('Bind initiator owner success', { variant: 'success' });
-  //     await fetchClusterNode();
-  //   } catch (error) {
-  //     console.error('Error binding initiator owner:', error);
-  //   }
-  // };
+    try {
+      await services.clusterNode.bindInitiatorOwner(address!);
+      enqueueSnackbar('Bind initiator owner success', { variant: 'success' });
+      await fetchClusterNode();
+    } catch (error) {
+      console.error('Error binding initiator owner:', error);
+    }
+  };
 
   const goToSelectOperators = () => {
     // if (!initiatorStatus?.owner) {
