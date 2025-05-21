@@ -11,9 +11,9 @@ import LidoCSMRegistrationPage from '@/pages/validator/lido-csm-registration';
 import ValidatorGenerateConfirmPage from '@/pages/validator/validator-generate-confirm';
 
 import { FixedHeader } from '@/components/common';
-import { TokenInfoGuard } from '@/components/auth';
 import { LoadingScreen } from '@/components/loading-screen';
 import WalletAuthGuard from '@/components/auth/wallet-auth-guard';
+import { TokenInfoGuard, ClusterBoundGuard } from '@/components/auth';
 
 const Page404 = lazy(() => import('@/pages/404'));
 
@@ -34,8 +34,8 @@ const ValidatorClusterConfirmPage = lazy(
 function WalletAndInitiatorBoundGuard({ children }: { children: React.ReactNode }) {
   return (
     <WalletAuthGuard>
-      {/* <ClusterBoundGuard>{children}</ClusterBoundGuard> */}
-      {children}
+      <ClusterBoundGuard>{children}</ClusterBoundGuard>
+      {/* {children} */}
     </WalletAuthGuard>
   );
 }

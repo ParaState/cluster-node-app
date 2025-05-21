@@ -144,7 +144,7 @@ export default function ValidatorGenerateConfirmPage() {
   const steps = [
     {
       label: clusterNodeFeeTokenInfo.isNativeToken
-        ? 'Confirm Subscription Fee'
+        ? 'Confirm Generation Fee'
         : `Approve ${clusterNodeFeeTokenInfo.symbol}`,
       render: () => {
         return (
@@ -165,7 +165,7 @@ export default function ValidatorGenerateConfirmPage() {
               width={1}
             >
               <Typography variant="body1" color="text.primary">
-                ≈ {formatEtherWithIntl(currentFee)}
+                ≈ {formatEtherWithIntl(currentFee)} {clusterNodeFeeTokenInfo.symbol}
               </Typography>
             </Stack>
 

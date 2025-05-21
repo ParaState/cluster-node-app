@@ -8,6 +8,7 @@ import { useRouter } from '@/routes/hooks';
 import { useClusterNode } from '@/hooks/contract';
 
 import { config } from '@/config';
+import services from '@/services';
 import { useBoolean } from '@/hooks';
 
 import { CenterContainer } from '@/components/common';
@@ -27,7 +28,8 @@ export const ClusterBoundGuard = ({ children }: Props) => {
   useEffect(() => {
     const fetchClusterNode = async () => {
       try {
-        const node = await getClusterNode(address!);
+        const result = await services.clusterNode.getInitiatorStatus();
+        const node = await getClusterNode(result.cluster_pubkey);
         setClusterNode(node);
         loading.onFalse();
       } catch (error) {
