@@ -102,7 +102,7 @@ export default function SetUpView() {
 
   const { getClusterNode, registerClusterNode } = useClusterNode();
 
-  const [clusterNode, setClusterNode] = useState<Awaited<ReturnType<typeof getClusterNode>>>();
+  // const [clusterNode, setClusterNode] = useState<Awaited<ReturnType<typeof getClusterNode>>>();
 
   const [initiatorStatus, setInitiatorStatus] = useState<IResponseInitiatorStatus>();
 
@@ -148,7 +148,8 @@ export default function SetUpView() {
       const result = await getInitiatorStatus();
 
       const node = await getClusterNode(result?.cluster_pubkey!);
-      setClusterNode(node);
+      console.log(node);
+      // setClusterNode(node);
 
       if (goNext) {
         stepper.handleNext();
@@ -185,7 +186,10 @@ export default function SetUpView() {
 
     try {
       registerClusterNodeLoading.onTrue();
-      if (!clusterNode?.isRegistered) {
+      const node = await getClusterNode(pubkey!);
+      // setClusterNode(node);
+
+      if (!node?.isRegistered) {
         await registerClusterNode(pubkey!);
       }
 
