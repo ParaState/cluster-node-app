@@ -42,6 +42,7 @@ import { useClusterNode } from '@/hooks/contract';
 import { parseVersion, formatVersion, isVersionUnknown } from '@/utils/format';
 
 import { config } from '@/config';
+import services from '@/services';
 import { useBoolean } from '@/hooks';
 import { SortTypeEnum } from '@/types';
 import { useSelectedOperators, useGenerateValidatorInfo } from '@/stores';
@@ -51,7 +52,6 @@ import Scrollbar from '@/components/scrollbar';
 import { CommonBack } from '@/components/common';
 import { StyledTableCell } from '@/components/table';
 import { OperatorTypeFilter } from '@/components/operator';
-import { useOwnerInfo } from '@/components/global-config-init';
 import { OperatorInfo } from '@/components/operator/operator-info';
 import FormProvider, { RHFTextField } from '@/components/hook-form';
 import { OperatorCommitteeSizeSelector } from '@/components/operator/operator-committee-size-selector';
@@ -95,7 +95,6 @@ export default function ValidatorSelectorOperatorsPage() {
   } = form;
 
   const { setGenerateValidator } = useGenerateValidatorInfo();
-  const { ownerInfo } = useOwnerInfo();
 
   const {
     selectedOperators,
@@ -184,8 +183,8 @@ export default function ValidatorSelectorOperatorsPage() {
     //   );
     //   return;
     // }
-    // const result = await services.clusterNode.getInitiatorStatus();
-    const clusterNode = await getClusterNode(ownerInfo.pubkey);
+    const result = await services.clusterNode.getInitiatorStatus();
+    const clusterNode = await getClusterNode(result.cluster_pubkey);
     if (!clusterNode.isRegistered) {
       enqueueSnackbar('Cluster node is not registered, please go to setup page to register', {
         variant: 'error',
