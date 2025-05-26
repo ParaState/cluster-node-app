@@ -169,11 +169,11 @@ export const navConfig = [
   //   path: config.links.docs,
   //   auth: false,
   // },
-  {
-    title: 'Setup',
-    path: config.routes.setup,
-    auth: true,
-  },
+  // {
+  //   title: 'Setup',
+  //   path: config.routes.setup,
+  //   auth: true,
+  // },
   {
     title: 'Explorer',
     path: config.links.explorer,
