@@ -16,10 +16,9 @@ export const appkitMetadata = {
 
 const hoodiWithRpc = {
   ...hoodi,
-  // rpcUrls: {
-  //   default: { http: ['https://0xrpc.io/hoodi'] },
-  // },
-  // transport: http('https://0xrpc.io/hoodi'),
+  rpcUrls: {
+    default: { http: ['https://0xrpc.io/hoodi', 'https://rpc.hoodi.ethpandaops.io'] },
+  },
 };
 
 export const wagmiNetworks = config.networkId === mainnet.id ? [mainnet] : [hoodiWithRpc];
