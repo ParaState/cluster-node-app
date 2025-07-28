@@ -38,6 +38,7 @@ export const config = {
     clusterNode: import.meta.env.VITE_CLUSTER_NODE_CONTRACT_ADDRESS,
     csmModule: import.meta.env.VITE_CSM_MODULE_CONTRACT_ADDRESS,
     csmAccounting: import.meta.env.VITE_CSM_ACCOUNTING_CONTRACT_ADDRESS,
+    csmPermissionlessGate: import.meta.env.VITE_CSM_PERMISSIONLESS_GATE_CONTRACT_ADDRESS,
     lidoWithdrawalAddress: import.meta.env.VITE_LIDO_WITHDRAWAL_ADDRESS,
     lidoFeeRecipient: import.meta.env.VITE_LIDO_FEE_RECIPIENT_ADDRESS,
   },

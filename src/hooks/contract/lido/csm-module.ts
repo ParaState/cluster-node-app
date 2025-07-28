@@ -1,6 +1,8 @@
 import { usePublicClient, useWriteContract } from 'wagmi';
+import { TOKENS, DepositDataKey } from '@lidofinance/lido-csm-sdk';
 import { zeroAddress, decodeEventLog, encodeEventTopics, TransactionReceipt } from 'viem';
 
+import { useLidoSDK } from '@/wagmi/lido-sdk';
 import { csmModuleContract } from '@/config/contract';
 
 export const useGetNodeOperator = () => {
@@ -42,6 +44,7 @@ export const useAddValidatorKeysETH = () => {
   const { writeContractAsync } = useWriteContract();
 
   const addValidatorKeysETH = async (
+    from: string,
     nodeOperatorId: number,
     keysCount: number,
     publicKeys: string,
@@ -51,7 +54,7 @@ export const useAddValidatorKeysETH = () => {
     const hash = await writeContractAsync({
       ...csmModuleContract,
       functionName: 'addValidatorKeysETH',
-      args: [nodeOperatorId, keysCount, publicKeys, signatures],
+      args: [from, nodeOperatorId, keysCount, publicKeys, signatures],
       value: needAmount,
     });
 
@@ -150,5 +153,75 @@ export const useAddNodeOperatorETH = () => {
   return {
     addNodeOperatorETH,
     decodeNodeOperatorAddedEvent,
+  };
+};
+
+export const useLidoSDKAddNodeOperator = () => {
+  const client = usePublicClient();
+  const { csm } = useLidoSDK();
+
+  // https://hoodi.etherscan.io/address/0x5553077102322689876A6AdFd48D75014c28acfb
+  const addNodeOperator = async (depositData: DepositDataKey[], amount: bigint) => {
+    const result = await csm.permissionlessGate.addNodeOperator({
+      token: TOKENS.eth,
+      amount,
+      depositData,
+      rewardsAddress: zeroAddress,
+      managerAddress: zeroAddress,
+      extendedManagerPermissions: false,
+      referrer: zeroAddress,
+    });
+
+    const receipt = await client?.waitForTransactionReceipt({
+      hash: result.hash,
+    });
+
+    if (!receipt || receipt.status === 'reverted') {
+      throw new Error('Transaction failed');
+    }
+
+    const nodeOperatorId = result.result?.nodeOperatorId;
+    // console.log('🚀 ~ addNodeOperator ~ nodeOperatorId:', nodeOperatorId);
+
+    return {
+      receipt,
+      nodeOperatorId,
+    };
+  };
+
+  return {
+    addNodeOperator,
+  };
+};
+
+export const useLidoSDKAddKeys = () => {
+  const client = usePublicClient();
+  const { csm } = useLidoSDK();
+
+  const addKeys = async (
+    depositData: DepositDataKey[],
+    nodeOperatorId: number,
+    needAmount: bigint
+  ) => {
+    const result = await csm.keys.addKeys({
+      nodeOperatorId: BigInt(nodeOperatorId),
+      token: TOKENS.eth,
+      amount: needAmount,
+      depositData,
+    });
+
+    const receipt = await client?.waitForTransactionReceipt({
+      hash: result.hash,
+    });
+
+    if (!receipt || receipt.status === 'reverted') {
+      throw new Error('Transaction failed');
+    }
+
+    return receipt;
+  };
+
+  return {
+    addKeys,
   };
 };

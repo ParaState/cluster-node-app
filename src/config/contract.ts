@@ -7,6 +7,7 @@ import SafeStakeNetworkV4Abi from '@/abis/SafeStakeNetworkV4';
 import SafeStakeRegistryV3Abi from '@/abis/SafeStakeRegistryV3';
 import SafeStakeClusterNodeAbi from '@/abis/SafeStakeClusterNode';
 import SafeStakeOperatorConfigAbi from '@/abis/SafeStakeOperatorConfig';
+// import PermissionlessGateAbi from '@/abis/lido/PermissionlessGate.json';
 
 export const erc20Contract = {
   abi: erc20Abi,
@@ -42,3 +43,8 @@ export const csmAccountingContract = {
   abi: CSAccountingAbi,
   address: config.contractAddress.csmAccounting,
 } as const;
+
+// export const csmPermissionlessGateContract = {
+//   abi: PermissionlessGateAbi,
+//   address: config.contractAddress.csmPermissionlessGate,
+// } as const;
