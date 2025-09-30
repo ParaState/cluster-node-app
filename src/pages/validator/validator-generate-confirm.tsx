@@ -123,7 +123,8 @@ export default function ValidatorGenerateConfirmPage() {
         generateValidatorInfo.validatorCount,
         generateValidatorInfo.operatorIds,
         parseEther('32'),
-        generateValidatorInfo.withdrawalAddress as `0x${string}`
+        generateValidatorInfo.withdrawalAddress as `0x${string}`,
+        currentFee
       );
 
       router.push(config.routes.validator.getValidatorPollingTx(receipt?.transactionHash));
@@ -139,12 +140,12 @@ export default function ValidatorGenerateConfirmPage() {
     return <LoadingScreen />;
   }
 
-  console.log(clusterNodeFeeTokenInfo);
+  // console.log(clusterNodeFeeTokenInfo);
 
   const steps = [
     {
       label: clusterNodeFeeTokenInfo.isNativeToken
-        ? 'Confirm Subscription Fee'
+        ? 'Confirm Generation Fee'
         : `Approve ${clusterNodeFeeTokenInfo.symbol}`,
       render: () => {
         return (
@@ -165,7 +166,7 @@ export default function ValidatorGenerateConfirmPage() {
               width={1}
             >
               <Typography variant="body1" color="text.primary">
-                ≈ {formatEtherWithIntl(currentFee)}
+                ≈ {formatEtherWithIntl(currentFee)} {clusterNodeFeeTokenInfo.symbol}
               </Typography>
             </Stack>
 

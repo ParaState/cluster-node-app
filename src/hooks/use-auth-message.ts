@@ -30,6 +30,7 @@ export function useAuthMessage() {
         hash: hashMessage(message),
         signature,
       });
+      console.log('🚀 ~ signAuthMessage ~ publicKey:', publicKey);
 
       setOwnerInfo({
         owner: address!,

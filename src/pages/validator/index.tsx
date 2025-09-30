@@ -39,52 +39,59 @@ export default function ValidatorHomePage() {
           the SafeStake Network
         </Typography>
         <Grid container spacing={2} py={4} justifyContent="center">
-          <Grid item xs={12} md={4}>
-            <CommonCard
-              title={
-                <>
-                  {/* <Typography variant="caption" color="white" fontSize={18} fontWeight={700}>
+          {isLidoCSMWithdrawalAddress() && (
+            <Grid item xs={12} md={4}>
+              <CommonCard
+                title={
+                  <>
+                    {/* <Typography variant="caption" color="white" fontSize={18} fontWeight={700}>
                     Recommended:{' '}
                   </Typography> */}
-                  <Typography variant="body1" color="white" fontSize={18} fontWeight={600}>
-                    Participate in the Lido on Ethereum protocol as Node Operators.
-                  </Typography>
-                </>
-              }
-              sx={{
-                backgroundColor: 'primary.main',
-              }}
-            >
-              <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
-                <CardButton
-                  isLoading={result.isLoading}
-                  text="Using Lido CSM"
-                  width={210}
-                  onClick={async () => {
-                    const isAddressUsedByOperator = result.data;
+                    <Typography variant="body1" color="white" fontSize={18} fontWeight={600}>
+                      Participate in the Lido on Ethereum protocol as Node Operators.
+                    </Typography>
+                  </>
+                }
+                sx={{
+                  backgroundColor: 'primary.main',
+                }}
+              >
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <CardButton
+                    isLoading={result.isLoading}
+                    text="Using Lido CSM"
+                    width={210}
+                    onClick={async () => {
+                      const isAddressUsedByOperator = result.data;
 
-                    if (isAddressUsedByOperator) {
-                      enqueueSnackbar(
-                        'You have already registered operator, you cannot register validator',
-                        {
-                          variant: 'error',
-                        }
-                      );
-                    } else {
-                      resetAll();
-                      router.push(config.routes.validator.lidoCsmRegistration);
-                    }
-                  }}
-                />
-                <Iconify
-                  width={42}
-                  height={42}
-                  icon="fluent:arrow-up-circle-16-regular"
-                  color="white"
-                />
-              </Stack>
-            </CommonCard>
-          </Grid>
+                      if (isAddressUsedByOperator) {
+                        enqueueSnackbar(
+                          'You have already registered operator, you cannot register validator',
+                          {
+                            variant: 'error',
+                          }
+                        );
+                      } else {
+                        resetAll();
+                        router.push(config.routes.validator.lidoCsmRegistration);
+                      }
+                    }}
+                  />
+                  <Iconify
+                    width={42}
+                    height={42}
+                    icon="fluent:arrow-up-circle-16-regular"
+                    color="white"
+                  />
+                </Stack>
+              </CommonCard>
+            </Grid>
+          )}
 
           {!isLidoCSMWithdrawalAddress() && (
             <Grid item xs={12} md={4}>

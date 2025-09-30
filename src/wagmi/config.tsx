@@ -1,4 +1,3 @@
-import { http } from 'viem';
 import { hoodi, mainnet } from '@reown/appkit/networks';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
@@ -18,9 +17,8 @@ export const appkitMetadata = {
 const hoodiWithRpc = {
   ...hoodi,
   rpcUrls: {
-    default: { http: ['https://0xrpc.io/hoodi'] },
+    default: { http: ['https://0xrpc.io/hoodi', 'https://rpc.hoodi.ethpandaops.io'] },
   },
-  transport: http('https://0xrpc.io/hoodi'),
 };
 
 export const wagmiNetworks = config.networkId === mainnet.id ? [mainnet] : [hoodiWithRpc];

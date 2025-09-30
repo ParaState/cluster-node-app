@@ -302,7 +302,7 @@ const SafeStakeClusterNodeAbi = [
     ],
     name: 'generateDepositData',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'payable',
     type: 'function',
   },
   {
@@ -325,7 +325,7 @@ const SafeStakeClusterNodeAbi = [
     ],
     name: 'generateExitData',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'payable',
     type: 'function',
   },
   {

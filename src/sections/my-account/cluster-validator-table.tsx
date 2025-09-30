@@ -45,6 +45,7 @@ import {
   IRequestCommonPagination,
   IRequestValidatorActionEnum,
   IResponseValidatorStatusEnum,
+  IResponseValidatorDepositData,
   IResponseClusterNodeValidatorItem,
 } from '@/types';
 
@@ -210,6 +211,33 @@ export function ClusterValidatorTable({
     return status === value;
   };
 
+  const checkWithdrawalCredentialsIsSame = () => {
+    const depositData: IResponseValidatorDepositData[] = selectedRow.map((v) =>
+      JSON.parse(v.deposit_data)
+    );
+
+    if (depositData.length === 0) {
+      return true;
+    }
+
+    const set = new Set();
+
+    depositData.forEach((row) => {
+      set.add(row.withdrawal_credentials);
+    });
+
+    const isSame = set.size === 1;
+
+    if (!isSame) {
+      enqueueSnackbar(
+        'The withdrawal credentials in the deposit data must be the same for all selected validators. Please ensure all selected validators use identical withdrawal credentials before proceeding.',
+        { variant: 'error' }
+      );
+    }
+
+    return isSame;
+  };
+
   const handleDepositETH = async () => {
     try {
       depositLoading.onTrue();
@@ -217,14 +245,14 @@ export function ClusterValidatorTable({
       // 2. https://holesky.launchpad.ethereum.org/en/
       const isAllRegistered = checkStatus(IResponseValidatorStatusEnum.registered);
 
+      if (!checkWithdrawalCredentialsIsSame()) {
+        return;
+      }
+
       if (!isAllRegistered) {
         handleToastStatus(IResponseValidatorStatusEnum.registered);
         return;
       }
-
-      // TODO: REMOVE
-      // setSelectedValidator(selectedRow);
-      // router.push(config.routes.validator.home);
 
       const results = await services.beaconcha.getValidatorsByGroup([
         ...selectedRow.map((v) => v.pubkey),
@@ -295,6 +323,10 @@ export function ClusterValidatorTable({
   const handleRunValidator = async () => {
     try {
       runValidatorLoading.onTrue();
+
+      if (!checkWithdrawalCredentialsIsSame()) {
+        return;
+      }
 
       console.log(selectedRow);
       const { registered, notRegistered } = await filterValidatorIsRegistered(selectedRow);
@@ -392,7 +424,14 @@ export function ClusterValidatorTable({
               variant="soft"
               color="inherit"
               loading={depositLoading.value}
-              onClick={handleDepositETH}
+              onClick={() => {
+                // const row = selectedRow[0];
+                // row.deposit_data =
+                //   '{"pubkey":"b98377b277d1aa0c045369be9643754277b4b0a2b545315ac63499a88e013872bb34da0861422e876eaa493c4310a183","withdrawal_credentials":"0100000000000000000000004473dcddbf77679a643bdb654dbd86d67f8d32f2","amount":32000000000,"signature":"83f3df8c78d8e153e25fbe91160263e7127f739b9a33a24e8f7b710bcab9e4e0b101cf52f4418a7aba73e93c77e99af112300e327662aecec9fd35e16cb66124dbb6f90b0379f4ead08153327ff98fe96c0af9cbb514c56b394a013e4e4e895a","fork_version":"10000910","network_name":"hoodi","deposit_message_root":"418454205310bdf2b6375b6eaf40557e91e6244f486b789a85851bd4031eb4da","deposit_data_root":"55c77697660b95661b09a73b07b5d9108c8be5c68fad78a573fbd6edd98f6751","deposit_cli_version":"SafeSake Operator v4.0"}';
+                // setSelectedRow([row]);
+
+                handleDepositETH();
+              }}
               disabled={selectedRow.length === 0}
             >
               Deposit ETH

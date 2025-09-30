@@ -33,9 +33,9 @@ import { useRouter } from '@/routes/hooks';
 import { useBoolean } from '@/hooks/use-boolean';
 import { useOperatorLidoCSMList } from '@/hooks/api/operator/use-operator-list';
 import {
+  useLidoSDKAddKeys,
   useGetNodeOperator,
-  useAddNodeOperatorETH,
-  useAddValidatorKeysETH,
+  useLidoSDKAddNodeOperator,
   useGetRequiredBondForNextKeys,
 } from '@/hooks/contract';
 
@@ -94,8 +94,9 @@ export default function LidoCSMRegistrationPage() {
   const [bondValues, setBondValues] = useState<bigint[]>([]);
 
   const { getRequiredBondForNextKeys, getBondAmountByKeysCount } = useGetRequiredBondForNextKeys();
-  const { addValidatorKeysETH } = useAddValidatorKeysETH();
-  const { addNodeOperatorETH, decodeNodeOperatorAddedEvent } = useAddNodeOperatorETH();
+  // const { addValidatorKeysETH } = useAddValidatorKeysETH();
+  const { addNodeOperator } = useLidoSDKAddNodeOperator();
+  const { addKeys } = useLidoSDKAddKeys();
 
   const [publicKeyOpens, setPublicKeyOpens] = useState<boolean[]>(
     clusterNodeValidatorsGrouped.map(() => false)
@@ -240,29 +241,50 @@ export default function LidoCSMRegistrationPage() {
         JSON.parse(v.deposit_data)
       );
 
-      const keysCount = depositData.length;
-      const publicKeys = `0x${depositData.map((deposit) => deposit.pubkey).join('')}`;
-      const signatures = `0x${depositData.map((deposit) => deposit.signature).join('')}`;
+      // const keysCount = depositData.length;
+      // const publicKeys = `0x${depositData.map((deposit) => deposit.pubkey).join('')}`;
+      // const signatures = `0x${depositData.map((deposit) => deposit.signature).join('')}`;
 
       let receipt: TransactionReceipt | undefined;
 
       if (!nodeOperatorId) {
-        receipt = await addNodeOperatorETH(keysCount, publicKeys, signatures, bondValue);
+        // receipt = await addNodeOperatorETH(keysCount, publicKeys, signatures, bondValue);
+        const depositDataKeys = depositData.map((deposit) => {
+          return {
+            pubkey: deposit.pubkey,
+            signature: deposit.signature,
+          };
+        });
 
-        const nodeOperatorAddedEvent = decodeNodeOperatorAddedEvent(receipt);
-        console.log('🚀 ~ onTestClick ~ nodeOperatorAddedEvent:', nodeOperatorAddedEvent);
+        const result = await addNodeOperator(depositDataKeys, bondValue);
 
-        if (nodeOperatorAddedEvent?.nodeOperatorId) {
-          setNodeOperatorId(nodeOperatorAddedEvent?.nodeOperatorId);
+        // eslint-disable-next-line prefer-destructuring
+        receipt = result.receipt;
+
+        if (result.nodeOperatorId) {
+          setNodeOperatorId(Number(result.nodeOperatorId.toString()));
         }
+
+        // const nodeOperatorAddedEvent = decodeNodeOperatorAddedEvent(receipt);
+        // console.log('🚀 ~ onTestClick ~ nodeOperatorAddedEvent:', nodeOperatorAddedEvent);
+
+        // if (nodeOperatorAddedEvent?.nodeOperatorId) {
+        //   setNodeOperatorId(nodeOperatorAddedEvent?.nodeOperatorId);
+        // }
       } else {
-        receipt = await addValidatorKeysETH(
-          +nodeOperatorId,
-          keysCount,
-          publicKeys,
-          signatures,
-          bondValue
-        );
+        // receipt = await addValidatorKeysETH(
+        //   address!,
+        //   +nodeOperatorId,
+        //   keysCount,
+        //   publicKeys,
+        //   signatures,
+        //   bondValue
+        // );
+
+        const result = await addKeys(depositData, +nodeOperatorId, bondValue);
+
+        // eslint-disable-next-line prefer-destructuring
+        receipt = result;
       }
 
       const body = currentGroupValidators.map((v) => ({

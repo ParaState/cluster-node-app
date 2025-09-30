@@ -81,12 +81,12 @@ export const GlobalConfigInit = () => {
     functionName: '_token',
   });
 
-  console.log(
-    '🚀 ~ GlobalConfigInit ~ readClusterNodeFeeTokenAddress:',
-    readClusterNodeFeeTokenAddress.data,
-    readFeeTokenAddress.data,
-    !!readFeeTokenAddress.data
-  );
+  // console.log(
+  //   '🚀 ~ GlobalConfigInit ~ readClusterNodeFeeTokenAddress:',
+  //   readClusterNodeFeeTokenAddress.data,
+  //   readFeeTokenAddress.data,
+  //   !!readFeeTokenAddress.data
+  // );
 
   const clusterNodeFeeTokenResult = useReadContracts({
     contracts: readClusterNodeFeeTokenAddress.data

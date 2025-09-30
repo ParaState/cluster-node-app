@@ -312,7 +312,7 @@ export default function ValidatorClusterConfirmPage() {
                       disableRipple
                       onClick={() => {
                         if (tokenInfo.isNativeToken) {
-                          setActiveStep(1);
+                          handleNext();
                           return;
                         }
 

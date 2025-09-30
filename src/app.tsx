@@ -11,6 +11,8 @@ import { MotionLazy } from '@/components/animate/motion-lazy';
 import { GlobalConfigInit } from '@/components/global-config-init';
 import { SettingsDrawer, SettingsProvider } from '@/components/settings';
 
+import { LidoSDKProvider } from './wagmi/lido-sdk';
+
 export default function App() {
   useScrollToTop();
 
@@ -26,16 +28,18 @@ export default function App() {
       }}
     >
       <ContextProvider>
-        <ThemeProvider>
-          <MotionLazy>
-            <SnackbarProvider>
-              <SettingsDrawer />
-              <ProgressBar />
-              <Router />
-              <GlobalConfigInit />
-            </SnackbarProvider>
-          </MotionLazy>
-        </ThemeProvider>
+        <LidoSDKProvider>
+          <ThemeProvider>
+            <MotionLazy>
+              <SnackbarProvider>
+                <SettingsDrawer />
+                <ProgressBar />
+                <Router />
+                <GlobalConfigInit />
+              </SnackbarProvider>
+            </MotionLazy>
+          </ThemeProvider>
+        </LidoSDKProvider>
       </ContextProvider>
     </SettingsProvider>
   );

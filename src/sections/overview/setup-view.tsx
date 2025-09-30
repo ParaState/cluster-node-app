@@ -1,17 +1,18 @@
+import { useState } from 'react';
 import { AxiosError } from 'axios';
+import { useAccount } from 'wagmi';
 import { useSnackbar } from 'notistack';
-import { useState, useEffect } from 'react';
 
+import Stack from '@mui/material/Stack';
+import Container from '@mui/material/Container';
 import LoadingButton from '@mui/lab/LoadingButton';
 import {
   Box,
   Card,
   Step,
-  Stack,
   Button,
   Stepper,
   StepLabel,
-  Container,
   Typography,
   StepContent,
 } from '@mui/material';
@@ -20,11 +21,11 @@ import { useRouter } from '@/routes/hooks';
 
 import { useClusterNode } from '@/hooks/contract/cluster-node';
 
+import services from '@/services';
 import { config } from '@/config';
 import { useBoolean, useStepper } from '@/hooks';
 import { HEADER } from '@/layouts/config-layout';
-
-import { useOwnerInfo } from '@/components/global-config-init';
+import { IResponseInitiatorStatus, IResponseInitiatorStatusEnum } from '@/types';
 
 // const CircleBox = styled(Box)(({ theme }) => ({
 //   width: 24,
@@ -95,64 +96,60 @@ export default function SetUpView() {
 
   const serviceCheckLoading = useBoolean();
 
+  const { address } = useAccount();
+
   const registerClusterNodeLoading = useBoolean();
 
   const { getClusterNode, registerClusterNode } = useClusterNode();
 
-  const [clusterNode, setClusterNode] = useState<Awaited<ReturnType<typeof getClusterNode>>>();
+  // const [clusterNode, setClusterNode] = useState<Awaited<ReturnType<typeof getClusterNode>>>();
 
-  // const [initiatorStatus, setInitiatorStatus] = useState<IResponseInitiatorStatus>();
+  const [initiatorStatus, setInitiatorStatus] = useState<IResponseInitiatorStatus>();
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { ownerInfo } = useOwnerInfo();
-
-  // const serviceOk = useBoolean(false);
+  const serviceOk = useBoolean(false);
 
   const stepper = useStepper();
 
-  // const getInitiatorStatus = async () => {
-  //   try {
-  //     // setServiceErrorText('');
+  const getInitiatorStatus = async () => {
+    try {
+      // setServiceErrorText('');
 
-  //     const result = await services.clusterNode.getInitiatorStatus();
-  //     setInitiatorStatus(result);
-  //     serviceOk.onTrue();
-  //     return result;
-  //   } catch (error) {
-  //     if (error?.data?.code === 1001) {
-  //       enqueueSnackbar(
-  //         `Please set cluster node service first. Error Message: ${error.data.message}`,
-  //         { variant: 'error' }
-  //       );
-  //     }
+      const result = await services.clusterNode.getInitiatorStatus();
+      setInitiatorStatus(result);
+      serviceOk.onTrue();
+      return result;
+    } catch (error) {
+      if (error?.data?.code === 1001) {
+        enqueueSnackbar(
+          `Please set cluster node service first. Error Message: ${error.data.message}`,
+          { variant: 'error' }
+        );
+      }
 
-  //     if (error instanceof AxiosError) {
-  //       if (error?.status && error?.status >= 400 && error?.status < 599) {
-  //         enqueueSnackbar(`Server error: ${error.status}, please set cluster node service first.`, {
-  //           variant: 'error',
-  //         });
-  //       }
-  //     }
-  //     serviceOk.onFalse();
-  //     console.error('Error fetching cluster node:', error);
-  //     throw error;
-  //   }
-  // };
-
-  useEffect(() => {
-    fetchClusterNode(false);
-  }, []);
+      if (error instanceof AxiosError) {
+        if (error?.status && error?.status >= 400 && error?.status < 599) {
+          enqueueSnackbar(`Server error: ${error.status}, please set cluster node service first.`, {
+            variant: 'error',
+          });
+        }
+      }
+      serviceOk.onFalse();
+      console.error('Error fetching cluster node:', error);
+      throw error;
+    }
+  };
 
   const fetchClusterNode = async (goNext: boolean = true) => {
-    const { pubkey } = ownerInfo;
     try {
       serviceCheckLoading.onTrue();
 
-      // const result = await getInitiatorStatus();
+      const result = await getInitiatorStatus();
 
-      const node = await getClusterNode(pubkey!);
-      setClusterNode(node);
+      const node = await getClusterNode(result?.cluster_pubkey!);
+      console.log(node);
+      // setClusterNode(node);
 
       if (goNext) {
         stepper.handleNext();
@@ -180,60 +177,62 @@ export default function SetUpView() {
   };
 
   const registerClusterNodeClick = async () => {
-    const { pubkey } = ownerInfo;
+    const pubkey = initiatorStatus?.cluster_pubkey;
 
     if (!pubkey) {
-      enqueueSnackbar('Please sign message first', { variant: 'error' });
+      enqueueSnackbar('Please wait service ready first', { variant: 'error' });
       return;
     }
 
     try {
       registerClusterNodeLoading.onTrue();
-      if (!clusterNode?.isRegistered) {
+      const node = await getClusterNode(pubkey!);
+      // setClusterNode(node);
+
+      if (!node?.isRegistered) {
         await registerClusterNode(pubkey!);
       }
 
-      // if (!initiatorStatus?.owner) {
-      //   await bindInitiatorOwner();
-      //   return;
-      // }
+      if (!initiatorStatus?.owner) {
+        await bindInitiatorOwner();
+        return;
+      }
 
       await fetchClusterNode();
     } catch (error) {
-      enqueueSnackbar('Register cluster node failed', { variant: 'error' });
       console.error('Error registering cluster node:', error);
     } finally {
       registerClusterNodeLoading.onFalse();
     }
   };
 
-  // const bindInitiatorOwner = async () => {
-  //   if (initiatorStatus?.owner) {
-  //     enqueueSnackbar(`Initiator already have owner, address: ${initiatorStatus?.owner}`, {
-  //       variant: 'warning',
-  //     });
-  //     return;
-  //   }
+  const bindInitiatorOwner = async () => {
+    // if (initiatorStatus?.owner) {
+    //   enqueueSnackbar(`Initiator already have owner, address: ${initiatorStatus?.owner}`, {
+    //     variant: 'warning',
+    //   });
+    //   return;
+    // }
 
-  //   if (initiatorStatus?.status !== 'Ready') {
-  //     enqueueSnackbar(
-  //       `Please wait for initiator status to be ready, status: ${initiatorStatus?.status}`,
-  //       {
-  //         variant: 'warning',
-  //       }
-  //     );
-  //     await fetchClusterNode(false);
-  //     return;
-  //   }
+    if (initiatorStatus?.status !== IResponseInitiatorStatusEnum.ready) {
+      enqueueSnackbar(
+        `Please wait for initiator status to be ready, status: ${initiatorStatus?.status}`,
+        {
+          variant: 'warning',
+        }
+      );
+      await fetchClusterNode(false);
+      return;
+    }
 
-  //   try {
-  //     await services.clusterNode.bindInitiatorOwner(address!);
-  //     enqueueSnackbar('Bind initiator owner success', { variant: 'success' });
-  //     await fetchClusterNode();
-  //   } catch (error) {
-  //     console.error('Error binding initiator owner:', error);
-  //   }
-  // };
+    try {
+      await services.clusterNode.bindInitiatorOwner(address!);
+      enqueueSnackbar('Bind initiator owner success', { variant: 'success' });
+      await fetchClusterNode();
+    } catch (error) {
+      console.error('Error binding initiator owner:', error);
+    }
+  };
 
   const goToSelectOperators = () => {
     // if (!initiatorStatus?.owner) {
@@ -251,15 +250,15 @@ export default function SetUpView() {
     //   return;
     // }
 
-    // if (initiatorStatus?.status !== IResponseInitiatorStatusEnum.completed) {
-    //   enqueueSnackbar(
-    //     `Please wait for initiator status to be completed, status: ${initiatorStatus?.status}`,
-    //     {
-    //       variant: 'warning',
-    //     }
-    //   );
-    //   return;
-    // }
+    if (initiatorStatus?.status !== IResponseInitiatorStatusEnum.completed) {
+      enqueueSnackbar(
+        `Please wait for initiator status to be completed, status: ${initiatorStatus?.status}`,
+        {
+          variant: 'warning',
+        }
+      );
+      return;
+    }
 
     router.push(config.routes.validator.selectOperators);
   };
@@ -307,7 +306,7 @@ export default function SetUpView() {
 
         <Card sx={{ p: 3, py: 4, minWidth: 660 }}>
           <Stepper activeStep={stepper.activeStep} orientation="vertical">
-            {/* <Step>
+            <Step>
               <StepLabel>
                 <Typography variant="h6" fontSize={20}>
                   Service Status Check
@@ -327,7 +326,7 @@ export default function SetUpView() {
                   </LoadingButton>
                 </Stack>
               </StepContent>
-            </Step> */}
+            </Step>
 
             <Step>
               <StepLabel>
@@ -337,7 +336,6 @@ export default function SetUpView() {
               </StepLabel>
               <StepContent>
                 <Typography maxWidth={600}>
-                  {/* Register cluster node into contract and bind your initiator owner with address */}
                   Register your public key into cluster node contract
                 </Typography>
                 <Stack direction="row" spacing={1} mt={2}>
@@ -348,9 +346,13 @@ export default function SetUpView() {
                   >
                     Continue
                   </LoadingButton>
-                  {/* <Button onClick={stepper.handleBack} variant="outlined">
+                  <Button
+                    onClick={stepper.handleBack}
+                    variant="outlined"
+                    disabled={registerClusterNodeLoading.value}
+                  >
                     Back
-                  </Button> */}
+                  </Button>
                 </Stack>
               </StepContent>
             </Step>
