@@ -49,10 +49,10 @@ import { useSelectedOperators, useGenerateValidatorInfo } from '@/stores';
 
 import Iconify from '@/components/iconify';
 import Scrollbar from '@/components/scrollbar';
-import { CommonBack } from '@/components/common';
 import { StyledTableCell } from '@/components/table';
 import { OperatorTypeFilter } from '@/components/operator';
 import { OperatorInfo } from '@/components/operator/operator-info';
+import { CommonBack, CommonStatusLabel } from '@/components/common';
 import FormProvider, { RHFTextField } from '@/components/hook-form';
 import { OperatorCommitteeSizeSelector } from '@/components/operator/operator-committee-size-selector';
 
@@ -314,6 +314,8 @@ export default function ValidatorSelectorOperatorsPage() {
                       </Stack>
                     </StyledTableCell>
 
+                    <StyledTableCell align="center">Status</StyledTableCell>
+
                     <StyledTableCell
                       align="center"
                       onClick={() => onClickSortId('validator_count')}
@@ -401,6 +403,9 @@ export default function ValidatorSelectorOperatorsPage() {
                             <OperatorInfo operator={row} />
                           </TableCell>
                           <TableCell align="center">{row.id}</TableCell>
+                          <TableCell align="center">
+                            <CommonStatusLabel status={row.status} />
+                          </TableCell>
                           <TableCell align="center">{row.validator_count}</TableCell>
                           <TableCell align="center">{formatVersion(row.last_version)}</TableCell>
                           <TableCell align="center">
