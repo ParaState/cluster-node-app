@@ -53,9 +53,6 @@ importers:
       apexcharts:
         specifier: ^4.1.0
         version: 4.1.0
-      autosuggest-highlight:
-        specifier: ^3.3.4
-        version: 3.3.4
       axios:
         specifier: ^1.6.2
         version: 1.7.9
@@ -71,9 +68,6 @@ importers:
       elliptic:
         specifier: ^6.5.4
         version: 6.6.1
-      ethereumjs-util:
-        specifier: ^7.0.10
-        version: 7.1.5
       ethereumjs-wallet:
         specifier: ^1.0.1
         version: 1.0.2
@@ -165,9 +159,6 @@ importers:
         specifier: 3.21.4
         version: 3.21.4
     devDependencies:
-      '@types/autosuggest-highlight':
-        specifier: ^3.2.3
-        version: 3.2.3
       '@types/lodash':
         specifier: ^4.14.202
         version: 4.17.13
@@ -1516,9 +1507,6 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  '@types/autosuggest-highlight@3.2.3':
-    resolution: {integrity: sha512-8Mb21KWtpn6PvRQXjsKhrXIcxbSloGqNH50RntwGeJsGPW4xvNhfml+3kKulaKpO/7pgZfOmzsJz7VbepArlGQ==}
-
   '@types/bn.js@5.1.6':
     resolution: {integrity: sha512-Xh8vSwUeMKeYYrj3cX4lGQgFSF/N03r+tv4AiLl1SucqV+uTQpxRcnM8AkXKHwYP9ZPXOYXRr2KPXpVlIvqh9w==}
 
@@ -1956,9 +1944,6 @@ packages:
   attr-accept@2.2.5:
     resolution: {integrity: sha512-0bDNnY/u6pPwHDMoF0FieU354oBi0a8rD9FcsLwzcGWbc8KS8KPIi7y+s13OlVY+gMWc/9xEMUgNE6Qm8ZllYQ==}
     engines: {node: '>=4'}
-
-  autosuggest-highlight@3.3.4:
-    resolution: {integrity: sha512-j6RETBD2xYnrVcoV1S5R4t3WxOlWZKyDQjkwnggDPSjF5L4jV98ZltBpvPvbkM1HtoSe5o+bNrTHyjPbieGeYA==}
 
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
@@ -3877,9 +3862,6 @@ packages:
   regexp.prototype.flags@1.5.3:
     resolution: {integrity: sha512-vqlC04+RQoFalODCbCumG2xIOvapzVMHwsyIGM/SIE8fRhFFsXeH8/QQ+s0T0kDAhKc4k30s73/0ydkHQz6HlQ==}
     engines: {node: '>= 0.4'}
-
-  remove-accents@0.4.4:
-    resolution: {integrity: sha512-EpFcOa/ISetVHEXqu+VwI96KZBmq+a8LJnGkaeFw45epGlxIZz5dhEEnNZMsQXgORu3qaMoLX4qJCzOik6ytAg==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -6223,8 +6205,6 @@ snapshots:
       '@tanstack/query-core': 5.62.3
       react: 18.3.1
 
-  '@types/autosuggest-highlight@3.2.3': {}
-
   '@types/bn.js@5.1.6':
     dependencies:
       '@types/node': 20.17.9
@@ -7367,10 +7347,6 @@ snapshots:
   atomic-sleep@1.0.0: {}
 
   attr-accept@2.2.5: {}
-
-  autosuggest-highlight@3.3.4:
-    dependencies:
-      remove-accents: 0.4.4
 
   available-typed-arrays@1.0.7:
     dependencies:
@@ -9629,8 +9605,6 @@ snapshots:
       define-properties: 1.2.1
       es-errors: 1.3.0
       set-function-name: 2.0.2
-
-  remove-accents@0.4.4: {}
 
   require-directory@2.1.1: {}
 

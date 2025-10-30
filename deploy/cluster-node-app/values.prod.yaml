@@ -40,12 +40,6 @@ service:
   type: ClusterIP
   port: 80
 
-ingressApiRewrite:
-  enabled: true
-  path: /(api/.*)
-  service_name: safestake-backend-node-v2
-  service_port: "80"
-
 ingress:
   enabled: true
   className: "nginx"
@@ -54,7 +48,7 @@ ingress:
     # kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$1
   hosts:
-    - host: eth.safestake.xyz
+    - host: clusternode.safestake.xyz
       paths:
         - path: /(.*)
           pathType: ImplementationSpecific
