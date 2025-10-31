@@ -44,7 +44,7 @@ import { parseVersion, formatVersion, isVersionUnknown } from '@/utils/format';
 import { config } from '@/config';
 import services from '@/services';
 import { useBoolean } from '@/hooks';
-import { SortTypeEnum } from '@/types';
+import { SortTypeEnum, IResponseOperatorStatusEnum } from '@/types';
 import { useSelectedOperators, useGenerateValidatorInfo } from '@/stores';
 
 import Iconify from '@/components/iconify';
@@ -378,6 +378,16 @@ export default function ValidatorSelectorOperatorsPage() {
                                   variant: 'error',
                                 });
                               }
+                            }
+
+                            if (row.status === IResponseOperatorStatusEnum.inactive) {
+                              enqueueSnackbar(
+                                'Operator is inactive, please select another operator',
+                                {
+                                  variant: 'error',
+                                }
+                              );
+                              return;
                             }
 
                             handleSelectOperator(row);
